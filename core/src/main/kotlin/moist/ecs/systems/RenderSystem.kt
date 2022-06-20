@@ -4,16 +4,26 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.physics.box2d.Body
 import ktx.ashley.allOf
 import ktx.graphics.use
 import moist.core.Assets
 import moist.core.GameConstants
+import moist.ecs.components.City
 import moist.ecs.components.RenderType
 import moist.ecs.components.Renderable
 import moist.ecs.components.Tile
 
 fun Entity.tile(): Tile {
     return AshleyMappers.tile.get(this)
+}
+
+fun Entity.body(): Body {
+    return AshleyMappers.box.get(this).body
+}
+
+fun Entity.city(): City {
+    return AshleyMappers.city.get(this)
 }
 
 fun Entity.renderable(): Renderable {
@@ -48,9 +58,10 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        when (entity.renderType()) {
+        when (val renderType = entity.renderType()) {
             RenderType.Sea -> renderSeaEntity(entity, deltaTime)
             RenderType.Sprite -> renderSprite(entity, deltaTime)
+            is RenderType.SelfRender -> renderType.render(batch, deltaTime)
         }
     }
 

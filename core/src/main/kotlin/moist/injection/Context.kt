@@ -7,11 +7,14 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import ktx.box2d.createWorld
 import ktx.inject.Context
 import ktx.inject.register
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
+import moist.ecs.systems.CameraUpdateSystem
+import moist.ecs.systems.PhysicsDebugRendererSystem
 import moist.ecs.systems.RenderSystem
 import moist.ecs.systems.SeaWavesSystem
 
@@ -37,6 +40,7 @@ object Context {
                     inject<OrthographicCamera>() as Camera
                 )
             )
+            bindSingleton(createWorld())
             bindSingleton(Assets(AssetManager()))
             bindSingleton(getEngine())
         }
@@ -44,6 +48,8 @@ object Context {
 
     private fun getEngine(): Engine {
         return PooledEngine().apply {
+            addSystem(CameraUpdateSystem(inject(), inject()))
+            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaWavesSystem())
         }
