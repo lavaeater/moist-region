@@ -50,6 +50,7 @@ object Context {
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem())
             addSystem(ForcesOnCitySystem())
+            addSystem(FishMovementSystem())
 //            addSystem(SeaWavesSystem())
         }
     }

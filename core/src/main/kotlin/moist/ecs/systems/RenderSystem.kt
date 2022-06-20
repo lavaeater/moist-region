@@ -15,11 +15,12 @@ import moist.core.Assets
 import moist.core.GameConstants
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp
-import moist.ecs.components.City
-import moist.ecs.components.RenderType
-import moist.ecs.components.Renderable
-import moist.ecs.components.Tile
+import moist.ecs.components.*
 import moist.world.SeaManager
+
+fun Entity.fish(): Fish {
+    return AshleyMappers.fish.get(this)
+}
 
 fun Entity.body(): Body {
     return AshleyMappers.box.get(this).body

@@ -1,12 +1,10 @@
 package moist.ecs.systems
 
 import ktx.ashley.mapperFor
-import moist.ecs.components.Box
-import moist.ecs.components.City
-import moist.ecs.components.Renderable
-import moist.ecs.components.Tile
+import moist.ecs.components.*
 
 object AshleyMappers {
+    val fish = mapperFor<Fish>()
     val renderable = mapperFor<Renderable>()
     val box = mapperFor<Box>()
     val city = mapperFor<City>()

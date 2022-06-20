@@ -2,7 +2,6 @@ package moist.ecs.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Pool.Poolable
 
 class Box : Component, Poolable {
@@ -17,7 +16,3 @@ class Box : Component, Poolable {
     }
 }
 
-class Fish : Component, Poolable {
-    override fun reset() {
-    }
-}
