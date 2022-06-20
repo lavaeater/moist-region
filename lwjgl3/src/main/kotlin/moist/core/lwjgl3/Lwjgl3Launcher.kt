@@ -10,7 +10,7 @@ import moist.core.MainGame
 fun main() {
     Lwjgl3Application(MainGame(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("moist-region")
-        setWindowedMode(640, 480)
+        setWindowedMode(1280, 960)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
 }

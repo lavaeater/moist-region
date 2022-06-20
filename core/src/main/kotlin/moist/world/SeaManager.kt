@@ -1,10 +1,19 @@
 package moist.world
 
+import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.physics.box2d.World
 import com.sudoplay.joise.mapping.*
 import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
+import ktx.ashley.entity
+import ktx.ashley.with
+import moist.core.GameConstants.MaxTiles
+import moist.ecs.components.RenderType
+import moist.ecs.components.Renderable
+import moist.ecs.components.Tile
+import moist.injection.Context.inject
 
 
 class SeaManager {
@@ -32,13 +41,7 @@ class SeaManager {
 
         }
 
-        fun generate(): Array<Array<Tile>> {
-            val tiles = Array(100) { x ->
-                Array(100) {y ->
-                    Tile(x, y)
-                }
-            }
-
+        fun generate() {
             val basis = ModuleBasisFunction()
             basis.setType(BasisType.SIMPLEX)
             basis.seed = 42
@@ -52,21 +55,32 @@ class SeaManager {
             scaleDomain.setScaleX(4.0)
             scaleDomain.setScaleY(4.0)
 
-
             Mapping.map2DNoZ(
                 MappingMode.SEAMLESS_XY,
-                100,
-                100,
+                MaxTiles,
+                MaxTiles,
                 scaleDomain,
                 MappingRange.DEFAULT,
                 IMapping2DWriter { x, y, value ->
-                    tiles[x][y].depth = value.toFloat()
+                    engine().entity {
+                        with<Renderable> { renderType = RenderType.Sea }
+                        with<Tile> {
+                            this.x = x - MaxTiles / 2
+                            this.y = y - MaxTiles / 2
+                            depth = value.toFloat()
+                            originalDepth = depth
+                        }
+                    }
                 },
                 IMappingUpdateListener.NULL_LISTENER)
-
-            return tiles
         }
     }
 }
 
-data class Tile(val x: Int, val y: Int, val tileSize: Float = 10f, var depth: Float = 0f, var waterTemp: Float = 10f, var airTemp:Float = 15f)
+fun world(): World {
+    return inject()
+}
+
+fun engine(): Engine {
+    return inject()
+}

@@ -9,4 +9,3 @@ class MainGame : KtxGame<KtxScreen>() {
         setScreen<FirstScreen>()
     }
 }
-
