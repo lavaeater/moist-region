@@ -4,11 +4,17 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Body
 import ktx.ashley.allOf
 import ktx.graphics.use
+import ktx.math.plus
+import ktx.math.times
+import ktx.math.vec2
 import moist.core.Assets
 import moist.core.GameConstants
+import moist.core.GameConstants.MaxWaterTemp
+import moist.core.GameConstants.MinWaterTemp
 import moist.ecs.components.City
 import moist.ecs.components.RenderType
 import moist.ecs.components.Renderable
@@ -73,13 +79,19 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         val tile = entity.tile()
         seaColor.b = tile.depth
         seaColor.r = tile.depth / 10f
-        seaColor.g = tile.depth / 2f
+        seaColor.g = MathUtils.norm(MinWaterTemp, MaxWaterTemp, tile.waterTemp)
         shapeDrawer.filledRectangle(
-            tile.x * GameConstants.TileSize,
-            tile.y * GameConstants.TileSize,
+            tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
+            tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,
             GameConstants.TileSize,
             GameConstants.TileSize,
             seaColor
         )
+//
+//        val tileWorldCenter = vec2(
+//            tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
+//            tile.y * GameConstants.TileSize - GameConstants.TileSize / 2)
+//
+//        shapeDrawer.line(tileWorldCenter, tileWorldCenter + tile.currentForce * 1f, Color.BLUE, Color.RED)
     }
 }

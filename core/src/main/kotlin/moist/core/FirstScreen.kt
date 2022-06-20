@@ -11,11 +11,16 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
+import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.math.times
 import ktx.math.vec2
+import moist.core.GameConstants.ControlMagnitude
+import moist.ecs.components.City
 import moist.ecs.components.city
+import moist.ecs.systems.body
 import moist.injection.Context.inject
 import moist.input.KeyPress
 import moist.input.command
@@ -48,8 +53,8 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
 
 
     private val normalCommandMap = command("Normal") {
-        setBoth(Input.Keys.W, "Move Up", { movementVector.y = 0f }, { movementVector.y = -1f })
-        setBoth(Input.Keys.S, "Move Down", { movementVector.y = 0f }, { movementVector.y = 1f })
+        setBoth(Input.Keys.W, "Move Up", { movementVector.y = 0f }, { movementVector.y = 1f })
+        setBoth(Input.Keys.S, "Move Down", { movementVector.y = 0f }, { movementVector.y = -1f })
         setBoth(Input.Keys.A, "Move Left", { movementVector.x = 0f }, { movementVector.x = -1f })
         setBoth(Input.Keys.D, "Move Right", { movementVector.x = 0f }, { movementVector.x = 1f })
         setBoth(Input.Keys.Z, "Zoom out", { cameraZoom = 0f }, { cameraZoom = 1f })
@@ -68,15 +73,12 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         if (needsInit) {
             needsInit = false
             Gdx.app.logLevel = LOG_DEBUG
-            addCity()
             SeaManager.generate()
             Gdx.input.inputProcessor = this
         }
     }
 
-    private fun addCity() {
-        city()
-    }
+    private val city by lazy { city() }
 
     override fun resize(width: Int, height: Int) {
         viewPort.update(width, height)
@@ -97,12 +99,18 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         clearScreen(red = 0.1f, green = 0.1f, blue = 0.7f)
         updatePhysics(delta)
 
-        camera.position.add(movementVector.x * cameraSpeed, movementVector.y * cameraSpeed, 0f)
+        applyMovementForce()
+
         camera.zoom += zoomFactor * cameraZoom
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
 
         engine().update(delta)
+    }
+
+    private fun applyMovementForce() {
+        val cityBody = city.body()
+        cityBody.applyForceToCenter(movementVector * ControlMagnitude, true)
     }
 
     override fun dispose() {

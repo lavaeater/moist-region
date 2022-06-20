@@ -1,6 +1,7 @@
 package moist.world
 
 import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
 import com.sudoplay.joise.mapping.*
 import com.sudoplay.joise.module.ModuleAutoCorrect
@@ -10,6 +11,8 @@ import com.sudoplay.joise.module.ModuleScaleDomain
 import ktx.ashley.entity
 import ktx.ashley.with
 import moist.core.GameConstants.MaxTiles
+import moist.core.GameConstants.MaxWaterTemp
+import moist.core.GameConstants.MinWaterTemp
 import moist.ecs.components.RenderType
 import moist.ecs.components.Renderable
 import moist.ecs.components.Tile
@@ -41,6 +44,12 @@ class SeaManager {
 
         }
 
+        val tiles = Array(MaxTiles) {
+            Array(MaxTiles) {
+                Tile()
+            }
+        }
+
         fun generate() {
             val basis = ModuleBasisFunction()
             basis.setType(BasisType.SIMPLEX)
@@ -55,6 +64,8 @@ class SeaManager {
             scaleDomain.setScaleX(4.0)
             scaleDomain.setScaleY(4.0)
 
+
+
             Mapping.map2DNoZ(
                 MappingMode.SEAMLESS_XY,
                 MaxTiles,
@@ -65,14 +76,43 @@ class SeaManager {
                     engine().entity {
                         with<Renderable> { renderType = RenderType.Sea }
                         with<Tile> {
-                            this.x = x - MaxTiles / 2
-                            this.y = y - MaxTiles / 2
+                            this.x = x
+                            this.y = y
                             depth = value.toFloat()
                             originalDepth = depth
+                            waterTemp = MathUtils.map (0f, 1f, MinWaterTemp, MaxWaterTemp, depth)
+                            tiles[x][y] = this
                         }
                     }
                 },
                 IMappingUpdateListener.NULL_LISTENER)
+
+            for(tile in tiles.flatten()) {
+                for(offsetX in -1..1) {
+                    for(offsetY in -1..1) {
+                        val x = tile.x + offsetX
+                        val y = tile.y + offsetY
+                        if((x > 0 && x < tiles.lastIndex) && (y > 0 && y < tiles.lastIndex) ) {
+                            val n = tiles[x][y]
+                            if(n != tile)
+                                tile.neighbours.add(n)
+                        }
+                    }
+                }
+            }
+
+            for(tile in tiles.flatten()) {
+                val target = tile.neighbours.minByOrNull { it.waterTemp }!!
+                if(target.waterTemp < tile.waterTemp) {
+                    /*
+                    Now we create a force vector pointing towards the target, and
+                    also, the magnitude depends on the difference, maybe
+                     */
+                    tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat())
+                } else {
+                    tile.currentForce.setZero()
+                }
+            }
         }
     }
 }

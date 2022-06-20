@@ -15,6 +15,8 @@ import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
 import moist.core.Assets
+import moist.core.GameConstants.MaxTiles
+import moist.core.GameConstants.TileSize
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context.inject
@@ -47,18 +49,18 @@ class CameraFollow: Component, Poolable {
     }
 }
 
-fun city(){
-    engine().entity {
+fun city() : Entity {
+    return engine().entity {
         with<Box> {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
-                position.set(0f, 0f)
-                linearDamping = 5f
+                position.set((MaxTiles / 2) * TileSize, (MaxTiles / 2) * TileSize)
+//                linearDamping = 5f
                 circle(1f) {
-                    friction = 10f //Tune
-                    density = 1f //tune
-                    restitution = 0.9f
+//                    friction = 10f //Tune
+ //                   density = 1f //tune
+//                    restitution = 0.9f
                 }
             }
         }

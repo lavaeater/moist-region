@@ -13,10 +13,7 @@ import ktx.inject.register
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
-import moist.ecs.systems.CameraUpdateSystem
-import moist.ecs.systems.PhysicsDebugRendererSystem
-import moist.ecs.systems.RenderSystem
-import moist.ecs.systems.SeaWavesSystem
+import moist.ecs.systems.*
 
 object Context {
     val context = Context()
@@ -51,7 +48,9 @@ object Context {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
-            addSystem(SeaWavesSystem())
+            addSystem(SeaCurrentSystem())
+            addSystem(ForcesOnCitySystem())
+//            addSystem(SeaWavesSystem())
         }
     }
 }
