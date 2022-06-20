@@ -19,10 +19,7 @@ import moist.ecs.components.City
 import moist.ecs.components.RenderType
 import moist.ecs.components.Renderable
 import moist.ecs.components.Tile
-
-fun Entity.tile(): Tile {
-    return AshleyMappers.tile.get(this)
-}
+import moist.world.SeaManager
 
 fun Entity.body(): Body {
     return AshleyMappers.box.get(this).body
@@ -59,13 +56,14 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
     override fun update(deltaTime: Float) {
         batch.use {
+            renderSea(deltaTime)
+
             super.update(deltaTime)
         }
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         when (val renderType = entity.renderType()) {
-            RenderType.Sea -> renderSeaEntity(entity, deltaTime)
             RenderType.Sprite -> renderSprite(entity, deltaTime)
             is RenderType.SelfRender -> renderType.render(batch, deltaTime)
         }
@@ -75,23 +73,20 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         TODO("Not yet implemented")
     }
 
-    private fun renderSeaEntity(entity: Entity, deltaTime: Float) {
-        val tile = entity.tile()
-        seaColor.b = tile.depth
-        seaColor.r = tile.depth / 10f
-        seaColor.g = MathUtils.norm(MinWaterTemp, MaxWaterTemp, tile.waterTemp)
-        shapeDrawer.filledRectangle(
-            tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
-            tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,
-            GameConstants.TileSize,
-            GameConstants.TileSize,
-            seaColor
-        )
-//
-//        val tileWorldCenter = vec2(
-//            tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
-//            tile.y * GameConstants.TileSize - GameConstants.TileSize / 2)
-//
-//        shapeDrawer.line(tileWorldCenter, tileWorldCenter + tile.currentForce * 1f, Color.BLUE, Color.RED)
+    private fun renderSea(deltaTime: Float) {
+        for(column in SeaManager.tiles) {
+            for(tile in column) {
+                seaColor.b = tile.depth
+                seaColor.r = tile.depth / 10f
+                seaColor.g = MathUtils.norm(MinWaterTemp, MaxWaterTemp, tile.waterTemp)
+                shapeDrawer.filledRectangle(
+                    tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
+                    tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,
+                    GameConstants.TileSize,
+                    GameConstants.TileSize,
+                    seaColor
+                )
+            }
+        }
     }
 }

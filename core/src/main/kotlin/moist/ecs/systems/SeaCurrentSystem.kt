@@ -2,6 +2,7 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
+import com.badlogic.ashley.systems.IntervalSystem
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
@@ -20,19 +21,21 @@ import moist.world.SeaManager
  *
  *
  */
-class SeaCurrentSystem: IntervalIteratingSystem(allOf(Tile::class).get(), 60f) {
-    override fun processEntity(entity: Entity) {
-        val tile = entity.tile()
-        val target = tile.neighbours.minByOrNull { it.waterTemp }!!
-        if(target.waterTemp < tile.waterTemp) {
-            /*
-            Now we create a force vector pointing towards the target, and
-            also, the magnitude depends on the difference, maybe
-             */
-            tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat())
-        } else {
-            tile.currentForce.setZero()
-        }
+class SeaCurrentSystem: IntervalSystem(10f) {
+    override fun updateInterval() {
+        for(column in SeaManager.tiles)
+            for(tile in column) {
+                val target = tile.neighbours.minByOrNull { it.waterTemp }!!
+                if(target.waterTemp < tile.waterTemp) {
+                    /*
+                    Now we create a force vector pointing towards the target, and
+                    also, the magnitude depends on the difference, maybe
+                     */
+                    tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat())
+                } else {
+                    tile.currentForce.setZero()
+                }
+            }
     }
 }
 

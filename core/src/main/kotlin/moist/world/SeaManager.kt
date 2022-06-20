@@ -44,9 +44,9 @@ class SeaManager {
 
         }
 
-        val tiles = Array(MaxTiles) {
-            Array(MaxTiles) {
-                Tile()
+        val tiles = Array(MaxTiles) { x ->
+            Array(MaxTiles) { y ->
+                Tile(x, y)
             }
         }
 
@@ -64,8 +64,6 @@ class SeaManager {
             scaleDomain.setScaleX(4.0)
             scaleDomain.setScaleY(4.0)
 
-
-
             Mapping.map2DNoZ(
                 MappingMode.SEAMLESS_XY,
                 MaxTiles,
@@ -73,37 +71,32 @@ class SeaManager {
                 scaleDomain,
                 MappingRange.DEFAULT,
                 IMapping2DWriter { x, y, value ->
-                    engine().entity {
-                        with<Renderable> { renderType = RenderType.Sea }
-                        with<Tile> {
-                            this.x = x
-                            this.y = y
-                            depth = value.toFloat()
-                            originalDepth = depth
-                            waterTemp = MathUtils.map (0f, 1f, MinWaterTemp, MaxWaterTemp, depth)
-                            tiles[x][y] = this
-                        }
+                    tiles[x][y].apply {
+                        depth = value.toFloat()
+                        originalDepth = depth
+                        waterTemp = MathUtils.map(0f, 1f, MinWaterTemp, MaxWaterTemp, depth)
                     }
                 },
-                IMappingUpdateListener.NULL_LISTENER)
+                IMappingUpdateListener.NULL_LISTENER
+            )
 
-            for(tile in tiles.flatten()) {
-                for(offsetX in -1..1) {
-                    for(offsetY in -1..1) {
+            for (tile in tiles.flatten()) {
+                for (offsetX in -1..1) {
+                    for (offsetY in -1..1) {
                         val x = tile.x + offsetX
                         val y = tile.y + offsetY
-                        if((x > 0 && x < tiles.lastIndex) && (y > 0 && y < tiles.lastIndex) ) {
+                        if ((x > 0 && x < tiles.lastIndex) && (y > 0 && y < tiles.lastIndex)) {
                             val n = tiles[x][y]
-                            if(n != tile)
+                            if (n != tile)
                                 tile.neighbours.add(n)
                         }
                     }
                 }
             }
 
-            for(tile in tiles.flatten()) {
+            for (tile in tiles.flatten()) {
                 val target = tile.neighbours.minByOrNull { it.waterTemp }!!
-                if(target.waterTemp < tile.waterTemp) {
+                if (target.waterTemp < tile.waterTemp) {
                     /*
                     Now we create a force vector pointing towards the target, and
                     also, the magnitude depends on the difference, maybe

@@ -4,16 +4,12 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
-import ktx.box2d.box
 import ktx.box2d.circle
-import ktx.box2d.filter
 import moist.core.Assets
 import moist.core.GameConstants.MaxTiles
 import moist.core.GameConstants.TileSize
@@ -23,27 +19,10 @@ import moist.injection.Context.inject
 import moist.world.engine
 import moist.world.world
 
-class Box : Component, Poolable {
-    private var _body: Body? = null
-    var body: Body get() = _body!!
-    set(value) {
-        _body = value
-    }
-    override fun reset() {
-        _body = null
-    }
-}
-
 class City : Component, Poolable {
     var population = 100
     var food = 1000
 
-    override fun reset() {
-
-    }
-}
-
-class CameraFollow: Component, Poolable {
     override fun reset() {
 
     }

@@ -8,7 +8,6 @@ import moist.ecs.components.Tile
 
 object AshleyMappers {
     val renderable = mapperFor<Renderable>()
-    val tile = mapperFor<Tile>()
     val box = mapperFor<Box>()
     val city = mapperFor<City>()
 }

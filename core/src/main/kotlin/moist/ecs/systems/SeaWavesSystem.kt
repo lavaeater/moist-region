@@ -1,6 +1,7 @@
 package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import ktx.ashley.allOf
@@ -10,9 +11,7 @@ import moist.ecs.components.Tile
 /**
  * Waves can also be emitted from special entities. Later
  */
-class SeaWavesSystem : SortedIteratingSystem(allOf(Tile::class).get(), Comparator { o1, o2 ->
-    return@Comparator o1.tile().x.compareTo(o2.tile().x)
-}) {
+class SeaWavesSystem : EntitySystem() {
     val baseCoolDown = 0.1f
     var waveCoolDown = baseCoolDown
     var currentColumn = 0 - GameConstants.MaxTiles / 2
@@ -33,15 +32,15 @@ class SeaWavesSystem : SortedIteratingSystem(allOf(Tile::class).get(), Comparato
             update = false
         }
     }
-
-    override fun processEntity(entity: Entity, deltaTime: Float) {
-        val tile = entity.tile()
-        val entityX = tile.x
-        tile.depth = tile.originalDepth
-        if ((entityX - 1) == currentColumn || (entityX + 1) == currentColumn) {
-            tile.depth = MathUtils.clamp(tile.depth + 0.05f, 0f, 1f)
-        } else if (entityX == currentColumn) {
-            tile.depth = MathUtils.clamp(tile.depth + 0.1f, 0f, 1f)
-        }
-    }
+//
+//    override fun processEntity(entity: Entity, deltaTime: Float) {
+//        val tile = entity.tile()
+//        val entityX = tile.x
+//        tile.depth = tile.originalDepth
+//        if ((entityX - 1) == currentColumn || (entityX + 1) == currentColumn) {
+//            tile.depth = MathUtils.clamp(tile.depth + 0.05f, 0f, 1f)
+//        } else if (entityX == currentColumn) {
+//            tile.depth = MathUtils.clamp(tile.depth + 0.1f, 0f, 1f)
+//        }
+//    }
 }
