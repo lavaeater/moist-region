@@ -14,6 +14,8 @@ import ktx.box2d.circle
 import moist.core.Assets
 import moist.core.GameConstants.MaxTiles
 import moist.core.GameConstants.TileSize
+import moist.core.GameConstants.foodMax
+import moist.core.GameConstants.foodMin
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.ecs.systems.fish
@@ -22,8 +24,8 @@ import moist.world.engine
 import moist.world.world
 
 class City : Component, Poolable {
-    var population = 100
-    var food = 1000
+    var population = 100f
+    var food = 1000f
 
     override fun reset() {
 
@@ -46,7 +48,7 @@ fun city(): Entity {
             }
         }
         with<City> {
-            population = 100
+            population = 100f
         }
         with<CameraFollow>()
         with<Renderable> {
@@ -54,11 +56,7 @@ fun city(): Entity {
             renderType = RenderType.SelfRender { batch, deltaTime ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
                 val city = this@entity.entity.city()
-                cityColor.g = MathUtils.norm(
-                    0f,
-                    100f,
-                    MathUtils.clamp(((city.population + 1) / (city.food + 1)).toFloat(), 0f, 100f)
-                )
+                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
                 shapeDrawer.filledCircle(
                     this@entity.entity.body().position,
                     this@entity.entity.city().population / 100f,
