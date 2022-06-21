@@ -11,6 +11,7 @@ data class Tile(var x: Int,
                     var depth: Float = 0f,
                     var waterTemp: Float = 10f,
                     var airTemp:Float = 15f) {
+    var currentFood = 100f
     var originalDepth: Float = 0f
     val currentForce = vec2()
     val worldCenter: Vector2 = vec2()

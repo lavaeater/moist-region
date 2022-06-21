@@ -44,7 +44,7 @@ fun city(): Entity {
 //                linearDamping = 5f
                 circle(1f) {
 //                    friction = 10f //Tune
-                    //                   density = 1f //tune
+                    density = 1f //tune
 //                    restitution = 0.9f
                 }
             }
@@ -69,7 +69,7 @@ fun city(): Entity {
                 for (x in start until stop)
                     for (y in start until stop) {
                         spritePos.set(position.x - x * sprite.width, position.y - y * sprite.height)
-                        if(spritePos.dst(position) < radius) {
+                        if (spritePos.dst(position) < radius) {
                             sprite.setOriginBasedPosition(position.x - x * sprite.width, position.y - y * sprite.height)
                             sprite.draw(batch)
                         }
@@ -90,7 +90,7 @@ fun city(): Entity {
 fun fishes() {
     (0..100).forEach {
         engine().entity {
-            if(it == 0)
+            if (it == 0)
                 with<CameraFollow>()
             with<Box> {
                 body = world().body {
@@ -98,6 +98,7 @@ fun fishes() {
                     type = BodyDef.BodyType.DynamicBody
                     position.set((MaxTiles / 2) * TileSize, (MaxTiles / 2) * TileSize)
                     box(.5f, .5f) {
+                        density = 1f
                     }
                 }
             }

@@ -78,6 +78,9 @@ class FishMovementSystem : IteratingSystem(
     private fun moveEnemy(body: Body, fish: Fish) {
         val currentTile = body.currentTile()
         val target = currentTile.neighbours.maxByOrNull { it.depth }!!
+
+        val currentVelocity = body.linearVelocity
+
         fish.direction.set(target.worldCenter - body.worldCenter).nor()
 
         fish.direction
@@ -85,14 +88,19 @@ class FishMovementSystem : IteratingSystem(
             .add(separation.scl(5f))
             .add(alignment.scl(1f))
             .add(currentTile.currentForce)
+            .nor()
+            .scl(FishMaxVelocity)
 
+        val velocityChange = fish.direction - currentVelocity
+        val impulse = velocityChange * body.mass
+        body.applyLinearImpulse(impulse, body.worldCenter, true)
 
-        body.applyForceToCenter(fish.direction * FishMagnitude, true)
-
-
-
-        if(body.linearVelocity.len() > FishMaxVelocity)
-            body.linearVelocity.setLength(FishMaxVelocity)
+//        body.applyForceToCenter(fish.direction * FishMagnitude, true)
+//
+//
+//
+//        if(body.linearVelocity.len() > FishMaxVelocity)
+//            body.linearVelocity.setLength(FishMaxVelocity)
     }
 
 }
