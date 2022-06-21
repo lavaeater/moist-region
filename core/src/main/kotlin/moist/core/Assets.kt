@@ -6,14 +6,13 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import ktx.assets.DisposableContainer
-import ktx.assets.DisposableRegistry
-import ktx.assets.disposeSafely
+import ktx.assets.*
 import moist.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-class Assets(private val assetManager: AssetManager): DisposableRegistry by DisposableContainer() {
+class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContainer() {
     init {
         assetManager.alsoRegister()
     }
@@ -30,4 +29,8 @@ class Assets(private val assetManager: AssetManager): DisposableRegistry by Disp
     val shapeDrawer by lazy {
         ShapeDrawer(Context.inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
     }
+
+    val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
+    val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
+
 }

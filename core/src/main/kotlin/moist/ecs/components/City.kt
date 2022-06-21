@@ -11,6 +11,7 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
+import ktx.math.vec2
 import moist.core.Assets
 import moist.core.GameConstants.MaxTiles
 import moist.core.GameConstants.TileSize
@@ -22,6 +23,7 @@ import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.engine
 import moist.world.world
+import kotlin.math.sqrt
 
 class City : Component, Poolable {
     var population = 100f
@@ -52,16 +54,34 @@ fun city(): Entity {
         }
         with<CameraFollow>()
         with<Renderable> {
+            val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
+            val spritePos = vec2()
             renderType = RenderType.SelfRender { batch, deltaTime ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
+                val position = this@entity.entity.body().position
                 val city = this@entity.entity.city()
-                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
-                shapeDrawer.filledCircle(
-                    this@entity.entity.body().position,
-                    this@entity.entity.city().population / 100f,
-                    cityColor
-                )
+                val rows = sqrt(city.population.toDouble()).toInt()
+                val start = 0 - rows / 2
+                val stop = rows / 2
+                val radius = rows / 2 * sprite.width
+
+                for (x in start until stop)
+                    for (y in start until stop) {
+                        spritePos.set(position.x - x * sprite.width, position.y - y * sprite.height)
+                        if(spritePos.dst(position) < radius) {
+                            sprite.setOriginBasedPosition(position.x - x * sprite.width, position.y - y * sprite.height)
+                            sprite.draw(batch)
+                        }
+                    }
+
+
+//                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
+//                shapeDrawer.filledCircle(
+//                    ,
+//                    this@entity.entity.city().population / 100f,
+//                    cityColor
+//                )
             }
         }
     }
