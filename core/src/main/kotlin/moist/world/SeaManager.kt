@@ -106,6 +106,11 @@ class SeaManager {
                     tile.currentForce.setZero()
                 }
             }
+            engine().entity {
+                with<Renderable> {
+                    renderType = RenderType.Sea()
+                }
+            }
         }
     }
 }

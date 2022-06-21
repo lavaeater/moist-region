@@ -51,14 +51,8 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         layer0.compareTo(layer1)
     }) {
 
-
-    private val seaColor = Color(1f, 1f, 0.1f, 1f)
-    private val shapeDrawer by lazy { assets.shapeDrawer }
-
     override fun update(deltaTime: Float) {
         batch.use {
-            renderSea(deltaTime)
-
             super.update(deltaTime)
         }
     }
@@ -67,27 +61,11 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         when (val renderType = entity.renderType()) {
             RenderType.Sprite -> renderSprite(entity, deltaTime)
             is RenderType.SelfRender -> renderType.render(batch, deltaTime)
+            is RenderType.Sea -> renderType.render(batch, deltaTime)
         }
     }
 
     private fun renderSprite(entity: Entity, deltaTime: Float) {
         TODO("Not yet implemented")
-    }
-
-    private fun renderSea(deltaTime: Float) {
-        for(column in SeaManager.tiles) {
-            for(tile in column) {
-                seaColor.b = tile.depth
-                seaColor.r = tile.depth / 10f
-                seaColor.g = MathUtils.norm(MinWaterTemp, MaxWaterTemp, tile.waterTemp)
-                shapeDrawer.filledRectangle(
-                    tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
-                    tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,
-                    GameConstants.TileSize,
-                    GameConstants.TileSize,
-                    seaColor
-                )
-            }
-        }
     }
 }

@@ -10,6 +10,7 @@ import ktx.math.times
 import ktx.math.vec2
 import moist.core.Assets
 import moist.core.GameConstants.FishMagnitude
+import moist.core.GameConstants.FishMaxVelocity
 import moist.ecs.components.Box
 import moist.ecs.components.Fish
 import moist.injection.Context.inject
@@ -79,9 +80,19 @@ class FishMovementSystem : IteratingSystem(
         val target = currentTile.neighbours.maxByOrNull { it.depth }!!
         fish.direction.set(target.worldCenter - body.worldCenter).nor()
 
-        fish.direction.add(cohesion.scl(1f)).add(separation.scl(1f))
-                .add(alignment.scl(1f))
+        fish.direction
+            .add(cohesion.scl(1f))
+            .add(separation.scl(5f))
+            .add(alignment.scl(1f))
+            .add(currentTile.currentForce)
+
+
         body.applyForceToCenter(fish.direction * FishMagnitude, true)
+
+
+
+        if(body.linearVelocity.len() > FishMaxVelocity)
+            body.linearVelocity.setLength(FishMaxVelocity)
     }
 
 }

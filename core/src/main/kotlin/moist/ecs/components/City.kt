@@ -57,7 +57,7 @@ fun city(): Entity {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
             val spritePos = vec2()
-            renderType = RenderType.SelfRender { batch, deltaTime ->
+            renderType = RenderType.SelfRender(2) { batch, deltaTime ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
                 val position = this@entity.entity.body().position
                 val city = this@entity.entity.city()
@@ -103,7 +103,7 @@ fun fishes() {
             }
             with<Fish>()
             with<Renderable> {
-                renderType = RenderType.SelfRender { batch, deltaTime ->
+                renderType = RenderType.SelfRender(0) { batch, deltaTime ->
                     val shapeDrawer = inject<Assets>().shapeDrawer
                     val fish = this@entity.entity.fish()
                     shapeDrawer.filledCircle(
