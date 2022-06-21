@@ -52,7 +52,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-        with<CameraFollow>()
+//        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
@@ -90,6 +90,8 @@ fun city(): Entity {
 fun fishes() {
     (0..100).forEach {
         engine().entity {
+            if(it == 0)
+                with<CameraFollow>()
             with<Box> {
                 body = world().body {
                     userData = this@entity.entity

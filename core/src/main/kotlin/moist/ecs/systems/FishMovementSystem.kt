@@ -77,11 +77,11 @@ class FishMovementSystem : IteratingSystem(
     private fun moveEnemy(body: Body, fish: Fish) {
         val currentTile = body.currentTile()
         val target = currentTile.neighbours.maxByOrNull { it.depth }!!
-        fish.direction.set(target.worldCenter - currentTile.worldCenter).nor()
+        fish.direction.set(target.worldCenter - body.worldCenter).nor()
 
-        fish.direction.add(cohesion.scl(.3f)).add(separation.scl(0.7f))
-                .add(alignment.scl(.5f))
-        body.linearVelocity.set(fish.direction * FishMagnitude)
+        fish.direction.add(cohesion.scl(1f)).add(separation.scl(1f))
+                .add(alignment.scl(1f))
+        body.applyForceToCenter(fish.direction * FishMagnitude, true)
     }
 
 }

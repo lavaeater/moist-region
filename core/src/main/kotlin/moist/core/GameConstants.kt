@@ -9,7 +9,7 @@ object GameConstants {
     const val MinWaterTemp = 1f
     const val CurrentsMagnitude = 5f
     const val ControlMagnitude = 25f
-    const val FishMagnitude = 2.5f
+    const val FishMagnitude = 1f
     const val populationMin = 1f
     const val populationMax = 1000f
     const val foodMin = 1f
