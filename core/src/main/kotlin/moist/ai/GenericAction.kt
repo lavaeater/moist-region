@@ -1,9 +1,10 @@
-package moist.ai.utility
+package moist.ai
 
 import com.badlogic.ashley.core.Entity
-import moist.ai.utility.AiAction
+import moist.ai.AiAction
 
 class GenericAction(
+    name: String,
     private val scoreFunction: (entity: Entity) -> Double,
     private val abortFunction: (entity: Entity) -> Unit,
     private val actFunction: (entity: Entity, deltaTime:Float) -> Unit): AiAction(name) {

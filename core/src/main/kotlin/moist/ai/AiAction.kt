@@ -1,8 +1,8 @@
-package moist.ai.utility
+package moist.ai
 
 import com.badlogic.ashley.core.Entity
 
-abstract class AiAction(name: String) {
+abstract class AiAction(val name: String) {
     val considerations = mutableListOf<Consideration>()
 
     /***

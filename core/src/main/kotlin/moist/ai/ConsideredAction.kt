@@ -1,4 +1,4 @@
-package moist.ai.utility
+package moist.ai
 
 import com.badlogic.ashley.core.Entity
 

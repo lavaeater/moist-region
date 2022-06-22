@@ -11,9 +11,15 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
+import ktx.box2d.filter
+import ktx.math.random
 import ktx.math.vec2
+import moist.ai.UtilityAiComponent
 import moist.core.Assets
+import moist.core.Box2dCategories
+import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.MaxTiles
+import moist.core.GameConstants.StartFishCount
 import moist.core.GameConstants.TileSize
 import moist.core.GameConstants.foodMax
 import moist.core.GameConstants.foodMin
@@ -46,6 +52,10 @@ fun city(): Entity {
 //                    friction = 10f //Tune
                     density = 1f //tune
 //                    restitution = 0.9f
+                    filter {
+                        categoryBits = Box2dCategories.cities
+                        maskBits = Box2dCategories.whatCitiesCollideWith
+                    }
                 }
             }
         }
@@ -88,7 +98,11 @@ fun city(): Entity {
 }
 
 fun fishes() {
-    (0..100).forEach {
+    val min = 0 + TileSize
+    val max = MaxTiles * TileSize - TileSize
+    val range = min..max
+    val shoalStartPoint = vec2(range.random(), range.random())
+    (0 until StartFishCount).forEach {
         engine().entity {
             if (it == 0)
                 with<CameraFollow>()
@@ -96,21 +110,28 @@ fun fishes() {
                 body = world().body {
                     userData = this@entity.entity
                     type = BodyDef.BodyType.DynamicBody
-                    position.set((MaxTiles / 2) * TileSize, (MaxTiles / 2) * TileSize)
+                    position.set(range.random(), range.random())
                     box(.5f, .5f) {
                         density = 1f
+                        filter {
+                            categoryBits = Box2dCategories.fish
+                            maskBits = Box2dCategories.whatFishCollideWith
+                        }
                     }
                 }
             }
             with<Fish>()
+            with<UtilityAiComponent>()
             with<Renderable> {
+                val fishColor = Color(0f,0f,0f,1f)
                 renderType = RenderType.SelfRender(0) { batch, deltaTime ->
                     val shapeDrawer = inject<Assets>().shapeDrawer
                     val fish = this@entity.entity.fish()
+                    fishColor.g = MathUtils.norm(0f, FishMaxEnergy, fish.energy)
                     shapeDrawer.filledCircle(
                         this@entity.entity.body().position,
                         0.25f,
-                        Color.YELLOW
+                        fishColor
                     )
                 }
             }

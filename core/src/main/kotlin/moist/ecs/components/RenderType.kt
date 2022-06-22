@@ -11,14 +11,14 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 
 sealed class RenderType(val layer: Int) {
     class Sea: RenderType(1) {
-        private val seaColor = Color(1f, 1f, 1f, 0.7f)
+        private val seaColor = Color(1f, 0f, 0f, 0.7f)
         private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
         fun render(batch: PolygonSpriteBatch, deltaTime: Float) {
             for(column in SeaManager.tiles) {
                 for(tile in column) {
-                    seaColor.b = tile.depth
-                    seaColor.r = tile.depth / 10f
-                    seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp)
+                    //seaColor.b = tile.depth
+                    seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood)
+                    //seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp)
                     shapeDrawer.filledRectangle(
                         tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
                         tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,

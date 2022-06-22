@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
 import com.badlogic.ashley.systems.IntervalSystem
 import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import ktx.ashley.allOf
@@ -21,12 +22,12 @@ import moist.world.SeaManager
  *
  *
  */
-class SeaCurrentSystem: IntervalSystem(10f) {
+class SeaCurrentSystem : IntervalSystem(10f) {
     override fun updateInterval() {
-        for(column in SeaManager.tiles)
-            for(tile in column) {
+        for (column in SeaManager.tiles)
+            for (tile in column) {
                 val target = tile.neighbours.minByOrNull { it.waterTemp }!!
-                if(target.waterTemp < tile.waterTemp) {
+                if (target.waterTemp < tile.waterTemp) {
                     /*
                     Now we create a force vector pointing towards the target, and
                     also, the magnitude depends on the difference, maybe
@@ -39,7 +40,7 @@ class SeaCurrentSystem: IntervalSystem(10f) {
     }
 }
 
-class ForcesOnCitySystem: IteratingSystem(allOf(Box::class, City::class).get()) {
+class ForcesOnCitySystem : IteratingSystem(allOf(Box::class, City::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
         val currentTile = body.currentTile()
@@ -48,11 +49,13 @@ class ForcesOnCitySystem: IteratingSystem(allOf(Box::class, City::class).get()) 
     }
 }
 
-fun Body.currentTile() : Tile {
-    return SeaManager.tiles[this.position.tileX()][this.position.tileY()]
+fun Body.currentTile(): Tile {
+    val x = MathUtils.clamp(position.tileX(), 0, SeaManager.tiles.lastIndex)
+    val y = MathUtils.clamp(position.tileY(), 0, SeaManager.tiles.lastIndex)
+    return SeaManager.tiles[x][y]
 }
 
-fun Vector2.tileX() : Int {
+fun Vector2.tileX(): Int {
     return ((this.x + TileSize / 2) / TileSize).toInt()
 }
 

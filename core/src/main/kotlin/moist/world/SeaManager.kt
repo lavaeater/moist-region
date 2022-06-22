@@ -49,6 +49,8 @@ class SeaManager {
                 Tile(x, y)
             }
         }
+        val flattened by lazy { tiles.flatten() }
+        val flatArray by lazy {flattened.toTypedArray()}
 
         fun generate() {
             val basis = ModuleBasisFunction()

@@ -2,18 +2,15 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.physics.box2d.Body
 import ktx.ashley.allOf
 import ktx.math.minus
 import ktx.math.times
 import ktx.math.vec2
-import moist.core.Assets
-import moist.core.GameConstants.FishMagnitude
+import moist.core.GameConstants.FishEnergyExpenditurePerSecond
 import moist.core.GameConstants.FishMaxVelocity
 import moist.ecs.components.Box
 import moist.ecs.components.Fish
-import moist.injection.Context.inject
 
 class FishMovementSystem : IteratingSystem(
     allOf(
@@ -33,7 +30,7 @@ class FishMovementSystem : IteratingSystem(
         val body = entity.body()
         val fish = entity.fish()
         fixFlocking(body, fish)
-        moveEnemy(body, fish)
+        moveEnemy(body, fish, deltaTime)
     }
 
     private fun fixFlocking(body: Body, thisFish: Fish) {
@@ -75,25 +72,25 @@ class FishMovementSystem : IteratingSystem(
         }
     }
 
-    private fun moveEnemy(body: Body, fish: Fish) {
+    private fun moveEnemy(body: Body, fish: Fish, deltaTime: Float) {
         val currentTile = body.currentTile()
-        val target = currentTile.neighbours.maxByOrNull { it.depth }!!
-
         val currentVelocity = body.linearVelocity
 
-        fish.direction.set(target.worldCenter - body.worldCenter).nor()
-
         fish.direction
-            .add(cohesion.scl(1f))
-            .add(separation.scl(5f))
-            .add(alignment.scl(1f))
-            .add(currentTile.currentForce)
+            .add(cohesion.scl(1.5f))
+            .add(separation.scl(0.5f))
+            .add(alignment.scl(2.5f))
+//            .add(currentTile.currentForce)
             .nor()
             .scl(FishMaxVelocity)
 
         val velocityChange = fish.direction - currentVelocity
         val impulse = velocityChange * body.mass
         body.applyLinearImpulse(impulse, body.worldCenter, true)
+
+        if(body.linearVelocity.len2() > 0.5f) {
+            fish.energy -= FishEnergyExpenditurePerSecond * deltaTime
+        }
 
 //        body.applyForceToCenter(fish.direction * FishMagnitude, true)
 //

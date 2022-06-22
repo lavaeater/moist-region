@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.box2d.createWorld
 import ktx.inject.Context
 import ktx.inject.register
+import moist.ai.UtilityAiSystem
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
@@ -46,11 +47,14 @@ object Context {
     private fun getEngine(): Engine {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
-            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
+            //addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem())
             addSystem(ForcesOnCitySystem())
             addSystem(FishMovementSystem())
+            addSystem(FishDeathSystem())
+            addSystem(TileFoodSystem())
+            addSystem(UtilityAiSystem())
 //            addSystem(SeaWavesSystem())
         }
     }
