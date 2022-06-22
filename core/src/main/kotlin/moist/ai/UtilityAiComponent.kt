@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool
+import ktx.log.debug
 import ktx.math.minus
 import moist.core.GameConstants.FishEatingPace
 import moist.core.GameConstants.FishMaxEnergy
@@ -48,6 +49,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     fish.targetTile = null
                 }
                 else -> {
+                    debug { "Hiding at ${fish.targetTile}, energy: ${fish.energy}" }
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }
             }
@@ -70,11 +72,13 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 } else if (fish.targetTile == currentTile) {
                     fish.targetTile = null
                     if (currentTile.currentFood > 0f) {
+                        val eatAmount = deltaTime * FishEatingPace
                         fish.direction.set(currentTile.worldCenter - body.worldCenter).nor()
-                        fish.energy += deltaTime * FishEatingPace
+                        fish.energy += eatAmount
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
-                        currentTile.currentFood -= deltaTime * FishEatingPace
+                        currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
+                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
                         // We should eat here
                     } else {
                         /*
@@ -89,14 +93,17 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         else {
                             fish.targetTile = currentTile.areaAround().filter { it.currentFood > 0 }.random()
                         }
+                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 } else if (fish.targetTile == null) {
                     if (currentTile.currentFood > 0f) {
+                        val eatAmount = deltaTime * FishEatingPace
                         fish.direction.set(currentTile.worldCenter - body.worldCenter).nor()
-                        fish.energy += deltaTime * FishEatingPace
+                        fish.energy += eatAmount
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
-                        currentTile.currentFood -= deltaTime * FishEatingPace
+                        currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
+                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
                         // We should eat here
                     } else {
                         /*
@@ -111,6 +118,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         else {
                             fish.targetTile = currentTile.areaAround().filter { it.currentFood > 0 }.random()
                         }
+                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 }
             }

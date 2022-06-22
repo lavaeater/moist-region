@@ -9,12 +9,12 @@ import moist.core.GameConstants.FishMaxEnergy
 class Fish : Component, Pool.Poolable {
     val direction = vec2()
     var targetTile: Tile? = null
-    var fishHideScore = (0.1f..0.9f).random().toDouble()
-    var energy = FishMaxEnergy
+    var fishHideScore = (0.1f..0.6f).random().toDouble()
+    var energy = ((FishMaxEnergy / 3)..FishMaxEnergy).random()
     override fun reset() {
         var fishHideScore = (0.1f..0.9f).random().toDouble()
         targetTile = null
         direction.setZero()
-        energy = FishMaxEnergy
+        energy = ((FishMaxEnergy / 3)..FishMaxEnergy).random()
     }
 }
