@@ -18,11 +18,9 @@ import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.Box2dCategories
 import moist.core.GameConstants.FishMaxEnergy
-import moist.core.GameConstants.MaxTiles
+import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.StartFishCount
 import moist.core.GameConstants.TileSize
-import moist.core.GameConstants.foodMax
-import moist.core.GameConstants.foodMin
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.ecs.systems.fish
@@ -46,7 +44,7 @@ fun city(): Entity {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
-                position.set((MaxTiles / 2) * TileSize, (MaxTiles / 2) * TileSize)
+                position.set((MaxTilesPerSide / 2) * TileSize, (MaxTilesPerSide / 2) * TileSize)
 //                linearDamping = 5f
                 circle(1f) {
 //                    friction = 10f //Tune
@@ -99,7 +97,7 @@ fun city(): Entity {
 
 fun fishes() {
     val min = 0 + TileSize
-    val max = MaxTiles * TileSize - TileSize
+    val max = MaxTilesPerSide * TileSize - TileSize
     val range = min..max
     val shoalStartPoint = vec2(range.random(), range.random())
     (0 until StartFishCount).forEach {

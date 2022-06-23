@@ -1,12 +1,7 @@
 package moist.ecs.systems
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.systems.SortedIteratingSystem
-import com.badlogic.gdx.math.MathUtils
-import ktx.ashley.allOf
 import moist.core.GameConstants
-import moist.ecs.components.Tile
 
 /**
  * Waves can also be emitted from special entities. Later
@@ -14,7 +9,7 @@ import moist.ecs.components.Tile
 class SeaWavesSystem : EntitySystem() {
     val baseCoolDown = 0.1f
     var waveCoolDown = baseCoolDown
-    var currentColumn = 0 - GameConstants.MaxTiles / 2
+    var currentColumn = 0 - GameConstants.MaxTilesPerSide / 2
     var update = true
 
     override fun update(deltaTime: Float) {
@@ -22,8 +17,8 @@ class SeaWavesSystem : EntitySystem() {
         if (waveCoolDown < 0f) {
             waveCoolDown = baseCoolDown
             currentColumn++
-            if (currentColumn >= GameConstants.MaxTiles / 2) {
-                currentColumn = 0 - GameConstants.MaxTiles / 2
+            if (currentColumn >= GameConstants.MaxTilesPerSide / 2) {
+                currentColumn = 0 - GameConstants.MaxTilesPerSide / 2
             }
             update = true
         }

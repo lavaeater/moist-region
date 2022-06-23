@@ -22,7 +22,7 @@ import moist.world.SeaManager
  *
  *
  */
-class SeaCurrentSystem : IntervalSystem(10f) {
+class SeaCurrentSystem : IntervalSystem(1f) {
     override fun updateInterval() {
         for (column in SeaManager.tiles)
             for (tile in column) {
@@ -32,7 +32,7 @@ class SeaCurrentSystem : IntervalSystem(10f) {
                     Now we create a force vector pointing towards the target, and
                     also, the magnitude depends on the difference, maybe
                      */
-                    tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat())
+                    tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
                 } else {
                     tile.currentForce.setZero()
                 }
