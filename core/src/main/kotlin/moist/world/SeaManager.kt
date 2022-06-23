@@ -8,13 +8,9 @@ import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
-import ktx.ashley.entity
-import ktx.ashley.with
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp
-import moist.ecs.components.RenderType
-import moist.ecs.components.Renderable
 import moist.ecs.components.Tile
 import moist.injection.Context.inject
 
@@ -36,13 +32,17 @@ data class TileChunk(val key: ChunkKey) {
     }
 
     fun localX(worldX:Int):Int {
-        return worldX 
+        return worldX - (MaxTilesPerSide * chunkX)
     }
     fun localY(worldY:Int):Int {
-        return worldY + minY
+        return worldY - (MaxTilesPerSide * chunkY)
     }
-    fun getIndex(x: Int, y: Int): Int{
-        return x + MaxTilesPerSide * y
+    fun getIndex(localX: Int, localY: Int): Int{
+        return localX + MaxTilesPerSide * localY
+    }
+
+    fun getTileAt(worldX: Int, worldY: Int):Tile {
+        return tiles[getIndex(localX(worldX), localY(worldY))]
     }
 }
 
@@ -69,10 +69,10 @@ class SeaManager {
     val chunks = mutableMapOf<ChunkKey, TileChunk>()
 
     fun chunkKeyFromTileCoords(x:Int, y:Int): ChunkKey {
-        return ChunkKey(x / MaxTilesPerSide, y / MaxTilesPerSide)
+        return ChunkKey((x - MaxTilesPerSide) / MaxTilesPerSide, (y - MaxTilesPerSide) / MaxTilesPerSide)
     }
-    fun chunkExistsFor(x:Int, y:Int): Boolean {
-        return chunks.containsKey(chunkKeyFromTileCoords(x,y))
+    fun chunkExistsFor(tileX:Int, tileY:Int): Boolean {
+        return chunks.containsKey(chunkKeyFromTileCoords(tileX,tileY))
     }
 
     fun getOrCreateChunk(key: ChunkKey): TileChunk {
@@ -92,21 +92,14 @@ class SeaManager {
                 waterTemp = MathUtils.map(0f, 1f, MinWaterTemp, MaxWaterTemp, d.toFloat())
             }
         }
-        for (tile in tiles.flatten()) {
-            for (offsetX in -1..1) {
-                for (offsetY in -1..1) {
-                    val x = tile.x + offsetX
-                    val y = tile.y + offsetY
-                    if ((x > 0 && x < tiles.lastIndex) && (y > 0 && y < tiles.lastIndex)) {
-                        val n = tiles[x][y]
-                        if (n != tile)
-                            tile.neighbours.add(n)
-                    }
-                }
-            }
-        }
 
         for (tile in tiles.flatten()) {
+
+            /*
+            Only bo
+             */
+
+
             val target = tile.neighbours.minByOrNull { it.waterTemp }!!
             if (target.waterTemp < tile.waterTemp) {
                 /*

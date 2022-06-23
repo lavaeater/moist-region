@@ -24,7 +24,6 @@ data class Tile(
             field.set((x * TileSize + TileSize / 2), (y * TileSize + TileSize / 2))
             return field
         }
-    val neighbours = mutableListOf<Tile>()
 }
 
 fun Tile.areaAround(radius: Int = 15, excludeSelf: Boolean = true): List<Tile> {
