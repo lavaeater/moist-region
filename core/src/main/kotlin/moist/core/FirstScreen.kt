@@ -11,14 +11,11 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
-import ktx.ashley.allOf
-import ktx.ashley.entity
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.ControlMagnitude
-import moist.ecs.components.City
 import moist.ecs.components.city
 import moist.ecs.components.fishes
 import moist.ecs.systems.body
@@ -73,7 +70,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     override fun show() {
         if (needsInit) {
             needsInit = false
-            Gdx.app.logLevel = LOG_DEBUG
+            //Gdx.app.logLevel = LOG_DEBUG
             SeaManager.generate()
             fishes()
             Gdx.input.inputProcessor = this

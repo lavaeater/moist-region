@@ -55,7 +55,7 @@ class SeaManager {
         fun generate() {
             val basis = ModuleBasisFunction()
             basis.setType(BasisType.SIMPLEX)
-            basis.seed = 42
+            basis.seed = (1..1000).random().toLong()
 
             val correct = ModuleAutoCorrect()
             correct.setSource(basis)
@@ -63,8 +63,8 @@ class SeaManager {
 
             val scaleDomain = ModuleScaleDomain()
             scaleDomain.setSource(correct)
-            scaleDomain.setScaleX(4.0)
-            scaleDomain.setScaleY(4.0)
+            scaleDomain.setScaleX(MaxTiles / 100.0)
+            scaleDomain.setScaleY(MaxTiles / 100.0 )
 
             Mapping.map2DNoZ(
                 MappingMode.SEAMLESS_XY,

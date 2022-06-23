@@ -16,9 +16,9 @@ sealed class RenderType(val layer: Int) {
         fun render(batch: PolygonSpriteBatch, deltaTime: Float) {
             for(column in SeaManager.tiles) {
                 for(tile in column) {
-                    //seaColor.b = tile.depth
+                    seaColor.b = tile.depth
                     seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood)
-                    //seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp)
+                    seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp)
                     shapeDrawer.filledRectangle(
                         tile.x * GameConstants.TileSize - GameConstants.TileSize / 2,
                         tile.y * GameConstants.TileSize - GameConstants.TileSize / 2,

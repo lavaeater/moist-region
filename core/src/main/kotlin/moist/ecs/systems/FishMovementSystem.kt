@@ -78,15 +78,15 @@ class FishMovementSystem : IteratingSystem(
 
         fish.direction
             .add(cohesion.scl(1.5f))
-            .add(separation.scl(0.5f))
-            .add(alignment.scl(2.5f))
-//            .add(currentTile.currentForce)
+            .add(separation.scl(1.5f))
+            .add(alignment.scl(1.0f))
             .nor()
             .scl(FishMaxVelocity)
 
         val velocityChange = fish.direction - currentVelocity
         val impulse = velocityChange * body.mass
         body.applyLinearImpulse(impulse, body.worldCenter, true)
+        body.applyLinearImpulse(currentTile.currentForce, body.worldCenter, true)
 
         if(body.linearVelocity.len2() > 0.5f) {
             fish.energy -= FishEnergyExpenditurePerSecond * deltaTime
