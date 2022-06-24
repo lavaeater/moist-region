@@ -1,9 +1,10 @@
-package moist.ai
+package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
+import moist.ai.UtilityAiComponent
 
 class UtilityAiSystem() : IteratingSystem(allOf(UtilityAiComponent::class).get()) {
     private val utilMapper = mapperFor<UtilityAiComponent>()

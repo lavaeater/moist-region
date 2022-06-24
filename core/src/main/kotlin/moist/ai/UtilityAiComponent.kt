@@ -12,6 +12,7 @@ import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.TileMaxFood
 import moist.ecs.components.areaAround
 import moist.ecs.systems.body
+import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.SeaManager
@@ -43,7 +44,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
             val fish = entity.fish()
             when (fish.targetTile) {
                 null -> {
-                    val currentTile = body
+                    val currentTile = body.currentTile()
                     fish.targetTile = currentTile.areaAround().minByOrNull { it.waterTemp }!!
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }

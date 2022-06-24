@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.box2d.createWorld
 import ktx.inject.Context
 import ktx.inject.register
-import moist.ai.UtilityAiSystem
+import moist.ecs.systems.UtilityAiSystem
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
@@ -52,11 +52,11 @@ object Context {
             addSystem(CurrentChunkSystem(inject()))
             //addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
-            addSystem(SeaCurrentSystem())
-            addSystem(ForcesOnCitySystem())
+            addSystem(SeaCurrentSystem(inject()))
+            addSystem(ForcesOnCitySystem(inject()))
             addSystem(FishMovementSystem())
             addSystem(FishDeathSystem())
-            addSystem(TileFoodSystem())
+            addSystem(TileFoodSystem(inject()))
             addSystem(UtilityAiSystem())
 //            addSystem(SeaWavesSystem())
         }

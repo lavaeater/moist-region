@@ -18,6 +18,7 @@ import ktx.math.vec2
 import moist.core.GameConstants.ControlMagnitude
 import moist.ecs.components.city
 import moist.ecs.components.fishes
+import moist.ecs.components.sea
 import moist.ecs.systems.body
 import moist.injection.Context.inject
 import moist.input.KeyPress
@@ -71,7 +72,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         if (needsInit) {
             needsInit = false
             //Gdx.app.logLevel = LOG_DEBUG
-            SeaManager.generate()
+            sea()
             fishes()
             Gdx.input.inputProcessor = this
         }

@@ -23,9 +23,9 @@ data class TileChunk(val key: ChunkKey) {
     val chunkX = key.chunkX
     val chunkY = key.chunkY
     val minX = chunkX * MaxTilesPerSide
-    val maxX = minX + MaxTilesPerSide
+    val maxX = minX + MaxTilesPerSide - 1
     val minY = chunkY * MaxTilesPerSide
-    val maxY = minY + MaxTilesPerSide
+    val maxY = minY + MaxTilesPerSide - 1
     val tiles = Array(MaxTilesPerSide * MaxTilesPerSide) { i ->
         val x = (i % MaxTilesPerSide) + chunkX * MaxTilesPerSide
         val y = (i / MaxTilesPerSide) + chunkY * MaxTilesPerSide
@@ -50,13 +50,14 @@ data class TileChunk(val key: ChunkKey) {
 }
 
 class SeaManager {
+    private val basis = ModuleBasisFunction()
+    private val correct = ModuleAutoCorrect()
+    private val scaleDomain = ModuleScaleDomain()
+
     init {
         setupGenerator()
     }
 
-    val basis = ModuleBasisFunction()
-    val correct = ModuleAutoCorrect()
-    val scaleDomain = ModuleScaleDomain()
 
     private fun setupGenerator() {
         basis.setType(BasisType.SIMPLEX)
@@ -70,17 +71,16 @@ class SeaManager {
         scaleDomain.setScaleY(MaxTilesPerSide / 100.0)
     }
 
-    val chunks = mutableMapOf<ChunkKey, TileChunk>()
+    private val chunks = mutableMapOf<ChunkKey, TileChunk>()
+    val allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
 
-    fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
-        return ChunkKey((x - MaxTilesPerSide) / MaxTilesPerSide, (y - MaxTilesPerSide) / MaxTilesPerSide)
+    private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
+        val chunkX = (x - MaxTilesPerSide + 1) / MaxTilesPerSide
+        val chunkY = (y - MaxTilesPerSide + 1) / MaxTilesPerSide
+        return ChunkKey(chunkX, chunkY)
     }
 
-    fun chunkExistsFor(tileX: Int, tileY: Int): Boolean {
-        return chunks.containsKey(chunkKeyFromTileCoords(tileX, tileY))
-    }
-
-    fun getOrCreateChunk(key: ChunkKey): TileChunk {
+    private fun getOrCreateChunk(key: ChunkKey): TileChunk {
         if (!chunks.containsKey(key)) {
             chunks[key] = createChunk(key)
         }
@@ -118,7 +118,7 @@ class SeaManager {
                 Now we create a force vector pointing towards the target, and
                 also, the magnitude depends on the difference, maybe
                  */
-                tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat())
+                tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
             } else {
                 tile.currentForce.setZero()
             }

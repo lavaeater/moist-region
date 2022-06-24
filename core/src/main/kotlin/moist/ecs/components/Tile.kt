@@ -8,7 +8,6 @@ import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.core.GameConstants.TileStartFood
 import moist.injection.Context.inject
-import moist.world.ChunkKey
 import moist.world.SeaManager
 
 data class Tile(
@@ -29,13 +28,13 @@ data class Tile(
         }
 }
 
-fun Tile.areaAround(radius: Int = 5, excludeSelf: Boolean = true): List<Tile> {
+fun Tile.areaAround(distance: Int = 5, excludeSelf: Boolean = true): List<Tile> {
     val seaManager = inject<SeaManager>()
-    val minX = MathUtils.clamp(this.x - radius, 0, MaxTilesPerSide - 1)
-    val maxX = MathUtils.clamp(this.x + radius, 0, MaxTilesPerSide - 1)
+    val minX = this.x - distance
+    val maxX = this.x + distance
     val xRange = minX..maxX
-    val minY = MathUtils.clamp(this.y - radius, 0, MaxTilesPerSide - 1)
-    val maxY = MathUtils.clamp(this.y + radius, 0, MaxTilesPerSide - 1)
+    val minY = this.y - distance
+    val maxY = this.y + distance
     val yRange = minY..maxY
     val tiles = (xRange).map { x -> (yRange).map { y -> seaManager.getTileAt(x, y) } }.flatten()
 
