@@ -126,7 +126,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         if (foodTiles.any())
                             fish.targetTile = foodTiles.random()
                         else {
-                            var radius = 15
+                            var radius = 5
                             while (foodTiles.isEmpty()) {
                                 foodTiles = currentTile.areaAround(radius++).filter { it.currentFood > 0 }
                             }

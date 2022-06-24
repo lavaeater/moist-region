@@ -7,6 +7,8 @@ import ktx.math.vec2
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.core.GameConstants.TileStartFood
+import moist.injection.Context.inject
+import moist.world.ChunkKey
 import moist.world.SeaManager
 
 data class Tile(
@@ -16,6 +18,7 @@ data class Tile(
     var waterTemp: Float = 10f,
     var airTemp: Float = 15f
 ) {
+    val neighbours = mutableListOf<Tile>()
     var currentFood = (0f..TileStartFood).random()
     var originalDepth: Float = 0f
     val currentForce = vec2()
@@ -26,16 +29,15 @@ data class Tile(
         }
 }
 
-fun Tile.areaAround(radius: Int = 15, excludeSelf: Boolean = true): List<Tile> {
+fun Tile.areaAround(radius: Int = 5, excludeSelf: Boolean = true): List<Tile> {
+    val seaManager = inject<SeaManager>()
     val minX = MathUtils.clamp(this.x - radius, 0, MaxTilesPerSide - 1)
     val maxX = MathUtils.clamp(this.x + radius, 0, MaxTilesPerSide - 1)
     val xRange = minX..maxX
     val minY = MathUtils.clamp(this.y - radius, 0, MaxTilesPerSide - 1)
     val maxY = MathUtils.clamp(this.y + radius, 0, MaxTilesPerSide - 1)
     val yRange = minY..maxY
-    return if (excludeSelf) SeaManager.flattened.filter { xRange.contains(it.x) && yRange.contains(it.y) } - this else SeaManager.flattened.filter {
-        xRange.contains(
-            it.x
-        ) && yRange.contains(it.y)
-    }
+    val tiles = (xRange).map { x -> (yRange).map { y -> seaManager.getTileAt(x, y) } }.flatten()
+
+    return if (excludeSelf) tiles - this else tiles
 }

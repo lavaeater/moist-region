@@ -136,3 +136,11 @@ fun fishes() {
         }
     }
 }
+
+fun sea() {
+    engine().entity {
+        with<Renderable> {
+            renderType = RenderType.Sea()
+        }
+    }
+}

@@ -3,7 +3,6 @@ package moist.world
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
-import com.sudoplay.joise.mapping.*
 import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
@@ -17,8 +16,10 @@ import moist.injection.Context.inject
 data class ChunkKey(val chunkX: Int, val chunkY: Int) {
 
 }
+
 data class TileChunk(val key: ChunkKey) {
-    constructor(x: Int, y: Int):this(ChunkKey(x, y))
+    constructor(x: Int, y: Int) : this(ChunkKey(x, y))
+
     val chunkX = key.chunkX
     val chunkY = key.chunkY
     val minX = chunkX * MaxTilesPerSide
@@ -31,17 +32,19 @@ data class TileChunk(val key: ChunkKey) {
         Tile(x, y)
     }
 
-    fun localX(worldX:Int):Int {
+    fun localX(worldX: Int): Int {
         return worldX - (MaxTilesPerSide * chunkX)
     }
-    fun localY(worldY:Int):Int {
+
+    fun localY(worldY: Int): Int {
         return worldY - (MaxTilesPerSide * chunkY)
     }
-    fun getIndex(localX: Int, localY: Int): Int{
+
+    fun getIndex(localX: Int, localY: Int): Int {
         return localX + MaxTilesPerSide * localY
     }
 
-    fun getTileAt(worldX: Int, worldY: Int):Tile {
+    fun getTileAt(worldX: Int, worldY: Int): Tile {
         return tiles[getIndex(localX(worldX), localY(worldY))]
     }
 }
@@ -50,6 +53,7 @@ class SeaManager {
     init {
         setupGenerator()
     }
+
     val basis = ModuleBasisFunction()
     val correct = ModuleAutoCorrect()
     val scaleDomain = ModuleScaleDomain()
@@ -63,20 +67,21 @@ class SeaManager {
 
         scaleDomain.setSource(correct)
         scaleDomain.setScaleX(MaxTilesPerSide / 100.0)
-        scaleDomain.setScaleY(MaxTilesPerSide / 100.0 )
+        scaleDomain.setScaleY(MaxTilesPerSide / 100.0)
     }
 
     val chunks = mutableMapOf<ChunkKey, TileChunk>()
 
-    fun chunkKeyFromTileCoords(x:Int, y:Int): ChunkKey {
+    fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
         return ChunkKey((x - MaxTilesPerSide) / MaxTilesPerSide, (y - MaxTilesPerSide) / MaxTilesPerSide)
     }
-    fun chunkExistsFor(tileX:Int, tileY:Int): Boolean {
-        return chunks.containsKey(chunkKeyFromTileCoords(tileX,tileY))
+
+    fun chunkExistsFor(tileX: Int, tileY: Int): Boolean {
+        return chunks.containsKey(chunkKeyFromTileCoords(tileX, tileY))
     }
 
     fun getOrCreateChunk(key: ChunkKey): TileChunk {
-        if(!chunks.containsKey(key)) {
+        if (!chunks.containsKey(key)) {
             chunks[key] = createChunk(key)
         }
         return chunks[key]!!
@@ -92,14 +97,21 @@ class SeaManager {
                 waterTemp = MathUtils.map(0f, 1f, MinWaterTemp, MaxWaterTemp, d.toFloat())
             }
         }
+        for (tile in newChunk.tiles) {
+            for (offsetX in -1..1) {
+                for (offsetY in -1..1) {
+                    val x = tile.x + offsetX
+                    val y = tile.y + offsetY
+                    if ((x > newChunk.minX && x < newChunk.maxX) && (y > newChunk.minY && y < newChunk.maxY)) {
+                        val n = newChunk.getTileAt(x, y)
+                        if (n != tile)
+                            tile.neighbours.add(n)
+                    }
+                }
+            }
+        }
 
-        for (tile in tiles.flatten()) {
-
-            /*
-            Only bo
-             */
-
-
+        for (tile in newChunk.tiles) {
             val target = tile.neighbours.minByOrNull { it.waterTemp }!!
             if (target.waterTemp < tile.waterTemp) {
                 /*
@@ -115,24 +127,42 @@ class SeaManager {
         return newChunk
     }
 
-    private var currentChunkKey = ChunkKey(-10,-10)
-    private var currentChunks = mutableListOf<TileChunk>()
+    private var currentWorldX = 0
+    private var currentWorldY = 0
+    private var currentChunkKey = ChunkKey(-10, -10)
+    private var currentChunks = emptyArray<TileChunk>()
+    private var currentTiles = emptyArray<Tile>()
+
+    fun getCurrentTiles(): Array<Tile> {
+        return currentTiles
+    }
+
+    fun getCurrentChunks(): Array<TileChunk> {
+        return currentChunks
+    }
+
     /**
      * Returns the chunk that x and y belongs to
      * and all neigbouring chunks
      */
-    fun getCurrentChunks(tileX:Int, tileY:Int) : List<TileChunk> {
-        val newKey = chunkKeyFromTileCoords(tileX, tileY)
-        if(newKey != currentChunkKey) {
-            val minX = newKey.chunkX - 1
-            val maxX = newKey.chunkX + 1
-            val minY = newKey.chunkY - 1
-            val maxY = newKey.chunkY + 1
-            val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x,y) } }.flatten()
-            currentChunks.clear()
-            currentChunks.addAll(keys.map { getOrCreateChunk(it) })
+    fun updateCurrentChunks(tileX: Int, tileY: Int) {
+        if (tileX != currentWorldX && tileY != currentWorldY) {
+            currentWorldX = tileX
+            currentWorldY = tileY
+            currentChunkKey = chunkKeyFromTileCoords(tileX, tileY)
+            val minX = currentChunkKey.chunkX - 1
+            val maxX = currentChunkKey.chunkX + 1
+            val minY = currentChunkKey.chunkY - 1
+            val maxY = currentChunkKey.chunkY + 1
+            val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
+            currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
+            currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
         }
-        return currentChunks
+    }
+
+    fun getTileAt(worldX: Int, worldY: Int): Tile {
+        val chunkKey = chunkKeyFromTileCoords(worldX, worldY)
+        return getOrCreateChunk(chunkKey).getTileAt(worldX, worldY)
     }
 
 
@@ -155,9 +185,7 @@ class SeaManager {
      *
      */
 
-    fun getTileAt(x: Int, y: Int): Tile {
-        return tiles[getIndex(x,y)]
-    }
+
 }
 
 fun world(): World {

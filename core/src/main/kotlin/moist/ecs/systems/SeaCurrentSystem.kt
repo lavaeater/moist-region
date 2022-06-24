@@ -22,10 +22,9 @@ import moist.world.SeaManager
  *
  *
  */
-class SeaCurrentSystem : IntervalSystem(1f) {
+class SeaCurrentSystem(private val seaManager: SeaManager) : IntervalSystem(1f) {
     override fun updateInterval() {
-        for (column in SeaManager.tiles)
-            for (tile in column) {
+            for (tile in seaManager.getCurrentTiles()) {
                 val target = tile.neighbours.minByOrNull { it.waterTemp }!!
                 if (target.waterTemp < tile.waterTemp) {
                     /*
@@ -40,19 +39,20 @@ class SeaCurrentSystem : IntervalSystem(1f) {
     }
 }
 
-class ForcesOnCitySystem : IteratingSystem(allOf(Box::class, City::class).get()) {
+class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(allOf(Box::class, City::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
-        val currentTile = body.currentTile()
+        val currentTile = seaManager.getTileAt(body.tileX(), body.tileY())
 
         body.applyForceToCenter(currentTile.currentForce * CurrentsMagnitude, true)
     }
 }
 
-fun Body.currentTile(): Tile {
-    val x = MathUtils.clamp(position.tileX(), 0, SeaManager.tiles.lastIndex)
-    val y = MathUtils.clamp(position.tileY(), 0, SeaManager.tiles.lastIndex)
-    return SeaManager.tiles[x][y]
+fun Body.tileX(): Int {
+    return this.position.tileX()
+}
+fun Body.tileY(): Int {
+    return this.position.tileY()
 }
 
 fun Vector2.tileX(): Int {

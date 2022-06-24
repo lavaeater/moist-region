@@ -15,6 +15,7 @@ import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
 import moist.ecs.systems.*
+import moist.world.SeaManager
 
 object Context {
     val context = Context()
@@ -38,6 +39,7 @@ object Context {
                     inject<OrthographicCamera>() as Camera
                 )
             )
+            bindSingleton(SeaManager())
             bindSingleton(createWorld())
             bindSingleton(Assets(AssetManager()))
             bindSingleton(getEngine())
@@ -47,6 +49,7 @@ object Context {
     private fun getEngine(): Engine {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
+            addSystem(CurrentChunkSystem(inject()))
             //addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem())

@@ -10,6 +10,16 @@ import ktx.math.vec2
 import ktx.math.vec3
 import moist.ecs.components.Box
 import moist.ecs.components.CameraFollow
+import moist.world.SeaManager
+
+class CurrentChunkSystem(private val seaManager: SeaManager):IteratingSystem(allOf(CameraFollow::class).get()) {
+    override fun processEntity(entity: Entity, deltaTime: Float) {
+        val body = entity.body()
+        val tileX = body.tileX()
+        val tileY = body.tileY()
+        seaManager.updateCurrentChunks(tileX, tileY)
+    }
+}
 
 class CameraUpdateSystem(
     private val camera: OrthographicCamera,
