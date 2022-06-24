@@ -13,6 +13,8 @@ import moist.core.GameConstants.TileMaxFood
 import moist.ecs.components.areaAround
 import moist.ecs.systems.body
 import moist.ecs.systems.fish
+import moist.injection.Context.inject
+import moist.world.SeaManager
 
 class UtilityAiComponent : Component, Pool.Poolable {
     val actions = defaultActions.toMutableList()
@@ -36,11 +38,12 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val fishHidingAction = GenericAction("Fish Hide", {
             it.fish().fishHideScore
         }, {}, { entity, deltaTime ->
+
             val body = entity.body()
             val fish = entity.fish()
             when (fish.targetTile) {
                 null -> {
-                    val currentTile = body.currentTile()
+                    val currentTile = body
                     fish.targetTile = currentTile.areaAround().minByOrNull { it.waterTemp }!!
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }

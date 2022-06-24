@@ -14,6 +14,7 @@ import moist.core.GameConstants.TileSize
 import moist.ecs.components.Box
 import moist.ecs.components.City
 import moist.ecs.components.Tile
+import moist.injection.Context.inject
 import moist.world.SeaManager
 
 /**
@@ -46,6 +47,10 @@ class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(a
 
         body.applyForceToCenter(currentTile.currentForce * CurrentsMagnitude, true)
     }
+}
+
+fun Body.currentTile() : Tile {
+    return inject<SeaManager>().getTileAt(this.tileX(), this.tileY())
 }
 
 fun Body.tileX(): Int {
