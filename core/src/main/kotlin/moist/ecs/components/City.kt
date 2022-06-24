@@ -48,7 +48,7 @@ fun city(): Entity {
                 type = BodyDef.BodyType.DynamicBody
                 position.set((MaxTiles / 2) * TileSize, (MaxTiles / 2) * TileSize)
 //                linearDamping = 5f
-                circle(1f) {
+                box(2f, 2f) {
 //                    friction = 10f //Tune
                     density = 1f //tune
 //                    restitution = 0.9f
@@ -62,7 +62,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-//        with<CameraFollow>()
+        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
@@ -79,10 +79,8 @@ fun city(): Entity {
                 for (x in start until stop)
                     for (y in start until stop) {
                         spritePos.set(position.x - x * sprite.width, position.y - y * sprite.height)
-                        if (spritePos.dst(position) < radius) {
-                            sprite.setOriginBasedPosition(position.x - x * sprite.width, position.y - y * sprite.height)
-                            sprite.draw(batch)
-                        }
+                        sprite.setOriginBasedPosition(position.x - x * sprite.width, position.y - y * sprite.height)
+                        sprite.draw(batch)
                     }
 
 
@@ -104,8 +102,6 @@ fun fishes() {
     val shoalStartPoint = vec2(range.random(), range.random())
     (0 until StartFishCount).forEach {
         engine().entity {
-            if (it == 0)
-                with<CameraFollow>()
             with<Box> {
                 body = world().body {
                     userData = this@entity.entity
@@ -123,7 +119,7 @@ fun fishes() {
             with<Fish>()
             with<UtilityAiComponent>()
             with<Renderable> {
-                val fishColor = Color(0f,0f,0f,1f)
+                val fishColor = Color(0f, 0f, 0f, 1f)
                 renderType = RenderType.SelfRender(0) { batch, deltaTime ->
                     val shapeDrawer = inject<Assets>().shapeDrawer
                     val fish = this@entity.entity.fish()
