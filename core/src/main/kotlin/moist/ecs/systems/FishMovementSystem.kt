@@ -86,7 +86,7 @@ class FishMovementSystem : IteratingSystem(
         val velocityChange = fish.direction - currentVelocity
         val impulse = velocityChange * body.mass
         body.applyLinearImpulse(impulse, body.worldCenter, true)
-        body.applyLinearImpulse(currentTile.currentForce, body.worldCenter, true)
+        body.applyLinearImpulse(currentTile.current, body.worldCenter, true)
 
         if(body.linearVelocity.len2() > 0.5f) {
             fish.energy -= FishEnergyExpenditurePerSecond * deltaTime

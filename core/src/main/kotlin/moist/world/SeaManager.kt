@@ -13,49 +13,6 @@ import moist.core.GameConstants.MinWaterTemp
 import moist.ecs.components.Tile
 import moist.injection.Context.inject
 
-data class ChunkKey(val chunkX: Int, val chunkY: Int) {
-    companion object {
-        fun keyForTileCoords(worldX: Int, worldY: Int): ChunkKey {
-            val chunkX = Math.floorDiv(worldX - MaxTilesPerSide, MaxTilesPerSide) + 1
-            val chunkY = Math.floorDiv(worldY - MaxTilesPerSide, MaxTilesPerSide) + 1
-
-            return ChunkKey(chunkX, chunkY)
-        }
-    }
-}
-
-data class TileChunk(val key: ChunkKey) {
-    constructor(x: Int, y: Int) : this(ChunkKey(x, y))
-
-    val chunkX = key.chunkX
-    val chunkY = key.chunkY
-    val minX = chunkX * MaxTilesPerSide
-    val maxX = minX + MaxTilesPerSide - 1
-    val minY = chunkY * MaxTilesPerSide
-    val maxY = minY + MaxTilesPerSide - 1
-    val tiles = Array(MaxTilesPerSide * MaxTilesPerSide) { i ->
-        val x = (i % MaxTilesPerSide) + chunkX * MaxTilesPerSide
-        val y = (i / MaxTilesPerSide) + chunkY * MaxTilesPerSide
-        Tile(x, y)
-    }
-
-    fun localX(worldX: Int): Int {
-        return worldX - (MaxTilesPerSide * chunkX)
-    }
-
-    fun localY(worldY: Int): Int {
-        return worldY - (MaxTilesPerSide * chunkY)
-    }
-
-    fun getIndex(localX: Int, localY: Int): Int {
-        return localX + MaxTilesPerSide * (localY)
-    }
-
-    fun getTileAt(worldX: Int, worldY: Int): Tile {
-        return tiles[getIndex(localX(worldX), localY(worldY))]
-    }
-}
-
 class SeaManager {
     private val basis = ModuleBasisFunction()
     private val correct = ModuleAutoCorrect()
@@ -123,9 +80,9 @@ class SeaManager {
                 Now we create a force vector pointing towards the target, and
                 also, the magnitude depends on the difference, maybe
                  */
-                tile.currentForce.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
+                tile.current.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
             } else {
-                tile.currentForce.setZero()
+                tile.current.setZero()
             }
         }
 

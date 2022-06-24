@@ -1,10 +1,8 @@
 package moist.ecs.components
 
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import ktx.math.random
 import ktx.math.vec2
-import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.core.GameConstants.TileStartFood
 import moist.injection.Context.inject
@@ -20,7 +18,8 @@ data class Tile(
     val neighbours = mutableListOf<Tile>()
     var currentFood = (0f..TileStartFood).random()
     var originalDepth: Float = 0f
-    val currentForce = vec2()
+    val current = vec2()
+    val wind = vec2()
     val worldCenter: Vector2 = vec2()
         get() {
             field.set((x * TileSize + TileSize / 2), (y * TileSize + TileSize / 2))
