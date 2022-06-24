@@ -14,7 +14,14 @@ import moist.ecs.components.Tile
 import moist.injection.Context.inject
 
 data class ChunkKey(val chunkX: Int, val chunkY: Int) {
+    companion object {
+        fun keyForTileCoords(worldX: Int, worldY: Int): ChunkKey {
+            val chunkX = Math.floorDiv(worldX - MaxTilesPerSide, MaxTilesPerSide) + 1
+            val chunkY = Math.floorDiv(worldY - MaxTilesPerSide, MaxTilesPerSide) + 1
 
+            return ChunkKey(chunkX, chunkY)
+        }
+    }
 }
 
 data class TileChunk(val key: ChunkKey) {
@@ -41,7 +48,7 @@ data class TileChunk(val key: ChunkKey) {
     }
 
     fun getIndex(localX: Int, localY: Int): Int {
-        return localX + MaxTilesPerSide * localY
+        return localX + MaxTilesPerSide * (localY)
     }
 
     fun getTileAt(worldX: Int, worldY: Int): Tile {
@@ -75,9 +82,7 @@ class SeaManager {
     val allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
 
     private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
-        val chunkX = (x - MaxTilesPerSide + 1) / MaxTilesPerSide
-        val chunkY = (y - MaxTilesPerSide + 1) / MaxTilesPerSide
-        return ChunkKey(chunkX, chunkY)
+        return ChunkKey.keyForTileCoords(x, y)
     }
 
     private fun getOrCreateChunk(key: ChunkKey): TileChunk {
@@ -90,7 +95,7 @@ class SeaManager {
     private fun createChunk(key: ChunkKey): TileChunk {
         val newChunk = TileChunk(key)
         for (tile in newChunk.tiles) {
-            val d = scaleDomain.get(tile.x.toDouble(), tile.y.toDouble())
+            val d = scaleDomain.get(tile.x.toDouble() / 16, tile.y.toDouble() / 16)
             tile.apply {
                 depth = d.toFloat()
                 originalDepth = d.toFloat()
@@ -112,8 +117,8 @@ class SeaManager {
         }
 
         for (tile in newChunk.tiles) {
-            val target = tile.neighbours.minByOrNull { it.waterTemp }!!
-            if (target.waterTemp < tile.waterTemp) {
+            val target = tile.neighbours.minByOrNull { it.waterTemp }
+            if (target != null && target.waterTemp < tile.waterTemp) {
                 /*
                 Now we create a force vector pointing towards the target, and
                 also, the magnitude depends on the difference, maybe

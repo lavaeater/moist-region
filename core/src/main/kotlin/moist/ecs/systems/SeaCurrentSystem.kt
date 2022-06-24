@@ -26,8 +26,8 @@ import moist.world.SeaManager
 class SeaCurrentSystem(private val seaManager: SeaManager) : IntervalSystem(1f) {
     override fun updateInterval() {
             for (tile in seaManager.getCurrentTiles()) {
-                val target = tile.neighbours.minByOrNull { it.waterTemp }!!
-                if (target.waterTemp < tile.waterTemp) {
+                val target = tile.neighbours.minByOrNull { it.waterTemp }
+                if (target != null && target.waterTemp < tile.waterTemp) {
                     /*
                     Now we create a force vector pointing towards the target, and
                     also, the magnitude depends on the difference, maybe

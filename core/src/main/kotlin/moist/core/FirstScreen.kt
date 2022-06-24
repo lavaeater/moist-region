@@ -13,6 +13,7 @@ import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.log.debug
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.ControlMagnitude
@@ -23,7 +24,9 @@ import moist.ecs.systems.body
 import moist.injection.Context.inject
 import moist.input.KeyPress
 import moist.input.command
+import moist.world.ChunkKey
 import moist.world.SeaManager
+import moist.world.TileChunk
 import moist.world.engine
 
 class FirstScreen : KtxScreen, KtxInputAdapter {
@@ -71,7 +74,20 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     override fun show() {
         if (needsInit) {
             needsInit = false
-            //Gdx.app.logLevel = LOG_DEBUG
+//            Gdx.app.logLevel = LOG_DEBUG
+            for(x in (-4..-3))
+                for(y in 2..3) {
+                    val ck = ChunkKey.keyForTileCoords(x,y)
+                    val chunk = TileChunk(ck)
+                    debug { "Chunk: $x:$y:$ck" }
+                    debug { "Local: " + chunk.localX(x) + ":"  + chunk.localY(y)}
+                    debug { "Index: " + chunk.getIndex(chunk.localX(x), chunk.localY(y))}
+                    val tile = chunk.getTileAt(x, y)
+                    debug { "T: " + tile.x.toString() + ":" + tile.y.toString()}
+                }
+
+
+
             sea()
             fishes()
             Gdx.input.inputProcessor = this

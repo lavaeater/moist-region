@@ -12,7 +12,7 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 sealed class RenderType(val layer: Int) {
     class Sea : RenderType(1) {
         private val seaManager = inject<SeaManager>()
-        private val seaColor = Color(1f, 0f, 0f, 0.7f)
+        private val seaColor = Color(1f, 0f, 0f, 0.5f)
         private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
         fun render(batch: PolygonSpriteBatch, deltaTime: Float) {
             for (tile in seaManager.getCurrentTiles()) {

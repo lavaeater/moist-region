@@ -117,14 +117,14 @@ fun fishes() {
             with<Fish>()
             with<UtilityAiComponent>()
             with<Renderable> {
-                val fishColor = Color(0f, 0f, 0f, 1f)
+                val fishColor = Color(1f, 0f, 1f, 1f)
                 renderType = RenderType.SelfRender(0) { batch, deltaTime ->
                     val shapeDrawer = inject<Assets>().shapeDrawer
                     val fish = this@entity.entity.fish()
                     fishColor.g = MathUtils.norm(0f, FishMaxEnergy, fish.energy)
                     shapeDrawer.filledCircle(
                         this@entity.entity.body().position,
-                        0.25f,
+                        1.0f,
                         fishColor
                     )
                 }

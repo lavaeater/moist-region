@@ -3,11 +3,11 @@ package moist.core
 import kotlin.experimental.or
 
 object GameConstants {
-    const val TileSize = 5f
+    const val TileSize = 25f
     const val GameWidth = 96f
     const val GameHeight = 64f
-    const val MaxTilesPerSide = 10
-    const val StartFishCount = 100
+    const val MaxTilesPerSide = 50
+    const val StartFishCount = 500
     const val FishMatingEnergyRequirement = 0.7f
     const val MaxWaterTemp = 35f
     const val MinWaterTemp = 1f

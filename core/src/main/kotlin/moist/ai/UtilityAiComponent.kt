@@ -98,12 +98,16 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         If a neighbouring tile has food, go there,
                         otherwise, go to a random tile
                          */
-                        val foodTiles = currentTile.neighbours.filter { it.currentFood > 0f }
+                        var foodTiles = currentTile.neighbours.filter { it.currentFood > 0f }
 
                         if (foodTiles.any())
                             fish.targetTile = foodTiles.random()
                         else {
-                            fish.targetTile = currentTile.areaAround().filter { it.currentFood > 0 }.random()
+                            var radius = 5
+                            while (foodTiles.isEmpty()) {
+                                foodTiles = currentTile.areaAround(radius++).filter { it.currentFood > 0 }
+                            }
+                            fish.targetTile = foodTiles.random()
                         }
                         debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }

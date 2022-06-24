@@ -41,4 +41,5 @@ dependencies {
 	api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 	api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
 	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
 }
