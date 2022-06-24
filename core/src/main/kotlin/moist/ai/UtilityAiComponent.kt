@@ -10,10 +10,8 @@ import moist.core.GameConstants.FishEatingPace
 import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.TileMaxFood
-import moist.ecs.components.Tile
 import moist.ecs.components.areaAround
 import moist.ecs.systems.body
-import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
 
 class UtilityAiComponent : Component, Pool.Poolable {
