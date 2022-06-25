@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.ashley.entity
@@ -30,10 +31,12 @@ import moist.world.world
 import kotlin.math.sqrt
 
 class City : Component, Poolable {
+    val sailVector = Vector2.Y
     var population = 100f
     var food = 1000f
 
     override fun reset() {
+        population = 100f
 
     }
 }
