@@ -1,6 +1,7 @@
 package moist.ecs.components
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.Pool
 import ktx.math.random
 import ktx.math.vec2
@@ -21,6 +22,7 @@ class Fish : Component, Pool.Poolable {
     var targetTile: Tile? = null
     var fishHideScore = (0.1f..0.6f).random().toDouble()
     var energy = ((FishMaxEnergy / 3)..FishMaxEnergy).random()
+    val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {
         gender = genders.random()
         var fishHideScore = (0.1f..0.9f).random().toDouble()

@@ -11,6 +11,7 @@ import moist.ecs.components.Box
 import moist.ecs.components.City
 import moist.world.SeaManager
 
+
 class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(allOf(Box::class, City::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
@@ -26,7 +27,7 @@ class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(a
         //Now for some wind stuff. But we need a sail on the boat
         //dotProduct(windDirection, sailDirection) + 1) / 2 * sailDirection * windForce
         val someValue = (Vector2.dot(wind.x, wind.y, sail.x, sail.y) + 1f) / 2f
-        val forceOnBoat =  sail * WindMagnitude * someValue
+        val forceOnBoat = sail * WindMagnitude * someValue
         city.currentForce.set(currentTile.current * GameConstants.CurrentsMagnitude)
         body.applyForceToCenter(city.currentForce, true)
         city.windForce.set(forceOnBoat)

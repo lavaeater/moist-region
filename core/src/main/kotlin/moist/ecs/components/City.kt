@@ -13,17 +13,19 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
-import ktx.math.plus
-import ktx.math.random
-import ktx.math.times
-import ktx.math.vec2
+import ktx.math.*
 import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.Box2dCategories
+import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.StartFishCount
 import moist.core.GameConstants.TileSize
+import moist.core.GameConstants.FoodMax
+import moist.core.GameConstants.FoodMin
+import moist.core.GameConstants.PopulationMax
+import moist.core.GameConstants.PopulationMin
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.ecs.systems.fish
@@ -36,10 +38,12 @@ class City : Component, Poolable {
     val drag = vec2()
     val sailVector = Vector2.Y
     var population = 100f
-    var food = 1000f
+    var food = FoodMax / 2
 
     val currentForce = vec2()
     val windForce = vec2()
+
+    val potentialCatches = mutableMapOf<Entity, Float>()
 
     override fun reset() {
         population = 100f
@@ -66,6 +70,9 @@ fun city(): Entity {
                         maskBits = Box2dCategories.whatCitiesCollideWith
                     }
                 }
+                circle(radius = 60f) {
+                    isSensor = true
+                }
             }
         }
         with<City> {
@@ -80,7 +87,7 @@ fun city(): Entity {
                 val shapeDrawer = inject<Assets>().shapeDrawer
                 val position = this@entity.entity.body().position
                 val city = this@entity.entity.city()
-                val rows = sqrt(city.population.toDouble()).toInt()
+                val rows = 8//sqrt(city.population.toDouble()).toInt()
                 val start = 0 - rows / 2
                 val stop = rows / 2
                 val radius = rows / 2 * sprite.width
@@ -92,10 +99,26 @@ fun city(): Entity {
                         sprite.draw(batch)
                     }
 
+                val healthBarStart = position - vec2(rows / 2 * sprite.width - sprite.width, 0f + sprite.height * 2f)
+                shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f,Color.BLACK, 3f)
+
+                val normalizedFood = MathUtils.norm(FoodMin, FoodMax, city.food)
+                shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedFood, Color.GREEN, 3f)
+
+                healthBarStart.set(healthBarStart.x, healthBarStart.y + sprite.height * 2f)
+                shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f,Color.BLACK, 3f)
+                val normalizedPop = MathUtils.norm(PopulationMin, PopulationMax, city.population)
+                shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedPop, Color.RED, 3f)
+
+
                 shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK)
                 shapeDrawer.line(position, position + city.currentForce, Color.BLUE)
                 shapeDrawer.line(position, position + city.windForce, Color.WHITE)
                 shapeDrawer.line(position, position + city.drag, Color.RED)
+
+
+
+                shapeDrawer.circle(position.x, position.y, 60f)
 
 //                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
 //                shapeDrawer.filledCircle(
@@ -108,43 +131,48 @@ fun city(): Entity {
     }
 }
 
+fun fish(fishPos: Vector2) {
+    engine().entity {
+        with<Box> {
+            body = world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.DynamicBody
+                position.set(fishPos)
+                box(.5f, .5f) {
+                    density = 1f
+                    filter {
+                        categoryBits = Box2dCategories.fish
+                        maskBits = Box2dCategories.whatFishCollideWith
+                    }
+                }
+            }
+        }
+        with<Fish>()
+        with<UtilityAiComponent>()
+        with<Renderable> {
+            renderType = RenderType.SelfRender(0) { batch, deltaTime ->
+                val shapeDrawer = inject<Assets>().shapeDrawer
+                val fish = this@entity.entity.fish()
+                fish.fishColor.g = MathUtils.norm(0f, FishMaxEnergy, fish.energy)
+                fish.fishColor.r = if(fish.energy > FishMatingEnergyRequirement) 1.0f else 0f
+                shapeDrawer.filledCircle(
+                    this@entity.entity.body().position,
+                    1.0f,
+                    fish.fishColor
+                )
+            }
+        }
+    }
+}
+
 fun fishes() {
     val min = 0 + TileSize
     val max = MaxTilesPerSide * TileSize - TileSize
     val range = min..max
     val shoalStartPoint = vec2(range.random(), range.random())
     (0 until StartFishCount).forEach {
-        engine().entity {
-            with<Box> {
-                body = world().body {
-                    userData = this@entity.entity
-                    type = BodyDef.BodyType.DynamicBody
-                    position.set(range.random(), range.random())
-                    box(.5f, .5f) {
-                        density = 1f
-                        filter {
-                            categoryBits = Box2dCategories.fish
-                            maskBits = Box2dCategories.whatFishCollideWith
-                        }
-                    }
-                }
-            }
-            with<Fish>()
-            with<UtilityAiComponent>()
-            with<Renderable> {
-                val fishColor = Color(1f, 0f, 1f, 1f)
-                renderType = RenderType.SelfRender(0) { batch, deltaTime ->
-                    val shapeDrawer = inject<Assets>().shapeDrawer
-                    val fish = this@entity.entity.fish()
-                    fishColor.g = MathUtils.norm(0f, FishMaxEnergy, fish.energy)
-                    shapeDrawer.filledCircle(
-                        this@entity.entity.body().position,
-                        1.0f,
-                        fishColor
-                    )
-                }
-            }
-        }
+        val fishPos = vec2(range.random(), range.random())
+        fish(fishPos)
     }
 }
 

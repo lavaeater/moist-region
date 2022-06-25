@@ -2,21 +2,32 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.SortedIteratingSystem
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.Fixture
 import ktx.ashley.allOf
 import ktx.graphics.use
-import ktx.math.plus
-import ktx.math.times
-import ktx.math.vec2
 import moist.core.Assets
-import moist.core.GameConstants
-import moist.core.GameConstants.MaxWaterTemp
-import moist.core.GameConstants.MinWaterTemp
-import moist.ecs.components.*
-import moist.world.SeaManager
+import moist.ecs.components.City
+import moist.ecs.components.Fish
+import moist.ecs.components.RenderType
+import moist.ecs.components.Renderable
+
+fun Fixture.isFish(): Boolean {
+    return this.body.userData is Entity && (this.body.userData as Entity).isFish()
+}
+
+fun Fixture.isCity(): Boolean {
+    return this.body.userData is Entity && (this.body.userData as Entity).isCity()
+}
+
+fun Entity.isFish(): Boolean {
+    return AshleyMappers.fish.has(this)
+}
+
+fun Entity.isCity(): Boolean {
+    return AshleyMappers.city.has(this)
+}
 
 fun Entity.fish(): Fish {
     return AshleyMappers.fish.get(this)

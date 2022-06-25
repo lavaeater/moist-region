@@ -15,10 +15,10 @@ object GameConstants {
     const val ControlMagnitude = 25f
     const val FishMagnitude = 1f
     const val FishMaxVelocity = 50f
-    const val populationMin = 1f
-    const val populationMax = 1000f
-    const val foodMin = 1f
-    const val foodMax = 1000f
+    const val PopulationMin = 1f
+    const val PopulationMax = 1000f
+    const val FoodMin = 1f
+    const val FoodMax = 1000f
     const val FishMaxEnergy = 100f
     const val FishEnergyExpenditurePerSecond = 0.1f
     const val TileStartFood = 2f
@@ -37,5 +37,6 @@ object Box2dCategories {
     const val fish: Short = 2
 
     val whatFishCollideWith = cities
-    val whatCitiesCollideWith = cities or fish
+    val whatCitiesCollideWith = cities
+    val whatCitiesSense = cities or fish
 }

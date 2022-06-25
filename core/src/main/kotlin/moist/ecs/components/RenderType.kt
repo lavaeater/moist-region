@@ -32,16 +32,16 @@ sealed class RenderType(val layer: Int) {
                     TileSize,
                     seaColor
                 )
-                x += TileSize / 2
-                y += TileSize / 2
-                shapeDrawer.line(
-                    x,
-                    y,
-                    x + tile.current.x * TileSize / 4,
-                    y + tile.current.y * TileSize / 4,
-                    currentStartColor,
-                    currentEndColor
-                )
+//                x += TileSize / 2
+//                y += TileSize / 2
+//                shapeDrawer.line(
+//                    x,
+//                    y,
+//                    x + tile.current.x * TileSize / 4,
+//                    y + tile.current.y * TileSize / 4,
+//                    currentStartColor,
+//                    currentEndColor
+//                )
             }
         }
     }
