@@ -1,6 +1,5 @@
 package moist.core
 
-import com.badlogic.gdx.Application.LOG_DEBUG
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -21,11 +20,11 @@ import moist.ecs.components.city
 import moist.ecs.components.fishes
 import moist.ecs.components.sea
 import moist.ecs.systems.body
+import moist.ecs.systems.city
 import moist.injection.Context.inject
 import moist.input.KeyPress
 import moist.input.command
 import moist.world.ChunkKey
-import moist.world.SeaManager
 import moist.world.TileChunk
 import moist.world.engine
 
@@ -94,7 +93,8 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         }
     }
 
-    private val city by lazy { city() }
+    private val cityEntity by lazy { city() }
+    private val cityComponent by lazy { cityEntity.city() }
 
     override fun resize(width: Int, height: Int) {
         viewPort.update(width, height)
@@ -125,7 +125,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     }
 
     private fun applyMovementForce() {
-        val cityBody = city.body()
+        val cityBody = cityEntity.body()
         cityBody.applyForceToCenter(movementVector * ControlMagnitude, true)
     }
 

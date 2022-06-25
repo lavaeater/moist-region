@@ -53,6 +53,7 @@ object Context {
             //addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem(inject()))
+            addSystem(WindSystem(inject()))
             addSystem(ForcesOnCitySystem(inject()))
             addSystem(FishMovementSystem())
             addSystem(FishDeathSystem())

@@ -15,5 +15,9 @@ class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(a
         val currentTile = seaManager.getTileAt(body.tileX(), body.tileY())
 
         body.applyForceToCenter(currentTile.current * GameConstants.CurrentsMagnitude, true)
+
+//        https://www.reddit.com/r/gamedev/comments/6fftbz/help_with_simplifying_sailing_physics/
+        //Now for some wind stuff. But we need a sail on the boat
+        forceOnBoat = (dotProduct(windDirection, sailDirection) + 1) / 2 * sailDirection * windForce
     }
 }
