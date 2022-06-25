@@ -13,7 +13,9 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.math.plus
 import ktx.math.random
+import ktx.math.times
 import ktx.math.vec2
 import moist.ai.UtilityAiComponent
 import moist.core.Assets
@@ -31,12 +33,18 @@ import moist.world.world
 import kotlin.math.sqrt
 
 class City : Component, Poolable {
+    val drag = vec2()
     val sailVector = Vector2.Y
     var population = 100f
     var food = 1000f
 
+    val currentForce = vec2()
+    val windForce = vec2()
+
     override fun reset() {
         population = 100f
+        currentForce.setZero()
+        windForce.setZero()
 
     }
 }
@@ -50,7 +58,7 @@ fun city(): Entity {
                 position.set((MaxTilesPerSide / 2) * TileSize, (MaxTilesPerSide / 2) * TileSize)
 //                linearDamping = 5f
                 box(2f, 2f) {
-//                    friction = 10f //Tune
+                    friction = 10f //Tune
                     density = 1f //tune
 //                    restitution = 0.9f
                     filter {
@@ -84,6 +92,10 @@ fun city(): Entity {
                         sprite.draw(batch)
                     }
 
+                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK)
+                shapeDrawer.line(position, position + city.currentForce, Color.BLUE)
+                shapeDrawer.line(position, position + city.windForce, Color.WHITE)
+                shapeDrawer.line(position, position + city.drag, Color.RED)
 
 //                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
 //                shapeDrawer.filledCircle(

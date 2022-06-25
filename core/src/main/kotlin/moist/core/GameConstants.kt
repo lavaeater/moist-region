@@ -11,7 +11,7 @@ object GameConstants {
     const val FishMatingEnergyRequirement = 0.7f
     const val MaxWaterTemp = 35f
     const val MinWaterTemp = 1f
-    const val CurrentsMagnitude = 5f
+    const val CurrentsMagnitude = 25f
     const val ControlMagnitude = 25f
     const val FishMagnitude = 1f
     const val FishMaxVelocity = 50f
@@ -28,6 +28,7 @@ object GameConstants {
     const val FoodTempDeath = 25f
     val FoodTempRange = FoodTempMin..FoodTempMax
     const val FishEatingPace = 5f
+    const val WindMagnitude = 50f
 }
 
 object Box2dCategories {

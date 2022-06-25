@@ -52,12 +52,25 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     private var accumulator = 0f
     private val world by lazy { inject<World>() }
 
+    private val cityEntity by lazy { city() }
+    private val cityComponent by lazy { cityEntity.city() }
+
+    private var sailRotation = 0f
+
 
     private val normalCommandMap = command("Normal") {
         setBoth(Input.Keys.W, "Move Up", { movementVector.y = 0f }, { movementVector.y = 1f })
         setBoth(Input.Keys.S, "Move Down", { movementVector.y = 0f }, { movementVector.y = -1f })
-        setBoth(Input.Keys.A, "Move Left", { movementVector.x = 0f }, { movementVector.x = -1f })
-        setBoth(Input.Keys.D, "Move Right", { movementVector.x = 0f }, { movementVector.x = 1f })
+        setBoth(
+            Input.Keys.A,
+            "Move Left",
+            { sailRotation = 0f },
+            { sailRotation = 1f })
+        setBoth(
+            Input.Keys.D,
+            "Move Right",
+            { sailRotation = 0f },
+            { sailRotation = - 1f })
         setBoth(Input.Keys.Z, "Zoom out", { cameraZoom = 0f }, { cameraZoom = 1f })
         setBoth(Input.Keys.X, "Zoom in", { cameraZoom = 0f }, { cameraZoom = -1f })
     }
@@ -74,15 +87,15 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         if (needsInit) {
             needsInit = false
 //            Gdx.app.logLevel = LOG_DEBUG
-            for(x in (-4..-3))
-                for(y in 2..3) {
-                    val ck = ChunkKey.keyForTileCoords(x,y)
+            for (x in (-4..-3))
+                for (y in 2..3) {
+                    val ck = ChunkKey.keyForTileCoords(x, y)
                     val chunk = TileChunk(ck)
                     debug { "Chunk: $x:$y:$ck" }
-                    debug { "Local: " + chunk.localX(x) + ":"  + chunk.localY(y)}
-                    debug { "Index: " + chunk.getIndex(chunk.localX(x), chunk.localY(y))}
+                    debug { "Local: " + chunk.localX(x) + ":" + chunk.localY(y) }
+                    debug { "Index: " + chunk.getIndex(chunk.localX(x), chunk.localY(y)) }
                     val tile = chunk.getTileAt(x, y)
-                    debug { "T: " + tile.x.toString() + ":" + tile.y.toString()}
+                    debug { "T: " + tile.x.toString() + ":" + tile.y.toString() }
                 }
 
 
@@ -92,9 +105,6 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
             Gdx.input.inputProcessor = this
         }
     }
-
-    private val cityEntity by lazy { city() }
-    private val cityComponent by lazy { cityEntity.city() }
 
     override fun resize(width: Int, height: Int) {
         viewPort.update(width, height)
@@ -115,7 +125,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         clearScreen(red = 0.1f, green = 0.1f, blue = 0.7f)
         updatePhysics(delta)
 
-        applyMovementForce()
+        applyInput()
 
         camera.zoom += zoomFactor * cameraZoom
         camera.update(false) //True or false, what's the difference?
@@ -124,9 +134,10 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         engine().update(delta)
     }
 
-    private fun applyMovementForce() {
-        val cityBody = cityEntity.body()
-        cityBody.applyForceToCenter(movementVector * ControlMagnitude, true)
+    private fun applyInput() {
+        cityComponent.sailVector.setAngleDeg(cityComponent.sailVector.angleDeg() + sailRotation)
+//        val cityBody = cityEntity.body()
+//        cityBody.applyForceToCenter(movementVector * ControlMagnitude, true)
     }
 
     override fun dispose() {
