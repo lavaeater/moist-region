@@ -28,7 +28,7 @@ object GameConstants {
     const val FoodTempMax = 10f
     const val FoodTempDeath = 25f
     val FoodTempRange = FoodTempMin..FoodTempMax
-    const val FishEatingPace = 5f
+    const val FishEatingPace = 10f
     const val WindMagnitude = 75f
 }
 

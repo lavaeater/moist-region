@@ -18,6 +18,8 @@ import moist.ecs.components.fish
 import moist.ecs.systems.body
 import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
+import moist.injection.Context.inject
+import moist.world.SeaManager
 import moist.world.engine
 
 class UtilityAiComponent : Component, Pool.Poolable {
@@ -42,6 +44,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val fishFamily = allOf(Fish::class).get()
         private val allTheFish get() = engine().getEntitiesFor(fishFamily)
 
+        private val seaManager = inject<SeaManager>()
+
         private val fishPlayAction = GenericAction("Fish Playing", {
             it.fish().fishPlayScore
         }, {
@@ -53,7 +57,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
             when (fish.targetTile) {
                 null -> {
                     val currentTile = body.currentTile()
-                    fish.targetTile = currentTile.areaAround(15).random()
+                    fish.targetTile = seaManager.getCurrentTiles().random()
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                     debug { "Going to play at ${fish.targetTile}"}
                 }
