@@ -10,6 +10,7 @@ import ktx.math.minus
 import moist.core.GameConstants.FishEatingPace
 import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
+import moist.core.GameConstants.FishPlayingEnergyRequirement
 import moist.core.GameConstants.MaxFishCount
 import moist.core.GameConstants.TileMaxFood
 import moist.ecs.components.Fish
@@ -28,6 +29,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
     fun topAction(entity: Entity): AiAction? {
         val potentialAction = actions.maxByOrNull { it.score(entity) }
         if (currentAction != potentialAction) {
+            debug { "Switching from ${currentAction?.name} to ${potentialAction?.name}" }
+            currentAction?.abort(entity)
             currentAction = potentialAction
         }
         return currentAction
@@ -47,7 +50,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val seaManager = inject<SeaManager>()
 
         private val fishPlayAction = GenericAction("Fish Playing", {
-            it.fish().fishPlayScore
+            if(it.fish().energy > FishPlayingEnergyRequirement) it.fish().fishPlayScore else 0.0
         }, {
             it.fish().targetTile = null
             debug { "Aborted play"}
@@ -56,17 +59,15 @@ class UtilityAiComponent : Component, Pool.Poolable {
             val fish = entity.fish()
             when (fish.targetTile) {
                 null -> {
-                    val currentTile = body.currentTile()
                     fish.targetTile = seaManager.getCurrentTiles().random()
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
-                    debug { "Going to play at ${fish.targetTile}"}
+                    debug { "Moving to new Tile for play"}
                 }
                 body.currentTile() -> {
-                    debug { "Arrived at ${fish.targetTile} for playtime" }
+                    debug { "Arrived for Play" }
                     fish.targetTile = null
                 }
                 else -> {
-//                    debug { "On my way to ${fish.targetTile}"}
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }
             }

@@ -90,7 +90,8 @@ fun city(): Entity {
             val spritePos = vec2()
             renderType = RenderType.SelfRender(2) { batch, deltaTime ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
-                val position = this@entity.entity.body().position
+                val body = this@entity.entity.body()
+                val position = body.position
                 val city = this@entity.entity.city()
                 val rows = 8//sqrt(city.population.toDouble()).toInt()
                 val start = 0 - rows / 2
@@ -116,10 +117,11 @@ fun city(): Entity {
                 shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedPop, Color.RED, 3f)
 
 
-                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK, 2f)
-                shapeDrawer.line(position, position + city.currentForce, Color.BLUE, 2f)
-                shapeDrawer.line(position, position + city.windForce, Color.WHITE, 2f)
-                shapeDrawer.line(position, position + city.drag, Color.RED, 2f)
+                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK, 3f)
+                shapeDrawer.line(position, position + body.linearVelocity, Color.RED, 3f)
+//                shapeDrawer.line(position, position + city.currentForce, Color.BLUE, 2f)
+//                shapeDrawer.line(position, position + city.windForce, Color.WHITE, 2f)
+//                shapeDrawer.line(position, position + city.drag, Color.RED, 2f)
 
 
 

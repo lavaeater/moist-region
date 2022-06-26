@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
@@ -16,6 +17,7 @@ import ktx.assets.toInternalFile
 import ktx.log.debug
 import ktx.math.times
 import ktx.math.vec2
+import ktx.scene2d.Scene2DSkin
 import moist.core.GameConstants.ControlMagnitude
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
@@ -90,6 +92,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         if (needsInit) {
+            Scene2DSkin.defaultSkin = Skin(Gdx.files.internal("ui/uiskin.json"))
             needsInit = false
             Gdx.app.logLevel = LOG_DEBUG
             for (x in (-4..-3))
@@ -137,8 +140,8 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         camera.zoom += zoomFactor * cameraZoom
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
-//        hud.render(delta)
         engine().update(delta)
+        hud.render(delta)
     }
 
     private fun applyInput() {
