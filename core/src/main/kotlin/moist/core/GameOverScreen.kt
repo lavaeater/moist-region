@@ -59,7 +59,7 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                 label("the Red Dial shows where you're headed") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 5f
+                    currentPos.y -= this.height * 7f
                 }
                 label("""You caught ${GameStats.caughtFish} fish
                     You maxed your population at ${GameStats.maxPopulation}

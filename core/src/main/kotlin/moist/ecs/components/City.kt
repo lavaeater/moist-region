@@ -161,7 +161,7 @@ fun cloud(cloudPos: Vector2) {
         }
         with<Cloud> {
             for(i in 1 until (5..10).random()) {
-                val range = 10f..50f
+                val range = -50f..50f
                 cloudPuffs.add(Circle(range.random(), range.random(), range.random()))
             }
         }

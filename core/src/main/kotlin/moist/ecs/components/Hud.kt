@@ -14,6 +14,7 @@ import ktx.math.vec3
 import ktx.scene2d.*
 import moist.ai.AiCounter
 import moist.core.GameConstants
+import moist.core.GameStats
 import moist.ecs.systems.city
 import moist.injection.Context
 import moist.world.engine
@@ -51,11 +52,9 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
                 setPosition(20f, 40f)
             }
-//            boundLabel({AiCounter.actionCounter.map {
-//                "${it.key.name}: ${it.value}"
-//            }.joinToString("\n")}) {
-//                setPosition(240f, 40f)
-//            }
+            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime})" }) {
+                setPosition(160f, 40f)
+            }
         }
         aStage
     }

@@ -91,18 +91,26 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
             shapeDrawer.filledCircle(position.x + cloudPuff.x, position.y + cloudPuff.y, cloudPuff.radius, shadowColor)
         }
         for (cloudPuff in cloud.cloudPuffs) {
+
             shapeDrawer.filledCircle(
-                position.x + cloudPuff.x + 15f,
-                position.y + cloudPuff.y + 15f,
+                position.x + cloudPuff.x + 50f,
+                position.y + cloudPuff.y + 50f,
+                cloudPuff.radius,
+                Color.WHITE
+            )
+            shapeDrawer.filledCircle(
+                position.x + cloudPuff.x + 50f,
+                position.y + cloudPuff.y + 50f,
                 cloudPuff.radius,
                 cloudExtraColor
             )
             shapeDrawer.filledCircle(
-                position.x + cloudPuff.x + 25f,
-                position.y + cloudPuff.y + 25f,
+                position.x + cloudPuff.x + 60f,
+                position.y + cloudPuff.y + 60f,
                 cloudPuff.radius,
                 Color.WHITE
             )
+
         }
     }
 
