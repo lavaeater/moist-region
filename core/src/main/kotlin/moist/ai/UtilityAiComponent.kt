@@ -66,7 +66,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     fish.targetTile = null
                 }
                 else -> {
-                    debug { "On my way to ${fish.targetTile}"}
+//                    debug { "On my way to ${fish.targetTile}"}
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }
             }
@@ -125,7 +125,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 } else if (fish.targetTile == currentTile) {
                     if (currentTile.currentFood > 0f) {
-                        debug { "Eating at $currentTile" }
+//                        debug { "Eating at $currentTile" }
                         val eatAmount = deltaTime * FishEatingPace
                         fish.direction.setZero()
                         fish.energy += eatAmount
@@ -151,7 +151,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             }
                             fish.targetTile = foodTiles.random()
                         }
-                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
+//                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 } else if (fish.targetTile == null) {
                     if (currentTile.currentFood > 0f) {
@@ -161,7 +161,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
                         currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
-                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
+//                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
                         // We should eat here
                     } else {
                         /*
@@ -180,7 +180,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             }
                             fish.targetTile = foodTiles.random()
                         }
-                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
+//                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 }
             }
