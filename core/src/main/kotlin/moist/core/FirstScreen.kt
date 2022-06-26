@@ -16,6 +16,7 @@ import ktx.log.debug
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.ControlMagnitude
+import moist.ecs.components.Hud
 import moist.ecs.components.city
 import moist.ecs.components.fishes
 import moist.ecs.components.sea
@@ -56,6 +57,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     private val cityComponent by lazy { cityEntity.city() }
 
     private var sailRotation = 0f
+    private val hud by lazy { inject<Hud>() }
 
 
     private val normalCommandMap = command("Normal") {
@@ -103,6 +105,8 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
             sea()
             fishes()
             Gdx.input.inputProcessor = this
+            viewPort.minWorldHeight = 1000f
+            viewPort.minWorldWidth = 1000f
         }
     }
 
@@ -130,7 +134,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
         camera.zoom += zoomFactor * cameraZoom
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
-
+//        hud.render(delta)
         engine().update(delta)
     }
 

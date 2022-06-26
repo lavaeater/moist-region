@@ -28,9 +28,9 @@ class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(a
         //dotProduct(windDirection, sailDirection) + 1) / 2 * sailDirection * windForce
         val someValue = (Vector2.dot(wind.x, wind.y, sail.x, sail.y) + 1f) / 2f
         val forceOnBoat = sail * WindMagnitude * someValue
-        city.currentForce.set(currentTile.current * GameConstants.CurrentsMagnitude)
+        city.currentForce.lerp(currentTile.current * GameConstants.CurrentsMagnitude, 0.1f)
         body.applyForceToCenter(city.currentForce, true)
-        city.windForce.set(forceOnBoat)
+        city.windForce.lerp(forceOnBoat, 0.1f)
         body.applyForceToCenter(city.windForce, true)
 
         city.drag.set(body.linearVelocity * -0.5f)

@@ -3,10 +3,14 @@ package moist.ecs.components
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Pool.Poolable
+import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
@@ -28,11 +32,11 @@ import moist.core.GameConstants.PopulationMax
 import moist.core.GameConstants.PopulationMin
 import moist.ecs.systems.body
 import moist.ecs.systems.city
+import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.engine
 import moist.world.world
-import kotlin.math.sqrt
 
 class City : Component, Poolable {
     val drag = vec2()
@@ -111,10 +115,10 @@ fun city(): Entity {
                 shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedPop, Color.RED, 3f)
 
 
-                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK)
-                shapeDrawer.line(position, position + city.currentForce, Color.BLUE)
-                shapeDrawer.line(position, position + city.windForce, Color.WHITE)
-                shapeDrawer.line(position, position + city.drag, Color.RED)
+                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK, 2f)
+                shapeDrawer.line(position, position + city.currentForce, Color.BLUE, 2f)
+                shapeDrawer.line(position, position + city.windForce, Color.WHITE, 2f)
+                shapeDrawer.line(position, position + city.drag, Color.RED, 2f)
 
 
 
@@ -182,4 +186,38 @@ fun sea() {
             renderType = RenderType.Sea()
         }
     }
+}
+
+fun hud() {
+
+    // We project screen coordinates to world coordinates, simple as that! Maybe?
+    val screenCoordinates = vec3(100f, 100f, 0f)
+    val camera = inject<OrthographicCamera>()
+
+    engine().entity {
+
+    }
+
+}
+
+class CompassActor: Actor() {
+    private val playerFamily = allOf(City::class).get()
+    private val allCities get() = engine().getEntitiesFor(playerFamily)
+    private val currentVector = Vector2.X
+    private val windVector = Vector2.X
+
+    private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
+    override fun draw(batch: Batch, parentAlpha: Float) {
+        for(cityEntity in allCities) {
+            val body = cityEntity.body()
+            val currentTile = body.currentTile()
+            currentVector.lerp(currentTile.current, 0.1f)
+            windVector.lerp(currentTile.wind, 0.1f)
+
+            shapeDrawer.line(x, y, x + currentVector.x, y + currentVector.y, Color.BLUE)
+            shapeDrawer.line(x, y, x + windVector.x, y + windVector.y, Color.WHITE)
+        }
+
+    }
+
 }
