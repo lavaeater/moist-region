@@ -3,10 +3,10 @@ package moist.core
 import kotlin.experimental.or
 
 object GameConstants {
-    const val TileSize = 50f
+    const val TileSize = 150f
     const val GameWidth = 96f
     const val GameHeight = 64f
-    const val MaxTilesPerSide = 25
+    const val MaxTilesPerSide = 10
     const val StartFishCount = 150
     const val MaxFishCount = 500
     const val FishMatingEnergyRequirement = 80f
@@ -30,15 +30,21 @@ object GameConstants {
     const val FoodTempDeath = 35f
     val FoodTempRange = FoodTempMin..FoodTempMax
     const val FishEatingPace = 50f
-    const val WindMagnitude = 75f
+    const val WindMagnitude = 150f
+    const val MaxClouds = 50
+    const val MinClouds = 10
+    const val MaxCloudSpeed = 50f
+    const val CloudMagnitude = 25f
 }
 
 object Box2dCategories {
     const val none: Short = 0
     const val cities: Short = 1
     const val fish: Short = 2
+    const val cloud: Short = 4
 
     val whatFishCollideWith = cities
     val whatCitiesCollideWith = cities
     val whatCitiesSense = cities or fish
+    val whatCloudsCollideWith = none
 }

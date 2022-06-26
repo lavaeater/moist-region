@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -135,6 +136,33 @@ fun city(): Entity {
 //                    this@entity.entity.city().population / 100f,
 //                    cityColor
 //                )
+            }
+        }
+    }
+}
+
+fun cloud(cloudPos: Vector2) {
+    engine().entity {
+        with<Box> {
+            body = world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.DynamicBody
+                position.set(cloudPos)
+                circle(1f) {
+                    filter {
+                        categoryBits = Box2dCategories.cloud
+                        maskBits = Box2dCategories.whatCloudsCollideWith
+                    }
+                }
+            }
+        }
+        with<Renderable> {
+            renderType = RenderType.Cloud
+        }
+        with<Cloud> {
+            for(i in 1 until (5..10).random()) {
+                val range = 10f..50f
+                cloudPuffs.add(Circle(range.random(), range.random(), range.random()))
             }
         }
     }

@@ -134,7 +134,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     val allBodies get() =  engine().getEntitiesFor(bodyFamily)
 
     private fun checkGameConditions() {
-        if (cityComponent.population < 50) {
+        if (cityComponent.population < 10) {
             GameStats.population = cityComponent.population.toInt()
             GameStats.remainingFood = cityComponent.food.toInt()
 

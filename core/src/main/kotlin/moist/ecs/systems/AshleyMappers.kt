@@ -8,4 +8,5 @@ object AshleyMappers {
     val renderable = mapperFor<Renderable>()
     val box = mapperFor<Box>()
     val city = mapperFor<City>()
+    val cloud = mapperFor<Cloud>()
 }

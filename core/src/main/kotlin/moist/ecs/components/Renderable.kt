@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.Pool
 
 
 class Renderable: Component, Pool.Poolable {
-    var renderType: RenderType = RenderType.RenderableSprite
+    var renderType: RenderType = RenderType.NotReallyRelevant
 
     override fun reset() {
-        renderType = RenderType.RenderableSprite
+        renderType = RenderType.NotReallyRelevant
     }
 }

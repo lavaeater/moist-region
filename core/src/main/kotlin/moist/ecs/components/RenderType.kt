@@ -47,8 +47,8 @@ sealed class RenderType(val layer: Int) {
             }
         }
     }
-
-    object RenderableSprite : RenderType(2)
+    object Cloud: RenderType(3)
+    object NotReallyRelevant : RenderType(2)
     class RenderAnimation(layer:Int, val animation: Animation<Sprite>, var time: Float = 0f) : RenderType(layer)
     class SelfRender(layer: Int, private val renderFunc: (batch: PolygonSpriteBatch, deltaTime: Float) -> Unit) :
         RenderType(layer) {
