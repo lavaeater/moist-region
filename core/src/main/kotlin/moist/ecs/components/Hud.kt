@@ -51,11 +51,11 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
                 setPosition(20f, 40f)
             }
-            boundLabel({AiCounter.actionCounter.map {
-                "${it.key.name}: ${it.value}"
-            }.joinToString("\n")}) {
-                setPosition(240f, 40f)
-            }
+//            boundLabel({AiCounter.actionCounter.map {
+//                "${it.key.name}: ${it.value}"
+//            }.joinToString("\n")}) {
+//                setPosition(240f, 40f)
+//            }
         }
         aStage
     }

@@ -36,7 +36,7 @@ class SeaManager {
     }
 
     private val chunks = mutableMapOf<ChunkKey, TileChunk>()
-    val allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+    val allTiles get() = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
 
     private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
         return ChunkKey.keyForTileCoords(x, y)
@@ -119,7 +119,30 @@ class SeaManager {
             val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
             currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
             currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+            fixNeighbours()
         }
+    }
+
+    private fun fixNeighbours() {
+        val minX = currentChunks.minOf { it.minX } + 1
+        val maxX = currentChunks.maxOf { it.maxX } - 1
+        val minY = currentChunks.maxOf { it.minY } - 1
+        val maxY = currentChunks.maxOf { it.maxY } + 1
+        for(x in minX..maxX)
+            for(y in minY..maxY) {
+                val tile = getTileAt(x, y)
+                if(tile.neighbours.count() < 8) {
+                    tile.neighbours.clear()
+                    for(offsetX in -1..1)
+                        for(offsetY in -1..1) {
+                            val nX = x + offsetX
+                            val nY = y + offsetY
+                            val nTile = getTileAt(nX, nY)
+                            tile.neighbours.add(nTile)
+                        }
+                }
+            }
+
     }
 
     fun getTileAt(worldX: Int, worldY: Int): Tile {

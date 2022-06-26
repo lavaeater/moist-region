@@ -18,7 +18,7 @@ class FishAndGameManagement: ContactListener {
 
 
             val cityComponent = cityEntity.city()
-            cityComponent.potentialCatches[fishEntity] = 1f
+            cityComponent.potentialCatches[fishEntity] = 0.5f
         }
     }
 

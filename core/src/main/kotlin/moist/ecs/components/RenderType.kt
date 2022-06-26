@@ -23,8 +23,8 @@ sealed class RenderType(val layer: Int) {
             var y = 0f
             for (tile in seaManager.getCurrentTiles()) {
                 seaColor.b = tile.depth
-                seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood)
-                seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp)
+//                seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood)
+                seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp / 2f)
                 x = tile.x * TileSize - TileSize / 2
                 y = tile.y * TileSize - TileSize / 2
                 shapeDrawer.filledRectangle(
@@ -34,16 +34,6 @@ sealed class RenderType(val layer: Int) {
                     TileSize,
                     seaColor
                 )
-//                x += TileSize / 2
-//                y += TileSize / 2
-//                shapeDrawer.line(
-//                    x,
-//                    y,
-//                    x + tile.current.x * TileSize / 4,
-//                    y + tile.current.y * TileSize / 4,
-//                    currentStartColor,
-//                    currentEndColor
-//                )
             }
         }
     }

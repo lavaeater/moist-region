@@ -57,6 +57,7 @@ object Context {
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem(inject()))
             addSystem(WindSystem(inject()))
+            addSystem(TemperatureChangeSystem(inject()))
             addSystem(ForcesOnCitySystem(inject()))
             addSystem(FishMovementSystem())
             addSystem(FishDeathSystem())
@@ -65,6 +66,7 @@ object Context {
             addSystem(FisherySystem())
             addSystem(CityHungerSystem())
             addSystem(CloudSystem())
+            addSystem(TrailsSystem())
 //            addSystem(SeaWavesSystem())
         }
     }
