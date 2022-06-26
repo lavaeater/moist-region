@@ -30,6 +30,7 @@ import moist.core.GameConstants.FoodMax
 import moist.core.GameConstants.FoodMin
 import moist.core.GameConstants.PopulationMax
 import moist.core.GameConstants.PopulationMin
+import moist.core.GameConstants.TileMaxFood
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.ecs.systems.currentTile
@@ -43,7 +44,7 @@ class City : Component, Poolable {
     val drag = vec2()
     val sailVector = Vector2.Y
     var population = 100f
-    var food = FoodMax / 5
+    var food = FoodMax / 2
 
     val currentForce = vec2()
     val windForce = vec2()
@@ -54,7 +55,8 @@ class City : Component, Poolable {
         population = 100f
         currentForce.setZero()
         windForce.setZero()
-
+        food = FoodMax / 2
+        potentialCatches.clear()
     }
 }
 

@@ -48,17 +48,17 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                 label("Fish the fish with your floating city (theme, you know)") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 1.25f
+                    currentPos.y -= this.height * 2f
                 }
                 label("Steer the sail with A and D - ") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 1.25f
+                    currentPos.y -= this.height * 2f
                 }
                 label("the Red Dial shows where you're headed") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 1.25f
+                    currentPos.y -= this.height * 5f
                 }
                 label("""You caught ${GameStats.caughtFish} fish
                     You maxed your population at ${GameStats.maxPopulation}
@@ -66,7 +66,7 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                 """.trimMargin()){
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 1.25f
+                    currentPos.y -= this.height * 2f
                 }
 
 

@@ -1,5 +1,6 @@
 package moist.core
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Application.LOG_DEBUG
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -11,16 +12,16 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
+import ktx.ashley.allOf
+import ktx.ashley.remove
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.log.debug
 import ktx.math.vec2
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
-import moist.ecs.components.Hud
-import moist.ecs.components.city
-import moist.ecs.components.fishes
-import moist.ecs.components.sea
+import moist.ecs.components.*
+import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context.inject
 import moist.input.KeyPress
@@ -53,8 +54,8 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private var accumulator = 0f
     private val world by lazy { inject<World>() }
 
-    private val cityEntity by lazy { city() }
-    private val cityComponent by lazy { cityEntity.city() }
+    private lateinit var cityEntity: Entity
+    private val cityComponent get() = cityEntity.city()
 
     private var sailRotation = 0f
     private val hud by lazy { inject<Hud>() }
@@ -72,7 +73,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
             Input.Keys.D,
             "Move Right",
             { sailRotation = 0f },
-            { sailRotation = - 1f })
+            { sailRotation = -1f })
         setBoth(Input.Keys.Z, "Zoom out", { cameraZoom = 0f }, { cameraZoom = 1f })
         setBoth(Input.Keys.X, "Zoom in", { cameraZoom = 0f }, { cameraZoom = -1f })
     }
@@ -86,25 +87,13 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     override fun show() {
-        if (needsInit) {
-            needsInit = false
-            Gdx.app.logLevel = LOG_DEBUG
-            for (x in (-4..-3))
-                for (y in 2..3) {
-                    val ck = ChunkKey.keyForTileCoords(x, y)
-                    val chunk = TileChunk(ck)
-                    debug { "Chunk: $x:$y:$ck" }
-                    debug { "Local: " + chunk.localX(x) + ":" + chunk.localY(y) }
-                    debug { "Index: " + chunk.getIndex(chunk.localX(x), chunk.localY(y)) }
-                    val tile = chunk.getTileAt(x, y)
-                    debug { "T: " + tile.x.toString() + ":" + tile.y.toString() }
-                }
+        cityEntity = city()
+        for(system in engine().systems)
+            system.setProcessing(true)
+        sea()
+        fishes()
+        checkGameConditions()
 
-
-
-            sea()
-            fishes()
-        }
         Gdx.input.inputProcessor = this
         viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
         viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
@@ -141,10 +130,22 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         checkGameConditions()
     }
 
+    val bodyFamily = allOf(Box::class).get()
+    val allBodies get() =  engine().getEntitiesFor(bodyFamily)
+
     private fun checkGameConditions() {
-        if(cityComponent.population < 50) {
+        if (cityComponent.population < 50) {
             GameStats.population = cityComponent.population.toInt()
             GameStats.remainingFood = cityComponent.food.toInt()
+
+            for(entity in allBodies) {
+                world.destroyBody(entity.body())
+                entity.remove<Box>()
+            }
+
+            for(system in engine().systems)
+                system.setProcessing(false)
+            engine().removeAllEntities()
             mainGame.setScreen<GameOverScreen>()
         }
     }
