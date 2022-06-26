@@ -188,17 +188,6 @@ fun fish(fishPos: Vector2) {
         with<UtilityAiComponent>()
         with<Renderable> {
             renderType = RenderType.RenderAnimation(0, inject<Assets>().fishAnim)
-//            renderType = RenderType.SelfRender(0) { batch, deltaTime ->
-//                val shapeDrawer = inject<Assets>().shapeDrawer
-//                val fish = this@entity.entity.fish()
-//                fish.fishColor.g = MathUtils.norm(0f, FishMaxEnergy, fish.energy)
-//                fish.fishColor.r = if(fish.energy > FishMatingEnergyRequirement) 1.0f else 0f
-//                shapeDrawer.filledCircle(
-//                    this@entity.entity.body().position,
-//                    10.0f,
-//                    fish.fishColor
-//                )
-//            }
         }
     }
 }

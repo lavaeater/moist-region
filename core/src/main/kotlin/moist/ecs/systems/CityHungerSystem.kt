@@ -11,7 +11,6 @@ import moist.core.GameConstants.PopulationMin
 import moist.core.GameStats
 import moist.ecs.components.City
 import java.lang.Float.max
-import java.lang.Float.min
 
 class CityHungerSystem : IteratingSystem(allOf(City::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {

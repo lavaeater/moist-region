@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
 import ktx.log.debug
+import moist.ai.AiCounter
 import moist.core.GameConstants
 import moist.ecs.components.Fish
 import moist.ecs.components.fish
@@ -19,6 +20,10 @@ class FishDeathSystem: IteratingSystem(allOf(Fish::class).get()) {
             debug { "Fish Died, mate!"}
             val body = entity.body()
             world().destroyBody(body)
+            val ai = AshleyMappers.ai.get(entity)
+            val action = ai.topAction(entity)!!
+            AiCounter.actionCounter[action] = AiCounter.actionCounter[action]!! - 1
+
             engine.removeEntity(entity)
             if(allFish.count() < GameConstants.StartFishCount) {
                 randomFish()

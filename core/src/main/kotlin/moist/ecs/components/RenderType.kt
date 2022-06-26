@@ -14,7 +14,7 @@ import moist.world.SeaManager
 sealed class RenderType(val layer: Int) {
     class Sea : RenderType(1) {
         private val seaManager = inject<SeaManager>()
-        private val seaColor = Color(1f, 0f, 0f, 0.8f)
+        private val seaColor = Color(0f, 0f, 0f, 0.8f)
         private val currentStartColor = Color(.4f, .4f, 1f, 0.5f)
         private val currentEndColor = Color(.7f, .7f, 1f, 0.5f)
         private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }

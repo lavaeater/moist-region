@@ -41,10 +41,9 @@ class CloudSystem: IteratingSystem(allOf(Cloud::class, Box::class).get()) {
         } else {
             val cloud = entity.cloud()
             cloud.cloudDirection.lerp(currentTile.wind * CloudMagnitude, 0.1f)
-
-            if (body.linearVelocity.len() < MaxCloudSpeed) {
-                body.applyForceToCenter(cloud.cloudDirection, true)
-            }
+            body.applyForceToCenter(cloud.cloudDirection, true)
+            val drag = body.linearVelocity * -0.5f
+            body.applyForceToCenter(drag, true)
         }
     }
 }

@@ -2,6 +2,7 @@ package moist.core
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Application.LOG_DEBUG
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -95,6 +96,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         checkGameConditions()
 
         Gdx.input.inputProcessor = this
+//        Gdx.app.logLevel = LOG_DEBUG
         viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
         viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
         viewPort.update(Gdx.graphics.width, Gdx.graphics.height)
@@ -127,6 +129,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         engine().update(delta)
         hud.render(delta)
 
+        GameStats.playTime += delta
         checkGameConditions()
     }
 
@@ -137,6 +140,8 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         if (cityComponent.population < 10) {
             GameStats.population = cityComponent.population.toInt()
             GameStats.remainingFood = cityComponent.food.toInt()
+            if(GameStats.playTime > GameStats.highestPlayTime)
+                GameStats.highestPlayTime = GameStats.playTime
 
             for(entity in allBodies) {
                 world.destroyBody(entity.body())
@@ -152,8 +157,6 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
     private fun applyInput() {
         cityComponent.sailVector.setAngleDeg(cityComponent.sailVector.angleDeg() + sailRotation)
-//        val cityBody = cityEntity.body()
-//        cityBody.applyForceToCenter(movementVector * ControlMagnitude, true)
     }
 
     override fun dispose() {
@@ -168,4 +171,6 @@ object GameStats {
     var maxPopulation = 0
     var remainingFood = 0
     var caughtFish = 0
+    var playTime = 0f
+    var highestPlayTime = 0f
 }

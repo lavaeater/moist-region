@@ -2,6 +2,7 @@ package moist.ai
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.allOf
@@ -22,6 +23,12 @@ import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.SeaManager
 import moist.world.engine
+import net.dermetfan.gdx.math.InterpolationUtils
+import kotlin.math.sqrt
+
+object AiCounter {
+    val actionCounter = mutableMapOf<AiAction, Int>(UtilityAiComponent.fishMatingAction to 0, UtilityAiComponent.fishPlayAction to 0, UtilityAiComponent.fishFoodAction to 0)
+}
 
 class UtilityAiComponent : Component, Pool.Poolable {
     val actions = defaultActions.toMutableList()
@@ -29,7 +36,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
     fun topAction(entity: Entity): AiAction? {
         val potentialAction = actions.maxByOrNull { it.score(entity) }
         if (currentAction != potentialAction) {
-            debug { "Switching from ${currentAction?.name} to ${potentialAction?.name}" }
+            if(currentAction != null)
+                AiCounter.actionCounter[currentAction!!] = AiCounter.actionCounter[currentAction]!! - 1
+            if(potentialAction != null)
+                AiCounter.actionCounter[potentialAction] = AiCounter.actionCounter[potentialAction]!! + 1
             currentAction?.abort(entity)
             currentAction = potentialAction
         }
@@ -49,11 +59,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
 
         private val seaManager = inject<SeaManager>()
 
-        private val fishPlayAction = GenericAction("Fish Playing", {
-            if(it.fish().energy > FishPlayingEnergyRequirement) 0.4 else 0.0
+        val fishPlayAction = GenericAction("Fish Playing", {
+            it.fish().fishPlayScore
         }, {
             it.fish().targetTile = null
-            debug { "Aborted play"}
         }, { entity, deltaTime ->
             val body = entity.body()
             val fish = entity.fish()
@@ -61,10 +70,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 null -> {
                     fish.targetTile = seaManager.getCurrentTiles().random()
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
-                    debug { "Moving to new Tile for play"}
                 }
                 body.currentTile() -> {
-                    debug { "Arrived for Play" }
                     fish.targetTile = null
                     fish.direction.setZero()
                 }
@@ -74,11 +81,16 @@ class UtilityAiComponent : Component, Pool.Poolable {
             }
         })
 
-        private val fishMatingAction = GenericAction("Fish Mating", {
-            if (it.fish().energy > FishMatingEnergyRequirement) 0.9 else 0.0
+        val fastThenSlow = Interpolation.fastSlow
+
+        val fishMatingAction = GenericAction("Fish Mating", {
+            if(it.fish().hasMated) 0.0 else {
+                val score = MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
+                val newScore = fastThenSlow.apply(0f, 1f, score)
+                newScore.toDouble()
+            }
         }, {
             it.fish().targetTile = null
-            debug { "Mating aborted" }
         }, { entity, deltaTime ->
             val fish = entity.fish()
             val body = entity.body()
@@ -97,25 +109,26 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         for (i in 0 until numberOfFish) {
                             fish(body.position)
                         }
-                        debug { "$numberOfFish were born!" }
                         fish.energy = 15f
+                        fish.hasMated = true
                     }
                 }
             } else if (fish.targetTile == null) {
                 //1. Are there fish within mating distance that also wish to mate?
                 val closestFish = allTheFish.minByOrNull { it.body().position.dst(body.position) }!!
                 fish.targetTile = closestFish.body().currentTile()
-                debug { "Trying to find a mate"}
             }
         })
 
-        private val fishFoodAction = GenericAction("Fish Food",
+        private val slowThenFast = Interpolation.pow4In
+        val fishFoodAction = GenericAction("Fish Food",
             {
-                (1f - MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)).toDouble()
+                val score = 1f - MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
+                val newScore = slowThenFast.apply ( 0f, 1f, score)
+                newScore.toDouble()
             },
             {
                 it.fish().targetTile = null
-                debug { "Stopped eating, y'all" }
             },
             { entity, deltaTime ->
                 //1. Check the current tile for food
@@ -127,21 +140,13 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 } else if (fish.targetTile == currentTile) {
                     if (currentTile.currentFood > 0f) {
-//                        debug { "Eating at $currentTile" }
                         val eatAmount = deltaTime * FishEatingPace
                         fish.direction.setZero()
                         fish.energy += eatAmount
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
                         currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
-                        //debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
-                        // We should eat here
                     } else {
-                        /*
-                        We need to find somewhere else to eat
-                        If a neighbouring tile has food, go there,
-                        otherwise, go to a random tile
-                         */
                         var foodTiles = currentTile.neighbours.filter { it.currentFood > 0f }
 
                         if (foodTiles.any())
@@ -149,22 +154,19 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         else {
                             var radius = 5
                             while (foodTiles.isEmpty()) {
-                                foodTiles = currentTile.areaAround(radius++).filter { it.currentFood > 0 }
+                                foodTiles = currentTile.areaAround(radius++).filter { it.currentFood > 0f }
                             }
                             fish.targetTile = foodTiles.random()
                         }
-//                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 } else if (fish.targetTile == null) {
                     if (currentTile.currentFood > 0f) {
                         val eatAmount = deltaTime * FishEatingPace
-                        fish.direction.set(currentTile.worldCenter - body.worldCenter).nor()
+                        fish.direction.setZero()
                         fish.energy += eatAmount
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
                         currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
-//                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
-                        // We should eat here
                     } else {
                         /*
                         We need to find somewhere else to eat
@@ -182,7 +184,6 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             }
                             fish.targetTile = foodTiles.random()
                         }
-//                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 }
             }

@@ -16,7 +16,7 @@ data class Tile(
     var airTemp: Float = 15f
 ) {
     val neighbours = mutableListOf<Tile>()
-    var currentFood = (0f..TileStartFood).random()
+    var currentFood = (25f..TileStartFood).random()
     var originalDepth: Float = 0f
     val current = vec2()
     val wind = vec2()

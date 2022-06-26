@@ -40,5 +40,5 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
             Sprite(TextureRegion(fishTexture, x, y, 32,32))
         })
     }
-    val fishAnim by lazy { Animation(0.125f, fishRegions, Animation.PlayMode.LOOP_PINGPONG) }
+    val fishAnim by lazy { Animation(0.1f, fishRegions, Animation.PlayMode.LOOP_PINGPONG) }
 }

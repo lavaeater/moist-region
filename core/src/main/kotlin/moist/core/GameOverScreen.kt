@@ -18,6 +18,7 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
         GameStats.population = 0
         GameStats.maxPopulation = 0
         GameStats.remainingFood = 0
+        GameStats.playTime = 0f
         mainGame.setScreen<GameScreen>()
     }
 }) {
@@ -63,6 +64,8 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                 label("""You caught ${GameStats.caughtFish} fish
                     You maxed your population at ${GameStats.maxPopulation}
                     The game ended when you had ${GameStats.remainingFood} food remainging.
+                    You played for ${GameStats.playTime} seconds 
+                    Longest playtime is ${GameStats.highestPlayTime} seconds
                 """.trimMargin()){
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)

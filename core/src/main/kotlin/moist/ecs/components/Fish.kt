@@ -34,9 +34,11 @@ class Fish : Component, Pool.Poolable {
     val direction = vec2()
     var targetTile: Tile? = null
     var fishPlayScore = (0.6f..0.9f).random().toDouble()
+    var hasMated = false
     var energy = ((FishMaxEnergy / 3)..(FishMaxEnergy - (FishMaxEnergy - FishMatingEnergyRequirement) * 2)).random()
     val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {
+        hasMated = true
         gender = genders.random()
         var fishHideScore = (0.1f..0.9f).random().toDouble()
         targetTile = null

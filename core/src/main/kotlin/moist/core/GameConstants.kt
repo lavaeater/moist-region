@@ -7,8 +7,8 @@ object GameConstants {
     const val GameWidth = 96f
     const val GameHeight = 64f
     const val MaxTilesPerSide = 10
-    const val StartFishCount = 150
-    const val MaxFishCount = 500
+    const val StartFishCount = 50
+    const val MaxFishCount = 250
     const val FishMatingEnergyRequirement = 80f
     const val FishPlayingEnergyRequirement = 50f
     const val MaxWaterTemp = 35f
@@ -23,7 +23,7 @@ object GameConstants {
     const val FoodMax = 1000f
     const val FishMaxEnergy = 100f
     const val FishEnergyExpenditurePerSecond = 0.5f
-    const val TileStartFood = 2f
+    const val TileStartFood = 5f
     const val TileMaxFood = 100f
     const val FoodTempMin = 5f
     const val FoodTempMax = 20f
