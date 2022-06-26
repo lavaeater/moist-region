@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.physics.box2d.World
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
@@ -16,7 +15,6 @@ import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.log.debug
 import ktx.math.vec2
-import ktx.scene2d.Scene2DSkin
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.ecs.components.Hud
@@ -31,7 +29,7 @@ import moist.world.ChunkKey
 import moist.world.TileChunk
 import moist.world.engine
 
-class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
+class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private val image = Texture("logo.png".toInternalFile(), true).apply {
         setFilter(
             Texture.TextureFilter.Linear,
@@ -106,11 +104,11 @@ class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
             sea()
             fishes()
-            Gdx.input.inputProcessor = this
-            viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
-            viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
-            viewPort.update(Gdx.graphics.width, Gdx.graphics.height)
         }
+        Gdx.input.inputProcessor = this
+        viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
+        viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
+        viewPort.update(Gdx.graphics.width, Gdx.graphics.height)
     }
 
     override fun resize(width: Int, height: Int) {
@@ -139,6 +137,16 @@ class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         batch.projectionMatrix = camera.combined
         engine().update(delta)
         hud.render(delta)
+
+        checkGameConditions()
+    }
+
+    private fun checkGameConditions() {
+        if(cityComponent.population < 50) {
+            GameStats.population = cityComponent.population.toInt()
+            GameStats.remainingFood = cityComponent.food.toInt()
+            mainGame.setScreen<GameOverScreen>()
+        }
     }
 
     private fun applyInput() {
@@ -152,4 +160,11 @@ class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         batch.disposeSafely()
         assets.disposeSafely()
     }
+}
+
+object GameStats {
+    var population = 0
+    var maxPopulation = 0
+    var remainingFood = 0
+    var caughtFish = 0
 }

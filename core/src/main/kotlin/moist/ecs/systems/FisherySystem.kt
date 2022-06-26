@@ -5,6 +5,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
 import ktx.log.debug
 import moist.core.GameConstants
+import moist.core.GameStats
 import moist.ecs.components.City
 import moist.ecs.components.Fish
 import moist.ecs.components.randomFish
@@ -26,6 +27,7 @@ class FisherySystem : IteratingSystem(allOf(City::class).get()) {
         for (fishEntity in toRemove) {
             city.potentialCatches.remove(fishEntity)
             city.food += fishEntity.fish().energy
+            GameStats.caughtFish++
             world().destroyBody(fishEntity.body())
             engine.removeEntity(fishEntity)
             checkFishCount = true

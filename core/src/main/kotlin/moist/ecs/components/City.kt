@@ -43,7 +43,7 @@ class City : Component, Poolable {
     val drag = vec2()
     val sailVector = Vector2.Y
     var population = 100f
-    var food = FoodMax / 2
+    var food = FoodMax / 5
 
     val currentForce = vec2()
     val windForce = vec2()
