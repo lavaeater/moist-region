@@ -198,37 +198,3 @@ fun sea() {
         }
     }
 }
-
-fun hud() {
-
-    // We project screen coordinates to world coordinates, simple as that! Maybe?
-    val screenCoordinates = vec3(100f, 100f, 0f)
-    val camera = inject<OrthographicCamera>()
-
-    engine().entity {
-
-    }
-
-}
-
-class CompassActor: Actor() {
-    private val playerFamily = allOf(City::class).get()
-    private val allCities get() = engine().getEntitiesFor(playerFamily)
-    private val currentVector = Vector2.X
-    private val windVector = Vector2.X
-
-    private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
-    override fun draw(batch: Batch, parentAlpha: Float) {
-        for(cityEntity in allCities) {
-            val body = cityEntity.body()
-            val currentTile = body.currentTile()
-            currentVector.lerp(currentTile.current, 0.1f)
-            windVector.lerp(currentTile.wind, 0.1f)
-
-            shapeDrawer.line(x, y, x + currentVector.x, y + currentVector.y, Color.BLUE)
-            shapeDrawer.line(x, y, x + windVector.x, y + windVector.y, Color.WHITE)
-        }
-
-    }
-
-}
