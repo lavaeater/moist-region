@@ -1,6 +1,7 @@
 package moist.core
 
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
@@ -29,6 +30,7 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
     }
 
     val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
+    val sound by assetManager.loadOnDemand<Sound>("audio/seasound.wav")
     val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
 
     val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")

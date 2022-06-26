@@ -67,6 +67,7 @@ object Context {
             addSystem(CityHungerSystem())
             addSystem(CloudSystem())
             addSystem(TrailsSystem())
+            addSystem(AudioSystem())
 //            addSystem(SeaWavesSystem())
         }
     }

@@ -64,8 +64,8 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                 label("""You caught ${GameStats.caughtFish} fish
                     You maxed your population at ${GameStats.maxPopulation}
                     The game ended when you had ${GameStats.remainingFood} food remainging.
-                    You played for ${GameStats.playTime} seconds 
-                    Longest playtime is ${GameStats.highestPlayTime} seconds
+                    You played for ${GameStats.playTime.toInt()} seconds 
+                    Longest playtime is ${GameStats.highestPlayTime.toInt()} seconds
                 """.trimMargin()){
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)

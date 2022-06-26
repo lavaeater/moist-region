@@ -52,7 +52,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
                 setPosition(20f, 40f)
             }
-            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime})" }) {
+            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime.toInt()})" }) {
                 setPosition(160f, 40f)
             }
         }
