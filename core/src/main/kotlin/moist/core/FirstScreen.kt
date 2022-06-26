@@ -1,5 +1,6 @@
 package moist.core
 
+import com.badlogic.gdx.Application.LOG_DEBUG
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -16,6 +17,8 @@ import ktx.log.debug
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.ControlMagnitude
+import moist.core.GameConstants.MaxTilesPerSide
+import moist.core.GameConstants.TileSize
 import moist.ecs.components.Hud
 import moist.ecs.components.city
 import moist.ecs.components.fishes
@@ -88,7 +91,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
     override fun show() {
         if (needsInit) {
             needsInit = false
-//            Gdx.app.logLevel = LOG_DEBUG
+            Gdx.app.logLevel = LOG_DEBUG
             for (x in (-4..-3))
                 for (y in 2..3) {
                     val ck = ChunkKey.keyForTileCoords(x, y)
@@ -105,8 +108,8 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
             sea()
             fishes()
             Gdx.input.inputProcessor = this
-            viewPort.minWorldHeight = 1000f
-            viewPort.minWorldWidth = 1000f
+            viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
+            viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
         }
     }
 

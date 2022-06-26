@@ -35,6 +35,7 @@ import moist.ecs.systems.city
 import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
 import moist.injection.Context.inject
+import moist.world.SeaManager
 import moist.world.engine
 import moist.world.world
 
@@ -161,7 +162,7 @@ fun fish(fishPos: Vector2) {
                 fish.fishColor.r = if(fish.energy > FishMatingEnergyRequirement) 1.0f else 0f
                 shapeDrawer.filledCircle(
                     this@entity.entity.body().position,
-                    1.0f,
+                    10.0f,
                     fish.fishColor
                 )
             }
@@ -169,11 +170,21 @@ fun fish(fishPos: Vector2) {
     }
 }
 
+fun randomFish() {
+    val seaManager = inject<SeaManager>()
+    val minX = seaManager.getCurrentTiles().minByOrNull { it.x }!!.x * TileSize
+    val maxX = seaManager.getCurrentTiles().maxByOrNull { it.x }!!.x * TileSize
+    val minY = seaManager.getCurrentTiles().maxByOrNull { it.y }!!.y * TileSize
+    val maxY = seaManager.getCurrentTiles().maxByOrNull { it.y }!!.y * TileSize
+    val xRange = minX..maxX
+    val yRange = minY..maxY
+    fish(vec2(xRange.random(), yRange.random()))
+}
+
 fun fishes() {
     val min = 0 + TileSize
     val max = MaxTilesPerSide * TileSize - TileSize
     val range = min..max
-    val shoalStartPoint = vec2(range.random(), range.random())
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
         fish(fishPos)

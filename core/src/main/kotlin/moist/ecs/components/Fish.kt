@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.utils.Pool
 import ktx.math.random
 import ktx.math.vec2
+import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
 import moist.ecs.components.FishGender.Companion.genders
 
@@ -20,8 +21,8 @@ class Fish : Component, Pool.Poolable {
     var gender = genders.random()
     val direction = vec2()
     var targetTile: Tile? = null
-    var fishHideScore = (0.1f..0.6f).random().toDouble()
-    var energy = ((FishMaxEnergy / 3)..FishMaxEnergy).random()
+    var fishPlayScore = (0.25f..0.5f).random().toDouble()
+    var energy = ((FishMaxEnergy / 3)..(FishMaxEnergy - (FishMaxEnergy - FishMatingEnergyRequirement) * 2)).random()
     val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {
         gender = genders.random()
