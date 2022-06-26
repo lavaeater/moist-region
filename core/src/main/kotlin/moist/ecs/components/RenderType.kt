@@ -1,7 +1,9 @@
 package moist.ecs.components
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.MathUtils
 import moist.core.Assets
 import moist.core.GameConstants
@@ -12,7 +14,7 @@ import moist.world.SeaManager
 sealed class RenderType(val layer: Int) {
     class Sea : RenderType(1) {
         private val seaManager = inject<SeaManager>()
-        private val seaColor = Color(1f, 0f, 0f, 0.5f)
+        private val seaColor = Color(1f, 0f, 0f, 0.8f)
         private val currentStartColor = Color(.4f, .4f, 1f, 0.5f)
         private val currentEndColor = Color(.7f, .7f, 1f, 0.5f)
         private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
@@ -46,7 +48,8 @@ sealed class RenderType(val layer: Int) {
         }
     }
 
-    object Sprite : RenderType(2)
+    object RenderableSprite : RenderType(2)
+    class RenderAnimation(layer:Int, val animation: Animation<Sprite>, var time: Float = 0f) : RenderType(layer)
     class SelfRender(layer: Int, private val renderFunc: (batch: PolygonSpriteBatch, deltaTime: Float) -> Unit) :
         RenderType(layer) {
         fun render(batch: PolygonSpriteBatch, deltaTime: Float) {

@@ -66,6 +66,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 body.currentTile() -> {
                     debug { "Arrived for Play" }
                     fish.targetTile = null
+                    fish.direction.setZero()
                 }
                 else -> {
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
@@ -87,7 +88,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
             } else if (fish.targetTile == currentTile) {
                 fish.targetTile = null
-                fish.direction.set(currentTile.worldCenter - body.worldCenter).nor()
+                fish.direction.setZero()// .set(currentTile.worldCenter - body.worldCenter).nor()
                 val closestFish = allTheFish.minByOrNull { it.body().position.dst(body.position) }!!
                 if (closestFish.body().currentTile() == currentTile) {
                     if (allTheFish.count() < MaxFishCount) {
@@ -97,7 +98,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             fish(body.position)
                         }
                         debug { "$numberOfFish were born!" }
-                        fish.energy = fish.energy / 3f
+                        fish.energy = 15f
                     }
                 }
             } else if (fish.targetTile == null) {

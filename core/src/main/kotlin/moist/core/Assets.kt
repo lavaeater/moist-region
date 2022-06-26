@@ -4,11 +4,9 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g2d.*
 import ktx.assets.*
+import ktx.collections.GdxArray
 import moist.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
 
@@ -33,4 +31,14 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
     val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
     val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
 
+    val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
+    val fishRegions by lazy {
+        GdxArray(
+        Array(4) {
+            val x = 32 * it
+            val y = 0
+            Sprite(TextureRegion(fishTexture, x, y, 32,32))
+        })
+    }
+    val fishAnim by lazy { Animation(0.125f, fishRegions, Animation.PlayMode.LOOP_PINGPONG) }
 }

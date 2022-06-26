@@ -3,6 +3,7 @@ package moist.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Fixture
 import ktx.ashley.allOf
@@ -70,10 +71,24 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         when (val renderType = entity.renderType()) {
-            RenderType.Sprite -> renderSprite(entity, deltaTime)
+            RenderType.RenderableSprite -> renderSprite(entity, deltaTime)
             is RenderType.SelfRender -> renderType.render(batch, deltaTime)
             is RenderType.Sea -> renderType.render(batch, deltaTime)
+            is RenderType.RenderAnimation -> renderAnimation(batch, entity, deltaTime, renderType)
         }
+    }
+
+    private fun renderAnimation(batch: PolygonSpriteBatch, entity: Entity, deltaTime: Float, renderType: RenderType.RenderAnimation) {
+        val body = entity.body()
+        var angle = body.angle
+        if(entity.isFish())
+            angle = entity.fish().direction.angleRad()
+
+        renderType.time += deltaTime
+        val keyFrame = renderType.animation.getKeyFrame(renderType.time)
+        keyFrame.setPosition(body.position.x, body.position.y)
+        keyFrame.rotation = (MathUtils.radiansToDegrees * angle) - 90f
+        keyFrame.draw(batch)
     }
 
     private fun renderSprite(entity: Entity, deltaTime: Float) {
