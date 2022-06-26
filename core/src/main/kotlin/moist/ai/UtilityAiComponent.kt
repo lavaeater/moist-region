@@ -50,7 +50,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val seaManager = inject<SeaManager>()
 
         private val fishPlayAction = GenericAction("Fish Playing", {
-            if(it.fish().energy > FishPlayingEnergyRequirement) it.fish().fishPlayScore else 0.0
+            if(it.fish().energy > FishPlayingEnergyRequirement) 0.4 else 0.0
         }, {
             it.fish().targetTile = null
             debug { "Aborted play"}
@@ -74,7 +74,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
         })
 
         private val fishMatingAction = GenericAction("Fish Mating", {
-            if (it.fish().energy > FishMatingEnergyRequirement) 1.0 else 0.0
+            if (it.fish().energy > FishMatingEnergyRequirement) 0.9 else 0.0
         }, {
             it.fish().targetTile = null
             debug { "Mating aborted" }

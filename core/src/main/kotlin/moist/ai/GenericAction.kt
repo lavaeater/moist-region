@@ -1,6 +1,7 @@
 package moist.ai
 
 import com.badlogic.ashley.core.Entity
+import ktx.log.debug
 import moist.ai.AiAction
 
 class GenericAction(
@@ -17,6 +18,8 @@ class GenericAction(
     }
 
     override fun score(entity: Entity): Double {
-        return scoreFunction(entity)
+        val score = scoreFunction(entity)
+        //debug { "$name: $score" }
+        return score
     }
 }

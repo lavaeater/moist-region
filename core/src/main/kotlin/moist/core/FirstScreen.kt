@@ -15,17 +15,14 @@ import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.log.debug
-import ktx.math.times
 import ktx.math.vec2
 import ktx.scene2d.Scene2DSkin
-import moist.core.GameConstants.ControlMagnitude
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.ecs.components.Hud
 import moist.ecs.components.city
 import moist.ecs.components.fishes
 import moist.ecs.components.sea
-import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context.inject
 import moist.input.KeyPress
@@ -34,7 +31,7 @@ import moist.world.ChunkKey
 import moist.world.TileChunk
 import moist.world.engine
 
-class FirstScreen : KtxScreen, KtxInputAdapter {
+class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private val image = Texture("logo.png".toInternalFile(), true).apply {
         setFilter(
             Texture.TextureFilter.Linear,
@@ -92,7 +89,6 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         if (needsInit) {
-            Scene2DSkin.defaultSkin = Skin(Gdx.files.internal("ui/uiskin.json"))
             needsInit = false
             Gdx.app.logLevel = LOG_DEBUG
             for (x in (-4..-3))
@@ -113,6 +109,7 @@ class FirstScreen : KtxScreen, KtxInputAdapter {
             Gdx.input.inputProcessor = this
             viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
             viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
+            viewPort.update(Gdx.graphics.width, Gdx.graphics.height)
         }
     }
 
