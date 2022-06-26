@@ -45,9 +45,9 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val fishPlayAction = GenericAction("Fish Playing", {
             it.fish().fishPlayScore
         }, {
-           it.fish().targetTile = null
+            it.fish().targetTile = null
+            debug { "Aborted play"}
         }, { entity, deltaTime ->
-
             val body = entity.body()
             val fish = entity.fish()
             when (fish.targetTile) {
@@ -55,11 +55,14 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     val currentTile = body.currentTile()
                     fish.targetTile = currentTile.areaAround(15).random()
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
+                    debug { "Going to play at ${fish.targetTile}"}
                 }
                 body.currentTile() -> {
+                    debug { "Arrived at ${fish.targetTile} for playtime" }
                     fish.targetTile = null
                 }
                 else -> {
+                    debug { "On my way to ${fish.targetTile}"}
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 }
             }
@@ -68,7 +71,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val fishMatingAction = GenericAction("Fish Mating", {
             if (it.fish().energy > FishMatingEnergyRequirement) 1.0 else 0.0
         }, {
-           it.fish().targetTile = null
+            it.fish().targetTile = null
+            debug { "Mating aborted" }
         }, { entity, deltaTime ->
             val fish = entity.fish()
             val body = entity.body()
@@ -80,16 +84,14 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 fish.targetTile = null
                 fish.direction.set(currentTile.worldCenter - body.worldCenter).nor()
                 val closestFish = allTheFish.minByOrNull { it.body().position.dst(body.position) }!!
-                if(closestFish.body().currentTile() == currentTile) {
-                    if(allTheFish.count() < MaxFishCount) {
+                if (closestFish.body().currentTile() == currentTile) {
+                    if (allTheFish.count() < MaxFishCount) {
                         //MATE! - otherwise just let this repeat itself!
                         val numberOfFish = (1..5).random()
-                        for(i in 0 until numberOfFish)
-                        {
+                        for (i in 0 until numberOfFish) {
                             fish(body.position)
                         }
                         debug { "$numberOfFish were born!" }
-
                         fish.energy = fish.energy / 3f
                     }
                 }
@@ -97,6 +99,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 //1. Are there fish within mating distance that also wish to mate?
                 val closestFish = allTheFish.minByOrNull { it.body().position.dst(body.position) }!!
                 fish.targetTile = closestFish.body().currentTile()
+                debug { "Trying to find a mate"}
             }
         })
 
@@ -104,7 +107,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
             {
                 (1f - MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)).toDouble()
             },
-            {it.fish().targetTile = null},
+            {
+                it.fish().targetTile = null
+                debug { "Stopped eating, y'all" }
+            },
             { entity, deltaTime ->
                 //1. Check the current tile for food
                 val body = entity.body()
@@ -112,10 +118,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 val currentTile = body.currentTile()
 
                 if (fish.targetTile != null && fish.targetTile != currentTile) {
-                    //We are going somewhere and we are not there yet.
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 } else if (fish.targetTile == currentTile) {
                     if (currentTile.currentFood > 0f) {
+                        debug { "Eating at $currentTile" }
                         val eatAmount = deltaTime * FishEatingPace
                         fish.direction.setZero()
                         fish.energy += eatAmount
@@ -141,7 +147,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             }
                             fish.targetTile = foodTiles.random()
                         }
-                       // debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
+                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 } else if (fish.targetTile == null) {
                     if (currentTile.currentFood > 0f) {
@@ -151,7 +157,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
                         currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
-                        //debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
+                        debug { "Ate $eatAmount, energy: ${fish.energy}, food left: ${currentTile.currentFood}" }
                         // We should eat here
                     } else {
                         /*
@@ -170,7 +176,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                             }
                             fish.targetTile = foodTiles.random()
                         }
-                       // debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
+                        debug { "No food at ${currentTile.x}, ${currentTile.y}, going to ${fish.targetTile} instead" }
                     }
                 }
             }

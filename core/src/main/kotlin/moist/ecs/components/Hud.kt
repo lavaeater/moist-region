@@ -28,11 +28,6 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
-        aStage.addActor(
-            CompassActor().apply {
-                setPosition(100f, 100f)
-            }
-        )
         aStage.isDebugAll = debugAll
         aStage
     }
