@@ -36,7 +36,7 @@ class City : Component, Poolable {
     val drag = vec2()
     val sailVector = Vector2.Y
     var population = 100f
-    var food = FoodMax / 2
+    var food = 100f//FoodMax / 2
 
     val currentForce = vec2()
     val windForce = vec2()
@@ -47,7 +47,7 @@ class City : Component, Poolable {
         population = 100f
         currentForce.setZero()
         windForce.setZero()
-        food = FoodMax / 2
+        food = 100f// FoodMax / 2
         potentialCatches.clear()
     }
 }
@@ -77,7 +77,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-//        with<CameraFollow>()
+        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
@@ -204,7 +204,7 @@ fun fishes() {
     val range = min..max
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
-        fish(fishPos, it == 0)
+        fish(fishPos)//, it == 0
     }
 }
 

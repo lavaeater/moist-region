@@ -33,7 +33,7 @@ class Fish : Component, Poolable {
     var gender = genders.random()
     val direction = vec2()
     var targetTile: Tile? = null
-    var fishPlayScore = (0.6f..0.9f).random().toDouble()
+    var fishPlayScore = (0.1f..0.9f).random().toDouble()
     var hasMated = false
     var energy = fishStartEnergy()
     var canDie = true

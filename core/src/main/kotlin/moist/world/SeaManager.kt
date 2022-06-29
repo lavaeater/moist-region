@@ -36,7 +36,7 @@ class SeaManager {
     }
 
     private val chunks = mutableMapOf<ChunkKey, TileChunk>()
-    val allTiles get() = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+    var allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
 
     private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
         return ChunkKey.keyForTileCoords(x, y)
@@ -111,15 +111,19 @@ class SeaManager {
         if (tileX != currentWorldX && tileY != currentWorldY) {
             currentWorldX = tileX
             currentWorldY = tileY
-            currentChunkKey = chunkKeyFromTileCoords(tileX, tileY)
-            val minX = currentChunkKey.chunkX - 1
-            val maxX = currentChunkKey.chunkX + 1
-            val minY = currentChunkKey.chunkY - 1
-            val maxY = currentChunkKey.chunkY + 1
-            val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
-            currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
-            currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
-            fixNeighbours()
+            val newChunkKey = chunkKeyFromTileCoords(tileX, tileY)
+            if(currentChunkKey != newChunkKey) {
+                currentChunkKey = newChunkKey
+                val minX = currentChunkKey.chunkX - 1
+                val maxX = currentChunkKey.chunkX + 1
+                val minY = currentChunkKey.chunkY - 1
+                val maxY = currentChunkKey.chunkY + 1
+                val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
+                currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
+                currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+                allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+                fixNeighbours()
+            }
         }
     }
 

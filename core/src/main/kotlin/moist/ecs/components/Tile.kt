@@ -27,6 +27,30 @@ data class Tile(
         }
 }
 
+fun Tile.someTileAt(distance:Int, directionX: Int, directionY: Int):Tile {
+    val targetX = this.x + directionX * distance
+    val targetY = this.y + directionY * distance
+    val seaManager = inject<SeaManager>()
+    val tile = seaManager.getTileAt(targetX, targetY)
+    return tile
+}
+
+fun Tile.areaAhead(directionX: Int, directionY: Int, distance: Int, width:Int = 3, excludeSelf: Boolean = true): List<Tile> {
+    val widthOffset = (width -1) / 2
+    val keys = mutableListOf<Pair<Int,Int>>()
+    for(wOff in -widthOffset..widthOffset) {
+        for(x in 0..(directionX * distance))
+            for(y in 0..(directionY * distance)) {
+                keys.add(Pair(this.x + x + wOff * directionX, this.y + y + wOff * directionY))
+            }
+    }
+
+    val seaManager = inject<SeaManager>()
+    val tiles = keys.map { k -> seaManager.getTileAt(k.first, k.second) }
+
+    return if (excludeSelf) tiles - this else tiles
+}
+
 fun Tile.areaAround(distance: Int = 5, excludeSelf: Boolean = true): List<Tile> {
     val seaManager = inject<SeaManager>()
     val minX = this.x - distance
