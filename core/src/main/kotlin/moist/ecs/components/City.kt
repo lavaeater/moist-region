@@ -147,9 +147,13 @@ fun cloud(cloudPos: Vector2) {
             renderType = RenderType.Cloud
         }
         with<Cloud> {
+            val v = Vector2.X.cpy()
+            val range = 0f..75f
+            val sizeRange = 15f..50f
+            val angleRange = 0f..359f
             for(i in 1 until (4..7).random()) {
-                val range = -35f..35f
-                cloudPuffs.add(Circle(range.random(), range.random(), range.random()))
+                val randomSpot = (v * range.random()).rotateDeg(angleRange.random())
+                cloudPuffs.add(Circle(randomSpot.x, randomSpot.y, sizeRange.random()))
             }
         }
     }

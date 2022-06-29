@@ -51,6 +51,11 @@ class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal")
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f
                 }
+                label("PRESS SPACE TO BEGIN") {
+                    setFontScale(0.75f)
+                    setPosition(currentPos.x, currentPos.y)
+                    currentPos.y -= this.height * 1.5f
+                }
 
 
             }
