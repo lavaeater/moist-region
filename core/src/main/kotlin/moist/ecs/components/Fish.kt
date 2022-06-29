@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.math.random
 import ktx.math.vec2
@@ -29,20 +28,28 @@ class Cloud: Component, Poolable {
     }
 }
 
-class Fish : Component, Pool.Poolable {
+class Fish : Component, Poolable {
+    var isMoving = false
     var gender = genders.random()
     val direction = vec2()
     var targetTile: Tile? = null
     var fishPlayScore = (0.6f..0.9f).random().toDouble()
     var hasMated = false
-    var energy = ((FishMaxEnergy / 3)..(FishMaxEnergy - (FishMaxEnergy - FishMatingEnergyRequirement) * 2)).random()
+    var energy = fishStartEnergy()
+    var canDie = true
+
+    private fun fishStartEnergy() =
+        ((FishMaxEnergy / 3)..(FishMaxEnergy - (FishMaxEnergy - FishMatingEnergyRequirement) * 2)).random()
+
     val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {
-        hasMated = true
+        isMoving = false
+        canDie = true
+        hasMated = false
         gender = genders.random()
-        var fishHideScore = (0.1f..0.9f).random().toDouble()
+        fishPlayScore = (0.1f..0.9f).random().toDouble()
         targetTile = null
         direction.setZero()
-        energy = ((FishMaxEnergy / 3)..FishMaxEnergy).random()
+        energy = fishStartEnergy()
     }
 }

@@ -3,15 +3,11 @@ package moist.ecs.components
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Pool.Poolable
-import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
@@ -22,8 +18,6 @@ import ktx.math.*
 import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.Box2dCategories
-import moist.core.GameConstants.FishMatingEnergyRequirement
-import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.StartFishCount
 import moist.core.GameConstants.TileSize
@@ -31,11 +25,8 @@ import moist.core.GameConstants.FoodMax
 import moist.core.GameConstants.FoodMin
 import moist.core.GameConstants.PopulationMax
 import moist.core.GameConstants.PopulationMin
-import moist.core.GameConstants.TileMaxFood
 import moist.ecs.systems.body
 import moist.ecs.systems.city
-import moist.ecs.systems.currentTile
-import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.SeaManager
 import moist.world.engine
@@ -86,7 +77,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-        with<CameraFollow>()
+//        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
@@ -168,7 +159,7 @@ fun cloud(cloudPos: Vector2) {
     }
 }
 
-fun fish(fishPos: Vector2) {
+fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
     engine().entity {
         with<Box> {
             body = world().body {
@@ -184,7 +175,11 @@ fun fish(fishPos: Vector2) {
                 }
             }
         }
-        with<Fish>()
+        with<Fish> {
+            canDie = !cameraFollow
+        }
+        if(cameraFollow)
+            with<CameraFollow>()
         with<UtilityAiComponent>()
         with<Renderable> {
             renderType = RenderType.RenderAnimation(0, inject<Assets>().fishAnim)
@@ -209,7 +204,7 @@ fun fishes() {
     val range = min..max
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
-        fish(fishPos)
+        fish(fishPos, it == 0)
     }
 }
 

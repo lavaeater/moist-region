@@ -13,9 +13,11 @@ import ktx.math.vec2
 import ktx.math.vec3
 import ktx.scene2d.*
 import moist.ai.AiCounter
+import moist.ai.UtilityAiComponent
 import moist.core.GameConstants
 import moist.core.GameStats
 import moist.ecs.systems.city
+import moist.ecs.systems.fish
 import moist.injection.Context
 import moist.world.engine
 import kotlin.contracts.ExperimentalContracts
@@ -42,19 +44,46 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val cities get() = engine().getEntitiesFor(cityFamily)
     private val city by lazy { cities.first().city() }
 
+    private val followedFishFamily = allOf(CameraFollow::class, Fish::class).get()
+
+    private val followedFish by lazy { engine().getEntitiesFor(followedFishFamily).first() }
+
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
         aStage.isDebugAll = debugAll
         aStage.actors {
-            boundLabel({ "Population: ${city.population.toInt()} / ${GameConstants.PopulationMax.toInt()}" }) {
-                setPosition(20f, 20f)
+//            boundLabel({ "Population: ${city.population.toInt()} / ${GameConstants.PopulationMax.toInt()}" }) {
+//                setPosition(20f, 20f)
+//            }
+//            boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
+//                setPosition(20f, 40f)
+//            }
+//            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime.toInt()})" }) {
+//                setPosition(20f, 60f)
+//            }
+            boundLabel({
+                AiCounter.actionCounter.map {
+                    "${it.key.name}: ${it.value}"
+                }.joinToString("\n")
+            }) {
+                setPosition(10f, 40f)
             }
-            boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
-                setPosition(20f, 40f)
+            boundLabel({
+                AiCounter.eventCounter.map {
+                    "${it.key}: ${it.value}"
+                }.joinToString("\n")
+            }) {
+                setPosition(210f, 40f)
             }
-            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime.toInt()})" }) {
-                setPosition(160f, 40f)
+
+            boundLabel({
+                "Moving: ${followedFish.fish().isMoving}\n" +
+                "Energy: ${followedFish.fish().energy}\n" +
+                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${it.score(followedFish)}" }
+            }) {
+                setPosition(510f, 40f)
             }
+
         }
         aStage
     }
@@ -79,7 +108,8 @@ inline fun <S> KWidget<S>.boundLabel(
 }
 
 
-open class BoundLabel(private val textFunction: ()-> String, skin: Skin = Scene2DSkin.defaultSkin): Label(textFunction(), skin) {
+open class BoundLabel(private val textFunction: () -> String, skin: Skin = Scene2DSkin.defaultSkin) :
+    Label(textFunction(), skin) {
     override fun act(delta: Float) {
         txt = textFunction()
         super.act(delta)

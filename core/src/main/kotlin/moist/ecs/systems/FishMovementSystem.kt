@@ -88,8 +88,12 @@ class FishMovementSystem : IteratingSystem(
         body.applyLinearImpulse(impulse, body.worldCenter, true)
         body.applyLinearImpulse(currentTile.current, body.worldCenter, true)
 
-        if(body.linearVelocity.len2() > 0.5f) {
+        if (body.linearVelocity.len2() > 1f) {
             fish.energy -= FishEnergyExpenditurePerSecond * deltaTime
+            fish.isMoving = true
+        } else {
+            fish.energy -= FishEnergyExpenditurePerSecond * deltaTime / 2
+            fish.isMoving = false
         }
 
 //        body.applyForceToCenter(fish.direction * FishMagnitude, true)

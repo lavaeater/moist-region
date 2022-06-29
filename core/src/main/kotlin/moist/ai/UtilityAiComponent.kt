@@ -6,12 +6,10 @@ import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.allOf
-import ktx.log.debug
+import ktx.ashley.mapperFor
 import ktx.math.minus
 import moist.core.GameConstants.FishEatingPace
-import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
-import moist.core.GameConstants.FishPlayingEnergyRequirement
 import moist.core.GameConstants.MaxFishCount
 import moist.core.GameConstants.TileMaxFood
 import moist.ecs.components.Fish
@@ -23,23 +21,21 @@ import moist.ecs.systems.fish
 import moist.injection.Context.inject
 import moist.world.SeaManager
 import moist.world.engine
-import net.dermetfan.gdx.math.InterpolationUtils
-import kotlin.math.sqrt
-
-object AiCounter {
-    val actionCounter = mutableMapOf<AiAction, Int>(UtilityAiComponent.fishMatingAction to 0, UtilityAiComponent.fishPlayAction to 0, UtilityAiComponent.fishFoodAction to 0)
-}
 
 class UtilityAiComponent : Component, Pool.Poolable {
     val actions = defaultActions.toMutableList()
     private var currentAction: AiAction? = null
+
+    fun updateAction(entity: Entity) {
+        actions.sortByDescending { it.score(entity) }
+    }
+
     fun topAction(entity: Entity): AiAction? {
-        val potentialAction = actions.maxByOrNull { it.score(entity) }
+        val potentialAction = actions.first()// actions.maxByOrNull { it.score(entity) }
         if (currentAction != potentialAction) {
-            if(currentAction != null)
+            if (currentAction != null)
                 AiCounter.actionCounter[currentAction!!] = AiCounter.actionCounter[currentAction]!! - 1
-            if(potentialAction != null)
-                AiCounter.actionCounter[potentialAction] = AiCounter.actionCounter[potentialAction]!! + 1
+            AiCounter.actionCounter[potentialAction] = AiCounter.actionCounter[potentialAction]!! + 1
             currentAction?.abort(entity)
             currentAction = potentialAction
         }
@@ -53,6 +49,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
     }
 
     companion object {
+        val mapper = mapperFor<UtilityAiComponent>()
+        fun get(entity: Entity): UtilityAiComponent {
+            return mapper.get(entity)
+        }
 
         private val fishFamily = allOf(Fish::class).get()
         private val allTheFish get() = engine().getEntitiesFor(fishFamily)
@@ -80,13 +80,13 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 }
             }
         })
-
+        private val slowThenFast = Interpolation.pow4In
         val fastThenSlow = Interpolation.fastSlow
 
         val fishMatingAction = GenericAction("Fish Mating", {
-            if(it.fish().hasMated) 0.0 else {
+            if (it.fish().hasMated) 0.0 else {
                 val score = MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
-                val newScore = fastThenSlow.apply(0f, 1f, score)
+                val newScore = slowThenFast.apply(0f, 1f, score)
                 newScore.toDouble()
             }
         }, {
@@ -106,6 +106,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
                     if (allTheFish.count() < MaxFishCount) {
                         //MATE! - otherwise just let this repeat itself!
                         val numberOfFish = (1..5).random()
+                        AiCounter.eventCounter["Births"] = AiCounter.eventCounter["Births"]!! + numberOfFish
                         for (i in 0 until numberOfFish) {
                             fish(body.position)
                         }
@@ -120,11 +121,10 @@ class UtilityAiComponent : Component, Pool.Poolable {
             }
         })
 
-        private val slowThenFast = Interpolation.pow4In
         val fishFoodAction = GenericAction("Fish Food",
             {
                 val score = 1f - MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
-                val newScore = slowThenFast.apply ( 0f, 1f, score)
+                val newScore = fastThenSlow.apply(0f, 1f, score)
                 newScore.toDouble()
             },
             {
