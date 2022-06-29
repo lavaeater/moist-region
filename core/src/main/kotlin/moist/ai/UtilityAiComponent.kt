@@ -63,7 +63,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val fastThenSlow = Interpolation.fastSlow
 
         val fishPlayAction = GenericAction("Fish Playing", {
-            slowThenFast.apply(MathUtils.norm(0f, 100f, it.fish().fishPlayScore.toFloat() * it.fish().energy)).toDouble()
+            slowThenFast.apply(MathUtils.norm(0f, 100f, it.fish().fishPlayScore.toFloat() * it.fish().energy))
+                .toDouble()
         }, {
             it.fish().targetTile = null
         }, { entity, deltaTime ->
@@ -141,77 +142,56 @@ class UtilityAiComponent : Component, Pool.Poolable {
                 if (fish.targetTile != null && fish.targetTile != currentTile) {
                     fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
                 } else if (fish.targetTile == currentTile) {
-                    if (currentTile.currentFood > 0f) {
+                    if (currentTile.currentFood > FishEatingPace) {
                         val eatAmount = deltaTime * FishEatingPace
-//                        fish.direction.setZero()
+                        fish.direction.setZero()
                         fish.energy += eatAmount
                         fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
                         currentTile.currentFood -= eatAmount
                         currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
                     } else {
-                        val foodTiles = currentTile.neighbours.filter { it.currentFood > 0f }
-
-                        if (foodTiles.any())
-                            fish.targetTile = foodTiles.random()
-                        else {
-                            var distance = 2
-                            var directionX = directionRange.random()
-                            var directionY = directionRange.random()
-                            var keepSearching = true
-                            var foodTile = currentTile
-                            var iterations = 0
-                            while (keepSearching) {
-                                foodTile = currentTile.someTileAt(distance++, directionX, directionY)
-                                keepSearching = foodTile.currentFood <= 0f
-                                if(keepSearching && distance > 20 && iterations > 3) {
-                                    foodTile = seaManager.allTiles.filter { it.currentFood > 0 }.random()
-                                }
-                                else if(keepSearching && distance > 10) {
-                                    iterations++
-                                    distance = 2
-                                    directionX = directionRange.random()
-                                    directionY = directionRange.random()
-                                }
+                        var distance = 2
+                        var directionX = directionRange.random()
+                        var directionY = directionRange.random()
+                        var keepSearching = true
+                        var foodTile = currentTile
+                        var iterations = 0
+                        while (keepSearching) {
+                            foodTile = currentTile.someTileAt(distance++, directionX, directionY)
+                            keepSearching = foodTile.currentFood <= FishEatingPace
+                            if (keepSearching && distance > 20 && iterations > 3) {
+                                foodTile = seaManager.getCurrentTiles().filter { it.currentFood > FishEatingPace }.random()
+                            } else if (keepSearching && distance > 10) {
+                                iterations++
+                                distance = 2
+                                directionX = directionRange.random()
+                                directionY = directionRange.random()
                             }
-                            fish.targetTile = foodTile
                         }
+                        fish.targetTile = foodTile
+
                     }
                 } else if (fish.targetTile == null) {
-                    if (currentTile.currentFood > 0f) {
-                        val eatAmount = deltaTime * FishEatingPace
-                  //      fish.direction.setZero()
-                        fish.energy += eatAmount
-                        fish.energy = MathUtils.clamp(fish.energy, 0f, FishMaxEnergy)
-                        currentTile.currentFood -= eatAmount
-                        currentTile.currentFood = MathUtils.clamp(currentTile.currentFood, 0f, TileMaxFood)
-                    } else {
-                        val foodTiles = currentTile.neighbours.filter { it.currentFood > 0f }
 
-                        if (foodTiles.any())
-                            fish.targetTile = foodTiles.random()
-                        else {
-                            var distance = 2
-                            var directionX = directionRange.random()
-                            var directionY = directionRange.random()
-                            var keepSearching = true
-                            var foodTile = currentTile
-                            var iterations = 0
-                            while (keepSearching) {
-                                foodTile = currentTile.someTileAt(distance++, directionX, directionY)
-                                keepSearching = foodTile.currentFood <= 0f
-                                if(keepSearching && distance > 20 && iterations > 3) {
-                                    foodTile = seaManager.allTiles.filter { it.currentFood > 0 }.random()
-                                }
-                                else if(keepSearching && distance > 10) {
-                                    distance = 2
-                                    directionX = directionRange.random()
-                                    directionY = directionRange.random()
-                                    iterations++
-                                }
-                            }
-                            fish.targetTile = foodTile
+                    var distance = 2
+                    var directionX = directionRange.random()
+                    var directionY = directionRange.random()
+                    var keepSearching = true
+                    var foodTile = currentTile
+                    var iterations = 0
+                    while (keepSearching) {
+                        foodTile = currentTile.someTileAt(distance++, directionX, directionY)
+                        keepSearching = foodTile.currentFood <= FishEatingPace
+                        if (keepSearching && distance > 20 && iterations > 3) {
+                            foodTile = seaManager.getCurrentTiles().filter { it.currentFood > FishEatingPace }.random()
+                        } else if (keepSearching && distance > 10) {
+                            distance = 2
+                            directionX = directionRange.random()
+                            directionY = directionRange.random()
+                            iterations++
                         }
                     }
+                    fish.targetTile = foodTile
                 }
             }
         )

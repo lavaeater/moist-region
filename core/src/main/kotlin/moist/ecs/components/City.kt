@@ -204,7 +204,7 @@ fun fishes() {
     val range = min..max
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
-        fish(fishPos)//, it == 0
+        fish(fishPos)//, it == 0)
     }
 }
 

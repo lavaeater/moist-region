@@ -23,8 +23,8 @@ sealed class RenderType(val layer: Int) {
             var y = 0f
             for (tile in seaManager.getCurrentTiles()) {
                 seaColor.b = tile.depth
-                seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood)
-                seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp / 2f)
+                seaColor.r = MathUtils.norm(0f, GameConstants.TileMaxFood, tile.currentFood) / 4f
+                seaColor.g = MathUtils.norm(GameConstants.MinWaterTemp, GameConstants.MaxWaterTemp, tile.waterTemp) / 4f
                 x = tile.x * TileSize - TileSize / 2
                 y = tile.y * TileSize - TileSize / 2
                 shapeDrawer.filledRectangle(

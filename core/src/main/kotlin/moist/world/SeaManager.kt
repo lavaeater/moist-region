@@ -112,12 +112,12 @@ class SeaManager {
             currentWorldX = tileX
             currentWorldY = tileY
             val newChunkKey = chunkKeyFromTileCoords(tileX, tileY)
-            if(currentChunkKey != newChunkKey) {
+            if (currentChunkKey != newChunkKey) {
                 currentChunkKey = newChunkKey
-                val minX = currentChunkKey.chunkX - 1
-                val maxX = currentChunkKey.chunkX + 1
-                val minY = currentChunkKey.chunkY - 1
-                val maxY = currentChunkKey.chunkY + 1
+                val minX = currentChunkKey.chunkX - 2
+                val maxX = currentChunkKey.chunkX + 2
+                val minY = currentChunkKey.chunkY - 2
+                val maxY = currentChunkKey.chunkY + 2
                 val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
                 currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
                 currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
@@ -127,26 +127,35 @@ class SeaManager {
         }
     }
 
-    private fun fixNeighbours() {
-        val minX = currentChunks.minOf { it.minX } + 1
-        val maxX = currentChunks.maxOf { it.maxX } - 1
-        val minY = currentChunks.maxOf { it.minY } - 1
-        val maxY = currentChunks.maxOf { it.maxY } + 1
-        for(x in minX..maxX)
-            for(y in minY..maxY) {
-                val tile = getTileAt(x, y)
-                if(tile.neighbours.count() < 8) {
-                    tile.neighbours.clear()
-                    for(offsetX in -1..1)
-                        for(offsetY in -1..1) {
-                            val nX = x + offsetX
-                            val nY = y + offsetY
-                            val nTile = getTileAt(nX, nY)
-                            tile.neighbours.add(nTile)
-                        }
-                }
-            }
+    private fun hasNeighbours(chunkKey: ChunkKey): Boolean {
+        val minX = chunkKey.chunkX - 1
+        val maxX = chunkKey.chunkX + 1
+        val minY = chunkKey.chunkY - 1
+        val maxY = chunkKey.chunkY + 1
+        val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten() - chunkKey
+        return keys.all { chunks.containsKey(it) }
+    }
 
+    private fun fixNeighbours() {
+        for ((key, chunk) in chunks.filterValues { !it.neighboursAreFixed }) {
+            if (hasNeighbours(key)) {
+                chunk.neighboursAreFixed = true
+                for (x in chunk.minX..chunk.maxX)
+                    for (y in chunk.minY..chunk.maxY) {
+                        val tile = chunk.getTileAt(x, y)
+                        if (tile.neighbours.count() < 8) {
+                            tile.neighbours.clear()
+                            for (offsetX in -1..1)
+                                for (offsetY in -1..1) {
+                                    val nX = x + offsetX
+                                    val nY = y + offsetY
+                                    val nTile = getTileAt(nX, nY)
+                                    tile.neighbours.add(nTile)
+                                }
+                        }
+                    }
+            }
+        }
     }
 
     fun getTileAt(worldX: Int, worldY: Int): Tile {

@@ -39,7 +39,7 @@ class Fish : Component, Poolable {
     var canDie = true
 
     private fun fishStartEnergy() =
-        ((FishMaxEnergy / 3)..(FishMaxEnergy - (FishMaxEnergy - FishMatingEnergyRequirement) * 2)).random()
+        ((FishMaxEnergy / 5)..(FishMaxEnergy / 3)).random()
 
     val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {

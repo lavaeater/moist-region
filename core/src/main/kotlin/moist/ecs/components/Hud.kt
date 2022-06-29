@@ -44,38 +44,22 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val cities get() = engine().getEntitiesFor(cityFamily)
     private val city by lazy { cities.first().city() }
 
-//    private val followedFishFamily = allOf(CameraFollow::class, Fish::class).get()
-//
-//    private val followedFish by lazy { engine().getEntitiesFor(followedFishFamily).first() }
+    private val followedFishFamily = allOf(CameraFollow::class, Fish::class).get()
+
+    private val followedFish by lazy { engine().getEntitiesFor(followedFishFamily).first() }
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
         aStage.isDebugAll = debugAll
         aStage.actors {
-            boundLabel({ "Population: ${city.population.toInt()} / ${GameConstants.PopulationMax.toInt()}" }) {
+            boundLabel({ """
+                Population: ${city.population.toInt()} / ${GameConstants.PopulationMax.toInt()}
+                Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}
+                Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime.toInt()})
+                """.trimIndent() }) {
                 setPosition(20f, 20f)
             }
-            boundLabel({ "Food: ${city.food.toInt()} / ${GameConstants.FoodMax.toInt()}" }) {
-                setPosition(20f, 40f)
-            }
-            boundLabel({ "Playtime: ${GameStats.playTime.toInt()} (HiScore: ${GameStats.highestPlayTime.toInt()})" }) {
-                setPosition(20f, 60f)
-            }
-            boundLabel({
-                AiCounter.actionCounter.map {
-                    "${it.key.name}: ${it.value}"
-                }.joinToString("\n")
-            }) {
-                setPosition(10f, 250f)
-            }
-            boundLabel({
-                AiCounter.eventCounter.map {
-                    "${it.key}: ${it.value}"
-                }.joinToString("\n")
-            }) {
-                setPosition(160f, 40f)
-            }
-
+//
 //            boundLabel({
 //                "Moving: ${followedFish.fish().isMoving}\n" +
 //                "Energy: ${followedFish.fish().energy}\n" +
@@ -84,7 +68,6 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 //            }) {
 //                setPosition(10f, 400f)
 //            }
-
         }
         aStage
     }

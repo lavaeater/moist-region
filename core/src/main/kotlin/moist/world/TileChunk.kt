@@ -17,6 +17,7 @@ data class TileChunk(val key: ChunkKey) {
         val y = (i / GameConstants.MaxTilesPerSide) + chunkY * GameConstants.MaxTilesPerSide
         Tile(x, y)
     }
+    var neighboursAreFixed = false
 
     fun localX(worldX: Int): Int {
         return worldX - (GameConstants.MaxTilesPerSide * chunkX)
