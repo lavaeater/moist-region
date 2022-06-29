@@ -11,6 +11,9 @@ import moist.core.GameConstants.TileSize
 import moist.injection.Context.inject
 import moist.world.SeaManager
 
+object GlobalDebug {
+    val globalDebug = false
+}
 sealed class RenderType(val layer: Int) {
     class Sea : RenderType(1) {
         private val seaManager = inject<SeaManager>()
@@ -34,8 +37,11 @@ sealed class RenderType(val layer: Int) {
                     TileSize,
                     seaColor
                 )
-                shapeDrawer.setColor(Color.WHITE)
-                shapeDrawer.filledCircle(tile.worldCenter, 5f)
+                if(GlobalDebug.globalDebug)
+                {
+                    shapeDrawer.setColor(Color.WHITE)
+                    shapeDrawer.filledCircle(tile.worldCenter, 5f)
+                }
             }
         }
     }

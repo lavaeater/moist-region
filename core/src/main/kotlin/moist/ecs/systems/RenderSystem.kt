@@ -76,7 +76,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
     val cameraFollowMapper = mapperFor<CameraFollow>()
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        if (cameraFollowMapper.has(entity) && entity.isFish()) {
+        if (GlobalDebug.globalDebug && cameraFollowMapper.has(entity) && entity.isFish()) {
             val fish = entity.fish()
             val body = entity.body()
             var x = 0f
@@ -162,8 +162,10 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         keyFrame.setOriginBasedPosition(body.position.x, body.position.y)
         keyFrame.rotation = (MathUtils.radiansToDegrees * angle) - 90f
         keyFrame.draw(batch)
-        shapeDrawer.setColor(Color.RED)
-        shapeDrawer.filledCircle(body.position, 5f)
+        if(GlobalDebug.globalDebug) {
+            shapeDrawer.setColor(Color.RED)
+            shapeDrawer.filledCircle(body.position, 5f)
+        }
     }
 
     private fun renderSprite(entity: Entity, deltaTime: Float) {

@@ -1,6 +1,7 @@
 package moist.ecs.systems
 
 import com.badlogic.ashley.systems.IntervalSystem
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import moist.core.GameConstants.TileSize
@@ -43,9 +44,9 @@ fun Body.tileY(): Int {
 }
 
 fun Vector2.tileX(): Int {
-    return ((this.x / TileSize)).toInt()
+    return MathUtils.floor(this.x / TileSize)
 }
 
 fun Vector2.tileY(): Int {
-    return ((this.y / TileSize)).toInt()
+    return MathUtils.floor(this.y / TileSize)
 }
