@@ -8,8 +8,10 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Fixture
 import ktx.ashley.allOf
+import ktx.ashley.mapperFor
 import ktx.graphics.use
 import moist.core.Assets
+import moist.core.GameConstants
 import moist.ecs.components.*
 
 fun Fixture.isFish(): Boolean {
@@ -72,7 +74,35 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         }
     }
 
+    val cameraFollowMapper = mapperFor<CameraFollow>()
     override fun processEntity(entity: Entity, deltaTime: Float) {
+        if (cameraFollowMapper.has(entity) && entity.isFish()) {
+            val fish = entity.fish()
+            val body = entity.body()
+            var x = 0f
+            var y = 0f
+            val targetTile = fish.targetTile
+            if (targetTile != null) {
+                x = targetTile.x * GameConstants.TileSize
+                y = targetTile.y * GameConstants.TileSize
+                shapeDrawer.filledRectangle(
+                    x,
+                    y,
+                    GameConstants.TileSize,
+                    GameConstants.TileSize, Color.GREEN
+                )
+            }
+
+            val currentTile = body.currentTile()
+            x = currentTile.x * GameConstants.TileSize
+            y = currentTile.y * GameConstants.TileSize
+            shapeDrawer.filledRectangle(
+                x,
+                y,
+                GameConstants.TileSize,
+                GameConstants.TileSize, Color.RED
+            )
+        }
         when (val renderType = entity.renderType()) {
             is RenderType.NotReallyRelevant -> renderSprite(entity, deltaTime)
             is RenderType.SelfRender -> renderType.render(batch, deltaTime)
@@ -80,6 +110,8 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
             is RenderType.RenderAnimation -> renderAnimation(batch, entity, deltaTime, renderType)
             RenderType.Cloud -> renderCloud(entity)
         }
+
+
     }
 
     private val shadowColor = Color(0.1f, 0.1f, 0.1f, 0.8f)
@@ -127,9 +159,11 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
         renderType.time += deltaTime
         val keyFrame = renderType.animation.getKeyFrame(renderType.time)
-        keyFrame.setPosition(body.position.x, body.position.y)
+        keyFrame.setOriginBasedPosition(body.position.x, body.position.y)
         keyFrame.rotation = (MathUtils.radiansToDegrees * angle) - 90f
         keyFrame.draw(batch)
+        shapeDrawer.setColor(Color.RED)
+        shapeDrawer.filledCircle(body.position, 5f)
     }
 
     private fun renderSprite(entity: Entity, deltaTime: Float) {

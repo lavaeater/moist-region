@@ -7,7 +7,7 @@ import moist.ecs.components.CameraFollow
 import moist.ecs.components.City
 import moist.world.SeaManager
 
-class CurrentChunkSystem(private val seaManager: SeaManager): IteratingSystem(allOf(City::class).get()) {
+class CurrentChunkSystem(private val seaManager: SeaManager): IteratingSystem(allOf(CameraFollow::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
         val tileX = body.tileX()

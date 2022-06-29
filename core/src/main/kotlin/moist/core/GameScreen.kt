@@ -96,7 +96,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         checkGameConditions()
 
         Gdx.input.inputProcessor = this
-//        Gdx.app.logLevel = LOG_DEBUG
+        Gdx.app.logLevel = LOG_DEBUG
         viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
         viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
         viewPort.update(Gdx.graphics.width, Gdx.graphics.height)

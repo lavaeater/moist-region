@@ -43,9 +43,9 @@ fun Body.tileY(): Int {
 }
 
 fun Vector2.tileX(): Int {
-    return ((this.x) / TileSize).toInt()
+    return ((this.x / TileSize)).toInt()
 }
 
 fun Vector2.tileY(): Int {
-    return ((this.y) / TileSize).toInt()
+    return ((this.y / TileSize)).toInt()
 }

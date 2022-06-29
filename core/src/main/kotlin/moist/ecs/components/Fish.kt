@@ -29,6 +29,7 @@ class Cloud: Component, Poolable {
 }
 
 class Fish : Component, Poolable {
+    var id = getFishId()
     var isMoving = false
     var gender = genders.random()
     val direction = vec2()
@@ -43,6 +44,7 @@ class Fish : Component, Poolable {
 
     val fishColor = Color(0f, 1f, 0f, 1f)
     override fun reset() {
+        id = getFishId()
         isMoving = false
         canDie = true
         hasMated = false
@@ -51,5 +53,12 @@ class Fish : Component, Poolable {
         targetTile = null
         direction.setZero()
         energy = fishStartEnergy()
+    }
+    companion object {
+        var _fishId = 0
+        fun getFishId():Int {
+            _fishId++
+            return _fishId
+        }
     }
 }

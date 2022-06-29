@@ -77,7 +77,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-        with<CameraFollow>()
+//        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0.01f, 1f, 0.01f, 1f)
@@ -113,20 +113,8 @@ fun city(): Entity {
 
                 shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK, 3f)
                 shapeDrawer.line(position, position + body.linearVelocity, Color.RED, 3f)
-//                shapeDrawer.line(position, position + city.currentForce, Color.BLUE, 2f)
-//                shapeDrawer.line(position, position + city.windForce, Color.WHITE, 2f)
-//                shapeDrawer.line(position, position + city.drag, Color.RED, 2f)
-
-
-
                 shapeDrawer.circle(position.x, position.y, 60f)
 
-//                cityColor.g = MathUtils.norm(foodMin, foodMax, city.food)
-//                shapeDrawer.filledCircle(
-//                    ,
-//                    this@entity.entity.city().population / 100f,
-//                    cityColor
-//                )
             }
         }
     }
@@ -176,6 +164,7 @@ fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
             }
         }
         with<Fish> {
+            id = 0
             canDie = !cameraFollow
         }
         if(cameraFollow)
@@ -204,7 +193,7 @@ fun fishes() {
     val range = min..max
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
-        fish(fishPos)//, it == 0)
+        fish(fishPos, it == 0)
     }
 }
 

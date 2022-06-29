@@ -16,8 +16,7 @@ import moist.ai.AiCounter
 import moist.ai.UtilityAiComponent
 import moist.core.GameConstants
 import moist.core.GameStats
-import moist.ecs.systems.city
-import moist.ecs.systems.fish
+import moist.ecs.systems.*
 import moist.injection.Context
 import moist.world.engine
 import kotlin.contracts.ExperimentalContracts
@@ -59,15 +58,17 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                 """.trimIndent() }) {
                 setPosition(20f, 20f)
             }
-//
-//            boundLabel({
+            boundLabel({
 //                "Moving: ${followedFish.fish().isMoving}\n" +
 //                "Energy: ${followedFish.fish().energy}\n" +
 //                "Has Mated: ${followedFish.fish().hasMated}\n" +
+                        followedFish.body().currentTile().toString() + "\n" +
+                                "${followedFish.body().tileX()}:${followedFish.body().tileY()}\n" +
+                                "${followedFish.body().position}"
 //                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${it.score(followedFish)}" }
-//            }) {
-//                setPosition(10f, 400f)
-//            }
+            }) {
+                setPosition(10f, 400f)
+            }
         }
         aStage
     }

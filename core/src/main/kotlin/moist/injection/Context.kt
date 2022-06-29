@@ -65,7 +65,7 @@ object Context {
             addSystem(UtilityAiSystem())
             addSystem(UpdateActionsSystem())
             addSystem(FisherySystem())
-            addSystem(CityHungerSystem())
+            //addSystem(CityHungerSystem())
             addSystem(CloudSystem())
             addSystem(TrailsSystem())
             addSystem(AudioSystem())

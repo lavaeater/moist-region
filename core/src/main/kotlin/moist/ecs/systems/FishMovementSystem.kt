@@ -2,6 +2,7 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import ktx.ashley.allOf
 import ktx.math.minus
@@ -76,12 +77,14 @@ class FishMovementSystem : IteratingSystem(
         val currentTile = body.currentTile()
         val currentVelocity = body.linearVelocity
 
-        fish.direction
-            .add(cohesion.scl(1.5f))
-            .add(separation.scl(1.5f))
-            .add(alignment.scl(1.0f))
-            .nor()
-            .scl(FishMaxVelocity)
+        if(fish.direction != Vector2.Zero) {
+            fish.direction
+                .add(cohesion.scl(1.5f))
+                .add(separation.scl(1.5f))
+                .add(alignment.scl(1.0f))
+                .nor()
+                .scl(FishMaxVelocity)
+        }
 
         val velocityChange = fish.direction - currentVelocity
         val impulse = velocityChange * body.mass
