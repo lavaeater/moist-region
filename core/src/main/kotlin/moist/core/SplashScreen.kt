@@ -2,6 +2,7 @@ package moist.core
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -18,7 +19,7 @@ class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal")
     }
 }) {
 
-    override val viewport: Viewport by lazy { ExtendViewport(360f, 240f, camera) }
+    override val viewport: Viewport by lazy { ExtendViewport(360f, 240f, OrthographicCamera()) }
 
     override fun show() {
         super.show()
@@ -35,7 +36,7 @@ class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal")
                     currentPos.y -= this.height * 2
                     currentPos.x -= 100f
                 }
-                label("Fish the fish with your floating city (theme, you know)") {
+                label("Fish the fish with your floating city's nets (theme, you know)") {
                     setFontScale(0.75f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f
@@ -45,7 +46,7 @@ class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal")
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f
                 }
-                label("the Red Dial shows where you're headed") {
+                label("the white dial shows the direction of the wind") {
                     setFontScale(0.75f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f

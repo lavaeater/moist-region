@@ -2,6 +2,7 @@ package moist.core
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -23,12 +24,11 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
     }
 }) {
 
-    override val viewport: Viewport by lazy { ExtendViewport(360f, 240f, camera) }
+    override val viewport: Viewport by lazy { ExtendViewport(360f, 240f, OrthographicCamera()) }
 
     override fun show() {
         super.show()
         viewport.update(Gdx.graphics.width, Gdx.graphics.height)
-
     }
 
     private val stage by lazy {
@@ -46,7 +46,7 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 2
                 }
-                label("Fish the fish with your floating city (theme, you know)") {
+                label("Fish the fish with your floating city's nets (theme, you know)") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 2f
@@ -56,7 +56,7 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 2f
                 }
-                label("the Red Dial shows where you're headed") {
+                label("the white dial shows wind direction") {
                     setFontScale(0.6f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 7f

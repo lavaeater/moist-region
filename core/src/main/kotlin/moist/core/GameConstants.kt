@@ -6,7 +6,7 @@ object GameConstants {
     const val TileSize = 150f
     const val GameWidth = 96f
     const val GameHeight = 64f
-    const val MaxTilesPerSide = 10
+    const val MaxTilesPerSide = 8
     const val StartFishCount = 125
     const val MaxFishCount = 500
     const val FishMatingEnergyRequirement = 80f
@@ -32,7 +32,7 @@ object GameConstants {
     const val FishEatingPace = 5f
     const val WindMagnitude = 150f
     const val MaxClouds = 50
-    const val MinClouds = 10
+    const val MinClouds = 25
     const val MaxCloudSpeed = 50f
     const val CloudMagnitude = 25f
 }

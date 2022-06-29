@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Pool.Poolable
@@ -19,13 +18,13 @@ import ktx.math.*
 import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.Box2dCategories
-import moist.core.GameConstants.MaxTilesPerSide
-import moist.core.GameConstants.StartFishCount
-import moist.core.GameConstants.TileSize
 import moist.core.GameConstants.FoodMax
 import moist.core.GameConstants.FoodMin
+import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.PopulationMax
 import moist.core.GameConstants.PopulationMin
+import moist.core.GameConstants.StartFishCount
+import moist.core.GameConstants.TileSize
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context.inject
@@ -35,7 +34,7 @@ import moist.world.world
 
 class City : Component, Poolable {
     val drag = vec2()
-    val sailVector = Vector2.Y
+    val sailVector: Vector2 = Vector2.Y
     var population = 100f
     var food = 100f//FoodMax / 2
 
@@ -83,15 +82,14 @@ fun city(): Entity {
             val sprite = inject<Assets>().citySprite
             val cityColor = Color(0f, 0f, 0f, .1f)
             val spritePos = vec2()
-            renderType = RenderType.SelfRender(2) { batch, deltaTime ->
+            renderType = RenderType.SelfRender(2) { batch, _ ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
                 val body = this@entity.entity.body()
                 val position = body.position
                 val city = this@entity.entity.city()
-                val rows = 8//sqrt(city.population.toDouble()).toInt()
+                val rows = 8
                 val start = 0 - rows / 2
                 val stop = rows / 2
-                val radius = rows / 2 * sprite.width
 
                 for (x in start until stop)
                     for (y in start until stop) {
@@ -149,8 +147,8 @@ fun cloud(cloudPos: Vector2) {
             renderType = RenderType.Cloud
         }
         with<Cloud> {
-            for(i in 1 until (5..10).random()) {
-                val range = -50f..50f
+            for(i in 1 until (4..7).random()) {
+                val range = -35f..35f
                 cloudPuffs.add(Circle(range.random(), range.random(), range.random()))
             }
         }
@@ -201,7 +199,7 @@ fun fishes() {
     val min = 0 + TileSize
     val max = MaxTilesPerSide * TileSize - TileSize
     val range = min..max
-    (0 until StartFishCount).forEach {
+    (0 until StartFishCount).forEach { _ ->
         val fishPos = vec2(range.random(), range.random())
         fish(fishPos)//, it == 0)
     }
