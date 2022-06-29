@@ -64,11 +64,9 @@ class UtilityAiComponent : Component, Pool.Poolable {
         private val allTheFish get() = engine().getEntitiesFor(fishFamily)
 
         private val seaManager = inject<SeaManager>()
-        private val slowThenFast = Interpolation.pow4In
-        private val fastThenSlow = Interpolation.fastSlow
 
         val fishPlayAction = GenericAction("Fish Playing", {
-            slowThenFast.apply(MathUtils.norm(0f, 100f, it.fish().fishPlayScore.toFloat() * it.fish().energy))
+            Interpolation.fastSlow.apply(MathUtils.norm(0f, 100f, it.fish().fishPlayScore.toFloat() * it.fish().energy))
                 .toDouble()
         }, {
             it.fish().targetTile = null
@@ -92,7 +90,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
         val fishMatingAction = GenericAction("Fish Mating", {
             if (it.fish().hasMated) 0.0 else {
                 val score = MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
-                val newScore = fastThenSlow.apply(0f, 1f, score)
+                val newScore = Interpolation.exp10Out.apply(score)
                 newScore.toDouble()
             }
         }, {
@@ -131,7 +129,7 @@ class UtilityAiComponent : Component, Pool.Poolable {
         val fishFoodAction = GenericAction("Fish Food",
             {
                 val score = 1f - MathUtils.norm(0f, FishMaxEnergy, it.fish().energy)
-                val newScore = fastThenSlow.apply(0f, 1f, score)
+                val newScore = Interpolation.pow4Out.apply(score)
                 newScore.toDouble()
             },
             {

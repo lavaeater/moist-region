@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Pool.Poolable
@@ -77,10 +78,10 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-//        with<CameraFollow>()
+        with<CameraFollow>()
         with<Renderable> {
             val sprite = inject<Assets>().citySprite
-            val cityColor = Color(0.01f, 1f, 0.01f, 1f)
+            val cityColor = Color(0f, 0f, 0f, .1f)
             val spritePos = vec2()
             renderType = RenderType.SelfRender(2) { batch, deltaTime ->
                 val shapeDrawer = inject<Assets>().shapeDrawer
@@ -110,10 +111,19 @@ fun city(): Entity {
                 val normalizedPop = MathUtils.norm(PopulationMin, PopulationMax, city.population)
                 shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedPop, Color.RED, 3f)
 
+                val sailStart = position - (city.sailVector * 50)//.rotate90(1)
+                val sailStop = position + (city.sailVector * 50)//.rotate90(1)
+                val sailBulge = position + (city.sailVector * 50).rotateDeg(45f)
 
-                shapeDrawer.line(position, position + city.sailVector * 50, Color.BLACK, 3f)
-                shapeDrawer.line(position, position + body.linearVelocity, Color.RED, 3f)
-                shapeDrawer.circle(position.x, position.y, 60f)
+                val sailArray = listOf(sailStart.x, sailStart.y, sailBulge.x, sailBulge.y, sailStop.x, sailStop.y)
+                shapeDrawer.setColor(Color.WHITE)
+                shapeDrawer.filledPolygon(sailArray.toFloatArray())
+
+                shapeDrawer.line(sailStart, sailStop, Color.BLACK, 3f)
+//                shapeDrawer.line(position, position + body.linearVelocity, Color.RED, 3f)
+                shapeDrawer.setColor(cityColor)
+                shapeDrawer.filledCircle(position.x, position.y, 60f)
+                shapeDrawer.setColor(Color.WHITE)
 
             }
         }
@@ -193,7 +203,7 @@ fun fishes() {
     val range = min..max
     (0 until StartFishCount).forEach {
         val fishPos = vec2(range.random(), range.random())
-        fish(fishPos, it == 0)
+        fish(fishPos)//, it == 0)
     }
 }
 

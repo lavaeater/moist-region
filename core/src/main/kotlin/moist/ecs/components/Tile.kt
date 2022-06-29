@@ -1,5 +1,6 @@
 package moist.ecs.components
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import ktx.math.random
 import ktx.math.vec2
@@ -17,6 +18,7 @@ data class Tile(
     var currentFood: Float = (25f..TileStartFood).random()
 ) {
     val neighbours = mutableListOf<Tile>()
+    val color = Color(1f,0f,1f,0.8f)
 
     var originalDepth: Float = 0f
     val current = vec2()
@@ -28,12 +30,11 @@ data class Tile(
         }
 }
 
-fun Tile.someTileAt(distance:Int, directionX: Int, directionY: Int):Tile {
+fun Tile.someTileAt(distance: Int, directionX: Int, directionY: Int): Tile {
     val targetX = this.x + directionX * distance
     val targetY = this.y + directionY * distance
     val seaManager = inject<SeaManager>()
-    val tile = seaManager.getTileAt(targetX, targetY)
-    return tile
+    return seaManager.getTileAt(targetX, targetY)
 }
 
 fun Tile.areaAhead(directionX: Int, directionY: Int, distance: Int, width:Int = 3, excludeSelf: Boolean = true): List<Tile> {
