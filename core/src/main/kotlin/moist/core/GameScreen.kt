@@ -19,6 +19,8 @@ import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.log.debug
 import ktx.math.vec2
+import ktx.preferences.get
+import ktx.preferences.set
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.ecs.components.*
@@ -167,10 +169,15 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 }
 
 object GameStats {
+    val preferences = Gdx.app.getPreferences("moist-region")
     var population = 0
     var maxPopulation = 0
     var remainingFood = 0
     var caughtFish = 0
     var playTime = 0f
-    var highestPlayTime = 0f
+    var highestPlayTime
+        get() = preferences["highestPlayTime", 0f]
+        set(value) {
+            preferences["highestPlayTime"] = value
+        }
 }
