@@ -34,12 +34,6 @@ import moist.world.TileChunk
 import moist.world.engine
 
 class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
-    private val image = Texture("logo.png".toInternalFile(), true).apply {
-        setFilter(
-            Texture.TextureFilter.Linear,
-            Texture.TextureFilter.Linear
-        )
-    }
     private val batch = inject<PolygonSpriteBatch>()
     private val assets = inject<Assets>()
     private var needsInit = true
@@ -162,7 +156,6 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     override fun dispose() {
-        image.disposeSafely()
         batch.disposeSafely()
         assets.disposeSafely()
     }

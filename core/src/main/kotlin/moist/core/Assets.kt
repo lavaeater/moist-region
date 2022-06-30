@@ -29,12 +29,12 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
         ShapeDrawer(Context.inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
     }
 
-    val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
+    private val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
     val sound by assetManager.loadOnDemand<Sound>("audio/seasound.wav")
     val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
 
-    val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
-    val fishRegions by lazy {
+    private val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
+    private val fishRegions by lazy {
         GdxArray(
         Array(4) {
             val x = 32 * it
