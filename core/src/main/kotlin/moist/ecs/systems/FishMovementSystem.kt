@@ -19,13 +19,17 @@ class FishMovementSystem : IteratingSystem(
         Box::class
     ).get()
 ) {
-    private val separationRange = 10f
+    private val separationRange = 75f
     private val fishFamily = allOf(Fish::class).get()
     private val allTheFishInTheSea get() = engine.getEntitiesFor(fishFamily)
 
     private val alignment = vec2()
     private val cohesion = vec2()
     private val separation = vec2()
+
+    private val cohesionScale = 1.125f
+    private val separationScale = 1.05f
+    private val alignmentScale = 1.05f
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
@@ -79,9 +83,9 @@ class FishMovementSystem : IteratingSystem(
 
         if(fish.direction != Vector2.Zero) {
             fish.direction
-                .add(cohesion.scl(1.5f))
-                .add(separation.scl(1.5f))
-                .add(alignment.scl(1.0f))
+                .add(cohesion.scl(cohesionScale))
+                .add(separation.scl(separationScale))
+                .add(alignment.scl(alignmentScale))
                 .nor()
                 .scl(FishMaxVelocity)
         }

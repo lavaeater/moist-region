@@ -153,14 +153,14 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
         renderType: RenderType.RenderAnimation
     ) {
         val body = entity.body()
-        var angle = body.angle
+        var angle = body.angle * MathUtils.radiansToDegrees
         if (entity.isFish())
-            angle = entity.fish().direction.angleRad()
+            angle = entity.fish().direction.cpy().rotate90(-1).angleDeg()
 
         renderType.time += deltaTime
         val keyFrame = renderType.animation.getKeyFrame(renderType.time)
         keyFrame.setOriginBasedPosition(body.position.x, body.position.y)
-        keyFrame.rotation = (MathUtils.radiansToDegrees * angle) - 90f
+        keyFrame.rotation = angle
         keyFrame.draw(batch)
         if(GlobalDebug.globalDebug) {
             shapeDrawer.setColor(Color.RED)
