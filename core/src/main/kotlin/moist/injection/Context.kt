@@ -53,7 +53,7 @@ object Context {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(CurrentChunkSystem(inject()))
-            //addSystem(PhysicsDebugRendererSystem(inject(), inject()))
+            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem(inject()))
             addSystem(WindSystem(inject()))

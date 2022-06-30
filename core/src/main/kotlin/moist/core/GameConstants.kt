@@ -43,9 +43,11 @@ object Box2dCategories {
     const val cities: Short = 1
     const val fish: Short = 2
     const val cloud: Short = 4
+    const val shark: Short = 8
 
     val whatFishCollideWith = cities
     val whatCitiesCollideWith = cities
     val whatCitiesSense = cities or fish
     val whatCloudsCollideWith = none
+    val whatSharksCollideWith = cities or fish or shark
 }

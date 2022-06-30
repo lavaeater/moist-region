@@ -8,10 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import ktx.ashley.entity
 import ktx.ashley.with
-import ktx.box2d.body
-import ktx.box2d.box
-import ktx.box2d.circle
-import ktx.box2d.filter
+import ktx.box2d.*
 import ktx.math.*
 import moist.ai.UtilityAiComponent
 import moist.ecs.components.*
@@ -47,7 +44,7 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-        with<CameraFollow>()
+//        with<CameraFollow>()
         with<Renderable> {
             val sprite = Context.inject<Assets>().citySprite
             val cityColor = Color(0f, 0f, 0f, .3f)
@@ -141,6 +138,50 @@ fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
                         maskBits = Box2dCategories.whatFishCollideWith
                     }
                 }
+            }
+        }
+        with<Fish> {
+            canDie = !cameraFollow
+        }
+        if(cameraFollow)
+            with<CameraFollow>()
+        with<UtilityAiComponent>()
+        with<Renderable> {
+            renderType = RenderType.RenderAnimation(0, Context.inject<Assets>().fishAnim)
+        }
+    }
+}
+
+fun shark(sharkPos: Vector2, cameraFollow: Boolean = true) {
+    engine().entity {
+        with<Box> {
+            body = world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.DynamicBody
+                position.set(sharkPos)
+                polygon(vec2(-1f, -1f), vec2(0f, 1f), vec2(1f, -1f)) {
+                    density = 1f
+                    filter {
+                        categoryBits = Box2dCategories.shark
+                        maskBits = Box2dCategories.whatSharksCollideWith
+                    }
+                }
+            }
+            body.revoluteJointWith(world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.DynamicBody
+                position.set(sharkPos.x, sharkPos.y + 1f)
+                polygon(vec2(-1f, -1f), vec2(0f, 1f), vec2(1f, -1f)) {
+                    density = 1f
+                    filter {
+                        categoryBits = Box2dCategories.shark
+                        maskBits = Box2dCategories.whatSharksCollideWith
+                    }
+                }
+            }) {
+                enableLimit = true
+                lowerAngle = MathUtils.degreesToRadians * 45f
+                upperAngle = MathUtils.degreesToRadians * -45f
             }
         }
         with<Fish> {

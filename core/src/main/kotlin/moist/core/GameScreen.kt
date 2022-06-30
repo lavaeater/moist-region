@@ -90,6 +90,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
             system.setProcessing(true)
         sea()
         fishes()
+        shark(vec2(0f,0f), true)
         checkGameConditions()
 
         Gdx.input.inputProcessor = this
