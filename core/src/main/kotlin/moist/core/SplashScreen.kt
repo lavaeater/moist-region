@@ -36,12 +36,17 @@ class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal")
                     currentPos.y -= this.height * 2
                     currentPos.x -= 100f
                 }
-                label("Fish the fish with your floating city's nets (theme, you know)") {
+                label("Fish the fish with your floating city's nets - just sail onto the fish.") {
                     setFontScale(0.75f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f
                 }
-                label("Steer the sail with A and D - ") {
+                label("Keep population above 10 at all times!") {
+                    setFontScale(0.75f)
+                    setPosition(currentPos.x, currentPos.y)
+                    currentPos.y -= this.height * 1.5f
+                }
+                label("Steer the sail with A and D - your speed is indicated by the red dial") {
                     setFontScale(0.75f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 1.5f
