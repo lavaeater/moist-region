@@ -1,5 +1,6 @@
 package moist.ecs.components
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Interpolation
@@ -12,10 +13,7 @@ import ktx.actors.stage
 import ktx.actors.txt
 import ktx.ashley.allOf
 import ktx.graphics.use
-import ktx.math.plus
-import ktx.math.times
-import ktx.math.vec2
-import ktx.math.vec3
+import ktx.math.*
 import ktx.scene2d.*
 import moist.ai.AiCounter
 import moist.ai.UtilityAiComponent
@@ -107,14 +105,19 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
     private val compassVector = vec2(300f, 60f)
     private val stopVector = vec2(300f, 60f)
+    private val windDirectionVector = vec2(0f,0f)
 
     fun render(delta: Float) {
         stage.act(delta)
         stage.draw()
         stopVector.lerp(compassVector + cityEntity.body().currentTile().wind * 50f, 0.2f)
+        windDirectionVector.lerp(compassVector + cityEntity.body().linearVelocity / 3f, 0.2f)
         shapeDrawer.batch.use {
             shapeDrawer.filledCircle(compassVector, 5f)
             shapeDrawer.line(compassVector, stopVector, 3f)
+            shapeDrawer.setColor(Color.RED)
+            shapeDrawer.line(compassVector, windDirectionVector, 3f)
+            shapeDrawer.setColor(Color.WHITE)
         }
     }
 
