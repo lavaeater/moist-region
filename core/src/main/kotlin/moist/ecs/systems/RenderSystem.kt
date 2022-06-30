@@ -109,6 +109,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
             is RenderType.Sea -> renderType.render(batch, deltaTime)
             is RenderType.RenderAnimation -> renderAnimation(batch, entity, deltaTime, renderType)
             RenderType.Cloud -> renderCloud(entity)
+            is RenderType.Bottom -> renderType.render(batch, deltaTime)
         }
 
 

@@ -18,7 +18,7 @@ data class Tile(
     var currentFood: Float = (25f..TileStartFood).random()
 ) {
     val neighbours = mutableListOf<Tile>()
-    val color = Color(1f,0f,1f,0.8f)
+    val color = Color(1f,0f,1f,0.5f)
 
     var originalDepth: Float = 0f
     val current = vec2()

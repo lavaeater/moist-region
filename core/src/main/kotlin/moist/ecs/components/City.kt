@@ -215,4 +215,10 @@ fun sea() {
             renderType = RenderType.Sea()
         }
     }
+    engine().entity {
+        with<Renderable> {
+            renderType = RenderType.Bottom()
+        }
+    }
 }
+

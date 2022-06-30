@@ -11,7 +11,7 @@ import ktx.collections.GdxArray
 import moist.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContainer() {
+class Assets(assetManager: AssetManager) : DisposableRegistry by DisposableContainer() {
     init {
         assetManager.alsoRegister()
     }
@@ -29,6 +29,11 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
         ShapeDrawer(Context.inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
     }
 
+    private val bottomTextureAsset by assetManager.loadOnDemand<Texture>("textures/bottom.png")
+    val bottomTexture by lazy { bottomTextureAsset.apply {
+        setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
+    } }
+
     private val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")
     val sound by assetManager.loadOnDemand<Sound>("audio/seasound.wav")
     val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
@@ -36,11 +41,11 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
     private val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
     private val fishRegions by lazy {
         GdxArray(
-        Array(4) {
-            val x = 32 * it
-            val y = 0
-            Sprite(TextureRegion(fishTexture, x, y, 32,32))
-        })
+            Array(4) {
+                val x = 32 * it
+                val y = 0
+                Sprite(TextureRegion(fishTexture, x, y, 32, 32))
+            })
     }
     val fishAnim by lazy { Animation(0.1f, fishRegions, Animation.PlayMode.LOOP_PINGPONG) }
 }
