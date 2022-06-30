@@ -87,8 +87,8 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 //            ){
 //                setPosition(200f, 20f)
 //            }
-            boundLabel({
-                "Number of Fish: $allFishCount\n"
+//            boundLabel({
+//                "Number of Fish: $allFishCount\n"
 //                "Moving: ${followedFish.fish().isMoving}\n" +
 //                "Energy: ${followedFish.fish().energy}\n" +
 //                "Can Mate: ${followedFish.fish().canMate}\n" +
@@ -97,9 +97,9 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 //                        "Modde MatingScore: ${Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))}\n" +
 //                "Alt Score: ${Interpolation.exp10Out.apply(((MathUtils.norm(0f, GameConstants.FishMaxEnergy, followedFish.fish().energy) + Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))) / 2f)) }\n" +
 //                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${(it.score(followedFish) * 100f).toInt()}" }
-            }) {
-                setPosition(10f, 200f)
-            }
+//            }) {
+//                setPosition(10f, 200f)
+//            }
         }
         aStage
     }
