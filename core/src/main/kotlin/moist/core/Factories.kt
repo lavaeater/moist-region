@@ -60,6 +60,9 @@ fun city(): Entity {
                 val rows = 8
                 val start = 0 - rows / 2
                 val stop = rows / 2
+                shapeDrawer.setColor(cityColor)
+                shapeDrawer.filledCircle(position.x, position.y, 60f)
+                shapeDrawer.setColor(Color.WHITE)
 
                 for (x in start until stop)
                     for (y in start until stop) {
@@ -81,17 +84,13 @@ fun city(): Entity {
 
                 val sailStart = position - (city.sailVector * 50)//.rotate90(1)
                 val sailStop = position + (city.sailVector * 50)//.rotate90(1)
-                val sailBulge = position + (city.sailVector * 50).rotateDeg(45f)
-
-                val sailArray = listOf(sailStart.x, sailStart.y, sailBulge.x, sailBulge.y, sailStop.x, sailStop.y)
+                val sailBulge1 = position - (city.sailVector * 25) + (body.linearVelocity) / 2f// (city.sailVector * 50).rotateDeg(45f)
+                val sailBulge2 = position + (city.sailVector * 25) + (body.linearVelocity) / 2f
+                val sailArray = listOf(sailStart.x, sailStart.y, sailBulge1.x, sailBulge1.y,sailBulge2.x, sailBulge2.y, sailStop.x, sailStop.y)
                 shapeDrawer.setColor(Color.WHITE)
                 shapeDrawer.filledPolygon(sailArray.toFloatArray())
 
                 shapeDrawer.line(sailStart, sailStop, Color.BLACK, 3f)
-//                shapeDrawer.line(position, position + body.linearVelocity, Color.RED, 3f)
-                shapeDrawer.setColor(cityColor)
-                shapeDrawer.filledCircle(position.x, position.y, 60f)
-                shapeDrawer.setColor(Color.WHITE)
 
             }
         }

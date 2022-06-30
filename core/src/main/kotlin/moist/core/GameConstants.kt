@@ -31,7 +31,7 @@ object GameConstants {
     const val FoodTempDeath = 25f
     val FoodTempRange = FoodTempMin..FoodTempMax
     const val FishEatingPace = 5f
-    const val WindMagnitude = 150f
+    const val WindMagnitude = 200f
     const val MaxClouds = 50
     const val MinClouds = 25
     const val MaxCloudSpeed = 50f
