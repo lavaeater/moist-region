@@ -52,6 +52,8 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val city by lazy { cityEntity.city() }
 
     private val followedFishFamily = allOf(CameraFollow::class, Fish::class).get()
+    private val fishFamily = allOf(Fish::class).get()
+    private val allFishCount get() = engine().getEntitiesFor(fishFamily).count()
 
     private val followedFish by lazy { engine().getEntitiesFor(followedFishFamily).first() }
     private val numbers = Array(10) { it * .1f }
@@ -85,17 +87,19 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 //            ){
 //                setPosition(200f, 20f)
 //            }
-//            boundLabel({
+            boundLabel({
+                "Number of Fish: $allFishCount\n"
 //                "Moving: ${followedFish.fish().isMoving}\n" +
 //                "Energy: ${followedFish.fish().energy}\n" +
-//                "Has Mated: ${followedFish.fish().hasMated}\n" +
-//                        followedFish.body().currentTile().toString() + "\n" +
-//                                "${followedFish.body().tileX()}:${followedFish.body().tileY()}\n" +
-//                                "${followedFish.body().position}"
-//                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${it.score(followedFish)}" }
-//            }) {
-//                setPosition(10f, 400f)
-//            }
+//                "Can Mate: ${followedFish.fish().canMate}\n" +
+//                "Mating Count: ${followedFish.fish().matingCount}\n" +
+//                        "Unmodded MatingScore: ${MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat())}\n" +
+//                        "Modde MatingScore: ${Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))}\n" +
+//                "Alt Score: ${Interpolation.exp10Out.apply(((MathUtils.norm(0f, GameConstants.FishMaxEnergy, followedFish.fish().energy) + Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))) / 2f)) }\n" +
+//                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${(it.score(followedFish) * 100f).toInt()}" }
+            }) {
+                setPosition(10f, 200f)
+            }
         }
         aStage
     }

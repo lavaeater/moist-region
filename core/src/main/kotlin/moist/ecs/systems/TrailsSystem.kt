@@ -50,7 +50,7 @@ class TrailsSystem : IntervalIteratingSystem(allOf(Box::class, City::class).get(
     override fun processEntity(entity: Entity) {
         val body = entity.body()
         val position = body.position
-        val offsetRange = (-5f..5f)
+        val offsetRange = (-10f..10f)
         if((1..10).random() > 7)
             trails(vec2(position.x + offsetRange.random(), position.y + offsetRange.random()))
     }

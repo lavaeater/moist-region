@@ -38,6 +38,10 @@ fun Entity.fish(): Fish {
     return AshleyMappers.fish.get(this)
 }
 
+fun Entity.hasBody():Boolean {
+    return AshleyMappers.box.has(this)
+}
+
 fun Entity.body(): Body {
     return AshleyMappers.box.get(this).body
 }

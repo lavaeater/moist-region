@@ -11,7 +11,7 @@ class TileFoodSystem(private val seaManager: SeaManager): IntervalSystem(10f) {
     override fun updateInterval() {
         for(tile in seaManager.allTiles) {
             if(GameConstants.FoodTempRange.contains(tile.waterTemp)) {
-                debug { "Adding food to ${tile.x}:${tile.y}" }
+                //debug { "Adding food to ${tile.x}:${tile.y}" }
                 tile.currentFood += max(1f, tile.currentFood / 10f)
             }
             if(tile.waterTemp > GameConstants.FoodTempDeath) {

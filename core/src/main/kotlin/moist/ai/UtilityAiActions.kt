@@ -3,17 +3,20 @@ package moist.ai
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import ktx.ashley.allOf
+import ktx.log.debug
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
 import moist.core.GameConstants
+import moist.core.GameConstants.MaxFishMatings
+import moist.core.fish
 import moist.ecs.components.Fish
-import moist.ecs.components.fish
 import moist.ecs.components.someTileAt
 import moist.ecs.systems.body
 import moist.ecs.systems.currentTile
 import moist.ecs.systems.fish
+import moist.ecs.systems.hasBody
 import moist.injection.Context
 import moist.world.SeaManager
 import moist.world.engine
@@ -47,48 +50,61 @@ object UtilityAiActions {
     })
 
     val fishMatingAction = GenericAction("Fish Mating", {
-        if (it.fish().hasMated) 0.0 else {
-            val score = MathUtils.norm(0f, GameConstants.FishMaxEnergy, it.fish().energy)
-            val newScore = Interpolation.exp10Out.apply(score)
+        val fish = it.fish()
+        if (fish.canMate) {
+            val score = MathUtils.norm(0f, GameConstants.FishMaxEnergy, fish.energy)
+            val matingScore = Interpolation.exp10In.apply(MathUtils.norm(0f, MaxFishMatings.toFloat(), MaxFishMatings.toFloat() - fish.matingCount.toFloat()))
+            val newScore = Interpolation.exp10Out.apply((score + matingScore) / 2f)
             newScore.toDouble()
-        }
+        } else 0.0
     }, {
         it.fish().targetTile = null
+        it.fish().targetFish = null
     }, { entity, deltaTime ->
         val fish = entity.fish()
-        val body = entity.body()
-        val currentTile = entity.body().currentTile()
-        if (fish.targetTile != null && fish.targetTile != currentTile) {
-            //We are going somewhere and we are not there yet.
-            fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
-        } else if (fish.targetTile == currentTile) {
-            fish.targetTile = null
-
-            val closestFish = (allTheFish - entity).minByOrNull { it.body().position.dst(body.position) }!!
-            if (closestFish.body().currentTile() == currentTile) {
+        if(fish.canMate) {
+            val body = entity.body()
+            val currentTile = body.currentTile()
+            if (fish.targetFish != null && fish.targetFish!!.hasBody() && fish.targetTile != currentTile) {
+                fish.targetTile = fish.targetFish!!.body().currentTile()
+                debug { "${fish.id} is going to mate at ${fish.targetTile}" }
+                //We are going somewhere and we are not there yet.
+                fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
+            } else if (fish.targetFish != null && !fish.targetFish!!.hasBody()) {
+                fish.targetFish = null
+            } else if (fish.targetTile == currentTile) {
+                debug { "${fish.id} is going to mate at ${fish.targetTile} with ${fish.targetFish?.fish()?.id}" }
                 if (allTheFish.count() < GameConstants.MaxFishCount) {
                     //MATE! - otherwise just let this repeat itself!
                     val numberOfFish = (1..3).random()
+                    debug { "$numberOfFish were born" }
                     AiCounter.eventCounter["Births"] = AiCounter.eventCounter["Births"]!! + numberOfFish
                     for (i in 0 until numberOfFish) {
                         fish(body.position)
                     }
                 }
-                fish.energy = 15f
-                fish.hasMated = true
+                fish.energy = 5f
+                fish.matingCount++
+                fish.targetTile = null
+                fish.targetFish = null
+            } else if (fish.targetTile == null && fish.targetFish == null) {
+                //1. Are there fish within mating distance that also wish to mate?
+                val closestFish =
+                    (allTheFish - entity).filter { it.fish().canMate }
+                        .minByOrNull { it.body().position.dst(body.position) }
+                if (closestFish != null) {
+                    debug { "${fish.id} is trying to mate with ${closestFish.fish().id}" }
+                    fish.targetTile = closestFish.body().currentTile()
+                    fish.targetFish = closestFish
+                }
             }
-        } else if (fish.targetTile == null) {
-            //1. Are there fish within mating distance that also wish to mate?
-            val closestFish = (allTheFish - entity).minByOrNull { it.body().position.dst(body.position) }
-            if (closestFish != null)
-                fish.targetTile = closestFish.body().currentTile()
         }
     })
 
     val fishFoodAction = GenericAction("Fish Food",
         {
             val score = 1f - MathUtils.norm(0f, GameConstants.FishMaxEnergy, it.fish().energy)
-            val newScore = Interpolation.pow4Out.apply(score)
+            val newScore = Interpolation.pow2Out.apply(score)
             newScore.toDouble()
         },
         {

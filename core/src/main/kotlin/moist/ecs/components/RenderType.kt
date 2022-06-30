@@ -25,17 +25,17 @@ sealed class RenderType(val layer: Int) {
                 tile.color.b = tile.depth
                 tile.color.r = MathUtils.lerp(
                     tile.color.r,
-                    Interpolation.exp10In.apply(
+                    Interpolation.pow2In.apply(
                         MathUtils.norm(
                             0f,
                             GameConstants.TileMaxFood,
-                            tile.currentFood / 10f
+                            tile.currentFood / 5f
                         )
                     ),
                     0.1f
                 )
                 tile.color.g = MathUtils.lerp(
-                    tile.color.r, Interpolation.exp5In.apply(
+                    tile.color.r, Interpolation.pow2In.apply(
                         MathUtils.norm(
                             GameConstants.MinWaterTemp,
                             GameConstants.MaxWaterTemp,

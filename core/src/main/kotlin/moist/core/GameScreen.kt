@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
@@ -119,7 +120,8 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
         applyInput()
 
-        camera.zoom += zoomFactor * cameraZoom
+        if(cameraZoom != 0f)
+            camera.zoom = MathUtils.lerp(camera.zoom, camera.zoom + zoomFactor * cameraZoom, 0.1f)
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
         engine().update(delta)

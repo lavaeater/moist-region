@@ -1,17 +1,15 @@
 package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
 import ktx.ashley.remove
 import ktx.math.times
 import moist.core.GameConstants.CloudMagnitude
-import moist.core.GameConstants.MaxCloudSpeed
 import moist.core.GameConstants.MinClouds
+import moist.core.cloud
 import moist.ecs.components.Box
 import moist.ecs.components.Cloud
-import moist.ecs.components.cloud
 import moist.injection.Context.inject
 import moist.world.SeaManager
 import moist.world.world
