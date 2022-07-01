@@ -1,37 +1,215 @@
 package moist.ai
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool.Poolable
+import ktx.ashley.allOf
+import ktx.log.debug
+import ktx.math.minus
+import moist.core.GameConstants
+import moist.core.GameConstants.TileSize
+import moist.core.shark
+import moist.ecs.components.*
+import moist.ecs.systems.body
+import moist.ecs.systems.currentTile
+import moist.ecs.systems.creature
+import moist.ecs.systems.hasBody
 import moist.injection.Context.inject
 import moist.world.SeaManager
+import moist.world.engine
 
-class SharkMating: Component, Poolable {
+class SharkMating : Component, Poolable {
+    var targetShark: Entity? = null
+    var matingState: MatingState = MatingState.NotStarted
+        set(value) {
+            if (field != value)
+                debug { "${field.name} -> ${value.name}" }
+            field = value
+        }
+
     override fun reset() {
-
+        targetShark = null
+        matingState = MatingState.NotStarted
     }
-
 }
 
-class SharkHunting: Component, Poolable {
+sealed class MatingState(val name: String) {
+    object NotStarted : MatingState("Not Started")
+    object LookingForAMate : MatingState("Looking for a mate")
+    object SwimmingTowardsAMate : MatingState("Swimming Towards a Mate")
+}
+
+sealed class HuntingState(val name: String) {
+    object NotStarted : HuntingState("Not Started")
+    object LookingForPrey : HuntingState("Searching For Prey")
+    object HuntingPrey : HuntingState("Hunting Prey")
+    object GoingToANewPlace : HuntingState("Going to a New Place")
+}
+
+class SharkHunting : Component, Poolable {
+    var targetTile: Tile? = null
+    var targetFish: Entity? = null
+    var huntingState: HuntingState = HuntingState.NotStarted
+        set(value) {
+            if (field != value)
+                debug { "${field.name} -> ${value.name}" }
+            field = value
+        }
+
     override fun reset() {
+        huntingState = HuntingState.NotStarted
+        targetFish = null
     }
 
 }
 
 object SharkActions {
     val seaManager by lazy { inject<SeaManager>() }
+    private val fishFamily = allOf(Fish::class).get()
+    val allFish get() = engine().getEntitiesFor(fishFamily)
 
     val huntingAction = GenericActionWithState("Shark Hunting", {
-        0.0
-                                                                }, {
-
+        val score = 1f - MathUtils.norm(0f, GameConstants.FishMaxEnergy, it.creature().energy)
+        val newScore = Interpolation.pow2Out.apply(score)
+        newScore.toDouble()
+    }, {
     }, { entity, state, deltaTime ->
 
+        /*
+        1. What state are we in?
+         */
+        when (state.huntingState) {
+            HuntingState.HuntingPrey -> {
+                if (state.targetFish != null) {
+                    if (state.targetFish!!.hasBody()) {
+                        val sharkBody = entity.body()
+                        val sharkFish = entity.creature()
+                        val fishBody = state.targetFish!!.body()
+                        val fishFish = state.targetFish!!.creature()
+                        if (fishBody.position.dst(sharkBody.position) < 15f) {
+                            //This shark will now eat this fish.
+                            sharkFish.energy += fishFish.foodValue
+                            fishFish.energy = -1000f // This fish will now die
+                            state.targetFish = null
+                            state.targetTile = null
+                            state.huntingState = HuntingState.LookingForPrey
+                        } else {
+                            sharkFish.direction.lerp(fishBody.position - sharkBody.position, 0.1f)
+                        }
+                    } else {
+                        /*
+                        The target fish might have died.
+                         */
+                        state.targetFish = null
+                        state.huntingState = HuntingState.LookingForPrey
+                    }
+                } else {
+                    state.huntingState = HuntingState.LookingForPrey
+                }
+            }
+            HuntingState.LookingForPrey -> {
+                //1. find some fish
+                /**
+                 * I want the fish to be in front of the shark.
+                 * I want the shark to be able to...
+                 *
+                 * OK, here's what we do. Check if any fish are closer than like, three squares
+                 */
+                state.targetFish = null
+                state.targetTile = null
+                val sharkBody = entity.body()
+                val sharkPos = sharkBody.position
+                val checkDistance = TileSize * 3f
+                val potentialFishes = allFish.filter { it.body().position.dst(sharkPos) < checkDistance }//.minByOrNull { it.body().position.dst(sharkPos) }
+                if (potentialFishes.any()) {
+                    state.huntingState = HuntingState.HuntingPrey
+                    state.targetFish = potentialFishes.random()
+                } else {
+                    val targetTile =
+                        sharkBody.currentTile().someAreaAt((1..5).random(), TileDirection.directions.random(), 3)
+                            .random()
+                    state.targetTile = targetTile
+                    state.huntingState = HuntingState.GoingToANewPlace
+                }
+
+            }
+            HuntingState.NotStarted -> state.huntingState = HuntingState.LookingForPrey
+            HuntingState.GoingToANewPlace -> {
+                val sharkBody = entity.body()
+                if (state.targetTile != null && state.targetTile != sharkBody.currentTile()) {
+                    val fish = entity.creature()
+                    fish.direction.lerp(state.targetTile!!.worldCenter - sharkBody.position, 0.1f)
+                } else {
+                    state.targetTile = null
+                    state.huntingState = HuntingState.LookingForPrey
+                }
+            }
+        }
+
+
     }, SharkHunting::class.java)
-    val matingAction = GenericAction("Shark Mating", {0.0}, {
 
-    }, { entity,deltaTime ->
+    val sharkFamily = allOf(Shark::class, Box::class).get()
+    val allSharks get() = engine().getEntitiesFor(sharkFamily)
 
-    })
+    val matingAction = GenericActionWithState("Shark Mating", {
+        val thisCreature = it.creature()
+        val score = MathUtils.norm(0f, GameConstants.FishMaxEnergy, thisCreature.energy)
+        val matingScore = Interpolation.exp10In.apply(
+            MathUtils.norm(
+                0f,
+                GameConstants.MaxFishMatings.toFloat(),
+                GameConstants.MaxFishMatings.toFloat() - thisCreature.matingCount.toFloat()
+            )
+        )
+        val newScore = Interpolation.exp5Out.apply((score + matingScore) / 2f)
+        newScore.toDouble()
+    }, {
 
+    }, { entity, state, deltaTime ->
+        when (state.matingState) {
+            MatingState.LookingForAMate -> {
+                val sharkBody = entity.body()
+                val potentialMate =
+                    allSharks.filter { it.creature().canMate }
+                if (potentialMate.any()) {
+                    state.targetShark = potentialMate.random()
+                    state.matingState = MatingState.SwimmingTowardsAMate
+                }
+            }
+            MatingState.NotStarted -> state.matingState = MatingState.LookingForAMate
+            MatingState.SwimmingTowardsAMate -> {
+                if (state.targetShark != null) {
+                    if (state.targetShark!!.hasBody()) {
+                        val sharkBody = entity.body()
+                        val sharkFish = entity.creature()
+                        val mateBody = state.targetShark!!.body()
+                        val mateFish = state.targetShark!!.creature()
+                        if (mateBody.position.dst(sharkBody.position) < 15f) {
+                            //This shark will now mate with this shark.
+                            shark(sharkBody.position)
+                            sharkFish.matingCount += 1
+                            sharkFish.energy = 15f
+                            mateFish.energy = 15f
+                            mateFish.matingCount += 1
+                            state.targetShark = null
+                            state.matingState = MatingState.NotStarted
+                        } else {
+                            sharkFish.direction.lerp(mateBody.position - sharkBody.position, 0.1f)
+                        }
+                    } else {
+                        /*
+                        The target fish might have died.
+                         */
+                        state.targetShark = null
+                        state.matingState = MatingState.LookingForAMate
+                    }
+                } else {
+                    state.matingState = MatingState.LookingForAMate
+                }
+            }
+        }
+    }, SharkMating::class.java)
 }

@@ -5,7 +5,7 @@ import moist.ai.UtilityAiComponent
 import moist.ecs.components.*
 
 object AshleyMappers {
-    val fish = mapperFor<Fish>()
+    val creature = mapperFor<CreatureStats>()
     val renderable = mapperFor<Renderable>()
     val box = mapperFor<Box>()
     val city = mapperFor<City>()

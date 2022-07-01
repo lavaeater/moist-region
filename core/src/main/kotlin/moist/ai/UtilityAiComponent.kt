@@ -17,8 +17,8 @@ class UtilityAiComponent : Component, Pool.Poolable {
         val potentialAction = actions.first()
         if (currentAction != potentialAction) {
             if (currentAction != null)
-                AiCounter.actionCounter[currentAction!!] = AiCounter.actionCounter[currentAction]!! - 1
-            AiCounter.actionCounter[potentialAction] = AiCounter.actionCounter[potentialAction]!! + 1
+                AiCounter.addToCounter(currentAction!!, -1)
+            AiCounter.addToCounter(potentialAction, 1)
             currentAction?.abort(entity)
             currentAction = potentialAction
         }

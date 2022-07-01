@@ -5,26 +5,45 @@ import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Fixture
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import ktx.graphics.use
+import ktx.math.minus
+import ktx.math.plus
+import ktx.math.times
+import ktx.math.vec2
+import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.GameConstants
 import moist.ecs.components.*
 
-fun Fixture.isFish(): Boolean {
-    return this.body.userData is Entity && (this.body.userData as Entity).isFish()
+fun Fixture.isCreature(): Boolean {
+    return this.body.userData is Entity && (this.body.userData as Entity).isCreature()
 }
 
 fun Fixture.isCity(): Boolean {
     return this.body.userData is Entity && (this.body.userData as Entity).isCity()
 }
 
-fun Entity.isFish(): Boolean {
-    return AshleyMappers.fish.has(this)
+fun Entity.isShark(): Boolean {
+    return Shark.has(this)
 }
+
+fun Entity.isCreature(): Boolean {
+    return AshleyMappers.creature.has(this)
+}
+
+fun Entity.hasAi(): Boolean
+{
+    return AshleyMappers.ai.has(this)
+}
+fun Entity.ai(): UtilityAiComponent {
+    return AshleyMappers.ai.get(this)
+}
+
 
 fun Entity.cloud(): Cloud {
     return AshleyMappers.cloud.get(this)
@@ -34,8 +53,8 @@ fun Entity.isCity(): Boolean {
     return AshleyMappers.city.has(this)
 }
 
-fun Entity.fish(): Fish {
-    return AshleyMappers.fish.get(this)
+fun Entity.creature(): CreatureStats {
+    return AshleyMappers.creature.get(this)
 }
 
 fun Entity.hasBody():Boolean {
@@ -80,8 +99,8 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
     val cameraFollowMapper = mapperFor<CameraFollow>()
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        if (GlobalDebug.globalDebug && cameraFollowMapper.has(entity) && entity.isFish()) {
-            val fish = entity.fish()
+        if (GlobalDebug.globalDebug && cameraFollowMapper.has(entity) && entity.isCreature()) {
+            val fish = entity.creature()
             val body = entity.body()
             var x = 0f
             var y = 0f
@@ -158,17 +177,29 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
     ) {
         val body = entity.body()
         var angle = body.angle * MathUtils.radiansToDegrees
-        if (entity.isFish())
-            angle = entity.fish().direction.cpy().rotate90(-1).angleDeg()
 
         renderType.time += deltaTime
         val keyFrame = renderType.animation.getKeyFrame(renderType.time)
         keyFrame.setOriginBasedPosition(body.position.x, body.position.y)
+        if (entity.isCreature()) {
+            val creature = entity.creature()
+            angle = creature.direction.cpy().rotate90(-1).angleDeg()
+            keyFrame.setScale(creature.size)
+        }
+
         keyFrame.rotation = angle
         keyFrame.draw(batch)
         if(GlobalDebug.globalDebug) {
             shapeDrawer.setColor(Color.RED)
             shapeDrawer.filledCircle(body.position, 5f)
+        }
+        val drawHealthBars = true
+        if(drawHealthBars && entity.isCreature()) {
+            val creature = entity.creature()
+            val healthBarStart = body.position
+            shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f, Color.BLACK, 3f)
+            val normalizedHealth = MathUtils.norm(0f, GameConstants.FishMaxEnergy, creature.energy)
+            shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f * normalizedHealth, Color.GREEN, 3f)
         }
     }
 

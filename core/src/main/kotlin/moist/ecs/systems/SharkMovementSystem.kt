@@ -9,32 +9,27 @@ import ktx.math.minus
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.FishEnergyExpenditurePerSecond
-import moist.core.shark
 import moist.ecs.components.Box
 import moist.ecs.components.CreatureStats
-import moist.ecs.components.Fish
 import moist.ecs.components.Shark
 
-class FishMovementSystem : IteratingSystem(
+class SharkMovementSystem : IteratingSystem(
     allOf(
-        Fish::class,
+        Shark::class,
         CreatureStats::class,
         Box::class
     ).get()
 ) {
     private val separationRange = 75f
-    private val fishFamily = allOf(CreatureStats::class, Fish::class).get()
-    private val allTheFishInTheSea get() = engine.getEntitiesFor(fishFamily)
-
-    private val sharkFamily = allOf(Shark::class).get()
+    private val sharkFamily = allOf(CreatureStats::class, Shark::class).get()
     private val sharkies get() = engine.getEntitiesFor(sharkFamily)
 
     private val alignment = vec2()
     private val cohesion = vec2()
     private val separation = vec2()
 
-    private val cohesionScale = 2.0f
-    private val separationScale = 1.5f
+    private val cohesionScale = 1.5f
+    private val separationScale = 2.5f
     private val alignmentScale = 1.5f
     private val directionScale = 3f
 
@@ -53,9 +48,8 @@ class FishMovementSystem : IteratingSystem(
         val sep = vec2()
         val coh = vec2()
         val ali = vec2()
-
         var count = 0
-        for (fish in allTheFishInTheSea) {
+        for (fish in sharkies) {
             val otherBody = fish.body()
             val position = otherBody.worldCenter
             if (position.dst(thisBody.worldCenter) < separationRange) {
@@ -69,7 +63,6 @@ class FishMovementSystem : IteratingSystem(
                 count++
             }
         }
-
         if (count > 0) {
             sep.x /= count
             sep.y /= count
@@ -84,7 +77,6 @@ class FishMovementSystem : IteratingSystem(
             ali.y /= count
             alignment.set(ali.nor())
         }
-
     }
 
     private fun moveEnemy(body: Body, creature: CreatureStats, deltaTime: Float) {
@@ -113,6 +105,13 @@ class FishMovementSystem : IteratingSystem(
             creature.energy -= FishEnergyExpenditurePerSecond * creature.size * deltaTime / 2
             creature.isMoving = false
         }
+
+//        body.applyForceToCenter(fish.direction * FishMagnitude, true)
+//
+//
+//
+//        if(body.linearVelocity.len() > FishMaxVelocity)
+//            body.linearVelocity.setLength(FishMaxVelocity)
     }
 
 }

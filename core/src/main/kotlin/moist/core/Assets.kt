@@ -33,14 +33,25 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
     val sound by assetManager.loadOnDemand<Sound>("audio/seasound.wav")
     val citySprite by lazy { Sprite(cityTexture).apply { setOriginCenter() } }
 
-    private val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
-    private val fishRegions by lazy {
+    private val sharkTexture by assetManager.loadOnDemand<Texture>("fish/shark.png")
+    private val sharkRegions by lazy {
         GdxArray(
         Array(4) {
             val x = 32 * it
             val y = 0
-            Sprite(TextureRegion(fishTexture, x, y, 32,32))
+            Sprite(TextureRegion(sharkTexture, x, y, 32,32))
         })
+    }
+    val sharkAnim by lazy { Animation(0.1f, sharkRegions, Animation.PlayMode.LOOP_PINGPONG) }
+
+    private val fishTexture by assetManager.loadOnDemand<Texture>("fish/fish.png")
+    private val fishRegions by lazy {
+        GdxArray(
+            Array(4) {
+                val x = 32 * it
+                val y = 0
+                Sprite(TextureRegion(fishTexture, x, y, 32,32))
+            })
     }
     val fishAnim by lazy { Animation(0.1f, fishRegions, Animation.PlayMode.LOOP_PINGPONG) }
 }

@@ -17,8 +17,6 @@ class GenericAction(
     }
 
     override fun score(entity: Entity): Double {
-        val score = scoreFunction(entity)
-        //debug { "$name: $score" }
-        return score
+        return scoreFunction(entity)
     }
 }

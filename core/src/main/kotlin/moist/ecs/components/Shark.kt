@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
-class Fish: Component, Pool.Poolable {
+class Shark: Component, Pool.Poolable {
     override fun reset() {
     }
 
@@ -14,7 +14,7 @@ class Fish: Component, Pool.Poolable {
         fun has(entity: Entity):Boolean {
             return mapper.has(entity)
         }
-        fun get(entity: Entity): Shark {
+        fun get(entity:Entity): Shark {
             return mapper.get(entity)
         }
     }

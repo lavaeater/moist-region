@@ -10,9 +10,9 @@ import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.*
 import ktx.math.*
-import moist.ai.FishActions
 import moist.ai.UtilityAiActions
 import moist.ai.UtilityAiComponent
+import moist.core.GameConstants.SharkMaxVelocity
 import moist.ecs.components.*
 import moist.ecs.systems.body
 import moist.ecs.systems.city
@@ -21,7 +21,7 @@ import moist.world.SeaManager
 import moist.world.engine
 import moist.world.world
 
-fun city(): Entity {
+fun city(cameraFollow: Boolean = true): Entity {
     return engine().entity {
         with<Box> {
             body = world().body {
@@ -46,7 +46,8 @@ fun city(): Entity {
         with<City> {
             population = 100f
         }
-//        with<CameraFollow>()
+        if(cameraFollow)
+            with<CameraFollow>()
         with<Renderable> {
             val sprite = Context.inject<Assets>().citySprite
             val cityColor = Color(0f, 0f, 0f, .3f)
@@ -142,7 +143,8 @@ fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
                 }
             }
         }
-        with<Fish> {
+        with<Fish>()
+        with<CreatureStats> {
             canDie = !cameraFollow
         }
         if(cameraFollow)
@@ -156,7 +158,7 @@ fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
     }
 }
 
-fun shark(sharkPos: Vector2, cameraFollow: Boolean = true) {
+fun shark(sharkPos: Vector2, cameraFollow: Boolean = false) {
     engine().entity {
         with<Box> {
             body = world().body {
@@ -166,15 +168,17 @@ fun shark(sharkPos: Vector2, cameraFollow: Boolean = true) {
                 box(.5f, .5f) {
                     density = 1f
                     filter {
-                        categoryBits = Box2dCategories.fish
-                        maskBits = Box2dCategories.whatFishCollideWith
+                        categoryBits = Box2dCategories.shark
+                        maskBits = Box2dCategories.whatSharksCollideWith
                     }
                 }
             }
         }
         with<Shark> ()
-        with<Fish> {
-            canDie = false
+        with<CreatureStats> {
+            fishMaxVelocity = SharkMaxVelocity
+            size = (1.25f..1.75f).random()
+            canDie = !cameraFollow
         }
         if(cameraFollow)
             with<CameraFollow>()
@@ -182,9 +186,20 @@ fun shark(sharkPos: Vector2, cameraFollow: Boolean = true) {
             actions.addAll(UtilityAiActions.sharkActions)
         }
         with<Renderable> {
-            renderType = RenderType.RenderAnimation(0, Context.inject<Assets>().fishAnim)
+            renderType = RenderType.RenderAnimation(0, Context.inject<Assets>().sharkAnim)
         }
     }
+}
+
+fun randomShark() {
+    val seaManager = Context.inject<SeaManager>()
+    val minX = seaManager.getCurrentTiles().minByOrNull { it.x }!!.x * GameConstants.TileSize
+    val maxX = seaManager.getCurrentTiles().maxByOrNull { it.x }!!.x * GameConstants.TileSize
+    val minY = seaManager.getCurrentTiles().maxByOrNull { it.y }!!.y * GameConstants.TileSize
+    val maxY = seaManager.getCurrentTiles().maxByOrNull { it.y }!!.y * GameConstants.TileSize
+    val xRange = minX..maxX
+    val yRange = minY..maxY
+    shark(vec2(xRange.random(), yRange.random()))
 }
 
 fun randomFish() {
@@ -198,11 +213,20 @@ fun randomFish() {
     fish(vec2(xRange.random(), yRange.random()))
 }
 
+fun sharks(cameraFollow: Boolean = false) {
+    val min = 0 + GameConstants.TileSize
+    val max = GameConstants.MaxTilesPerSide * GameConstants.TileSize - GameConstants.TileSize
+    val range = min..max
+    (1..5).forEach {
+        shark(vec2(range.random(), range.random()), it == 1 && cameraFollow)
+    }
+}
+
 fun fishes() {
     val min = 0 + GameConstants.TileSize
     val max = GameConstants.MaxTilesPerSide * GameConstants.TileSize - GameConstants.TileSize
     val range = min..max
-    (0 until GameConstants.StartFishCount).forEach {
+    (0 until GameConstants.StartFishCount).forEach { _ ->
         val fishPos = vec2(range.random(), range.random())
         fish(fishPos)//, it == 0)
     }

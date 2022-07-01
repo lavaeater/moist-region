@@ -1,9 +1,9 @@
 package moist.ecs.components
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -15,7 +15,6 @@ import ktx.ashley.allOf
 import ktx.graphics.use
 import ktx.math.*
 import ktx.scene2d.*
-import moist.ai.AiCounter
 import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.GameConstants
@@ -49,20 +48,13 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val cityEntity by lazy { cities.first() }
     private val city by lazy { cityEntity.city() }
 
-    private val followedFishFamily = allOf(CameraFollow::class, Fish::class).get()
     private val fishFamily = allOf(Fish::class).get()
     private val allFishCount get() = engine().getEntitiesFor(fishFamily).count()
+    private val sharkFamily = allOf(Shark::class).get()
+    private val allsharkCount get() = engine().getEntitiesFor(sharkFamily).count()
 
-    private val followedFish by lazy { engine().getEntitiesFor(followedFishFamily).first() }
-    private val numbers = Array(10) { it * .1f }
-    private val interpolators = mutableMapOf(
-        "fastSlow" to Interpolation.fastSlow,
-        "slowFast" to Interpolation.slowFast,
-        "exp10In" to Interpolation.exp10In,
-        "exp10out" to Interpolation.exp10Out,
-        "pow4In" to Interpolation.pow4In,
-        "pow4Out" to Interpolation.pow4Out
-    )
+    private val followedEntityFamily = allOf(CameraFollow::class).get()
+    private val followedEntity get() = engine().getEntitiesFor(followedEntityFamily).firstOrNull()
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
@@ -78,26 +70,16 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             }) {
                 setPosition(20f, 20f)
             }
-//            label(
-//                """
-//                ${interpolators.map { ip -> "${ip.key}: ${numbers.map { (ip.value.apply(it) * 1000f).toInt() }.joinToString(", ")}\n" }}
-//            """.trimIndent()
-//            ){
-//                setPosition(200f, 20f)
-//            }
-//            boundLabel({
-//                "Number of Fish: $allFishCount\n"
-//                "Moving: ${followedFish.fish().isMoving}\n" +
-//                "Energy: ${followedFish.fish().energy}\n" +
-//                "Can Mate: ${followedFish.fish().canMate}\n" +
-//                "Mating Count: ${followedFish.fish().matingCount}\n" +
-//                        "Unmodded MatingScore: ${MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat())}\n" +
-//                        "Modde MatingScore: ${Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))}\n" +
-//                "Alt Score: ${Interpolation.exp10Out.apply(((MathUtils.norm(0f, GameConstants.FishMaxEnergy, followedFish.fish().energy) + Interpolation.exp10In.apply(MathUtils.norm(0f, GameConstants.MaxFishMatings.toFloat(), GameConstants.MaxFishMatings.toFloat() - followedFish.fish().matingCount.toFloat()))) / 2f)) }\n" +
-//                UtilityAiComponent.get(followedFish).actions.joinToString("\n") { "${it.name}: ${(it.score(followedFish) * 100f).toInt()}" }
-//            }) {
-//                setPosition(10f, 200f)
-//            }
+            boundLabel({
+                val moving = if(followedEntity?.isCreature() == true) (followedEntity as Entity).creature().isMoving else true
+                """Fishes: $allFishCount
+                Sharks: $allsharkCount
+                Moving: $moving
+                Energy: ${if(followedEntity?.isCreature() == true) followedEntity?.creature()?.energy else 0f}
+                ${if(followedEntity?.hasAi() == true) followedEntity?.ai()?.actions?.joinToString("\n") { return@joinToString "${it.name}: ${(it.score((followedEntity as Entity)) * 100f).toInt() }" }else {""}}
+            """}) {
+                setPosition(10f, 200f)
+            }
         }
         aStage
     }

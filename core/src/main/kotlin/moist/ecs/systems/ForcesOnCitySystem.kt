@@ -33,7 +33,7 @@ class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(a
         city.windForce.lerp(forceOnBoat, 0.1f)
         body.applyForceToCenter(city.windForce, true)
 
-        city.drag.set(body.linearVelocity * -0.25f)
+        city.drag.set(body.linearVelocity * -0.5f)
         body.applyForceToCenter(city.drag, true)
     }
 }

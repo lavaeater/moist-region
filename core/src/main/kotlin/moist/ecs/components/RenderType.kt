@@ -13,7 +13,7 @@ import moist.injection.Context.inject
 import moist.world.SeaManager
 
 object GlobalDebug {
-    val globalDebug = false
+    const val globalDebug = false
 }
 
 sealed class RenderType(val layer: Int) {

@@ -2,11 +2,9 @@ package moist.core
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Application.LOG_DEBUG
-import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
@@ -14,11 +12,10 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
+import ktx.ashley.addComponent
 import ktx.ashley.allOf
 import ktx.ashley.remove
 import ktx.assets.disposeSafely
-import ktx.assets.toInternalFile
-import ktx.log.debug
 import ktx.math.vec2
 import ktx.preferences.get
 import ktx.preferences.set
@@ -30,8 +27,6 @@ import moist.ecs.systems.city
 import moist.injection.Context.inject
 import moist.input.KeyPress
 import moist.input.command
-import moist.world.ChunkKey
-import moist.world.TileChunk
 import moist.world.engine
 
 class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
@@ -58,10 +53,16 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private var sailRotation = 0f
     private val hud by lazy { inject<Hud>() }
 
+    private val fishFamily = allOf(Fish::class).get()
+    private val sharkFamily = allOf(Shark::class).get()
+
 
     private val normalCommandMap = command("Normal") {
-        setBoth(Input.Keys.W, "Move Up", { movementVector.y = 0f }, { movementVector.y = 1f })
-        setBoth(Input.Keys.S, "Move Down", { movementVector.y = 0f }, { movementVector.y = -1f })
+        setUp(Input.Keys.F, "Next Fish", { nextFish() })
+        setUp(Input.Keys.G, "Prev Fish", { previousFish() })
+        setUp(Input.Keys.S, "Next Shark", { nextShark() })
+        setUp(Input.Keys.W, "PRev Shark", { previousShark() })
+        setUp(Input.Keys.C, "Back To City", { backToCity() })
         setBoth(
             Input.Keys.A,
             "Move Left",
@@ -76,6 +77,65 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         setBoth(Input.Keys.X, "Zoom in", { cameraZoom = 0f }, { cameraZoom = -1f })
     }
 
+    private fun backToCity() {
+        cityEntity.addComponent<CameraFollow>(engine())
+        trackedEntity?.remove<CameraFollow>()
+        trackedEntity = cityEntity
+    }
+
+    private fun previousShark() {
+        fixSharkList()
+        val newTracked = selectedSharkList.previousItem()
+        newTracked.addComponent<CameraFollow>(engine())
+        trackedEntity?.remove<CameraFollow>()
+        trackedEntity = newTracked
+
+    }
+
+    private fun fixSharkList() {
+        if(!::selectedSharkList.isInitialized)
+            selectedSharkList = selectedItemListOf()
+
+        selectedSharkList.clear()
+        selectedSharkList.addAll(engine().getEntitiesFor(sharkFamily))
+    }
+
+    private var trackedEntity:Entity? = null
+    private fun nextShark() {
+        fixSharkList()
+        val newTracked = selectedSharkList.nextItem()
+        newTracked.addComponent<CameraFollow>(engine())
+        trackedEntity?.remove<CameraFollow>()
+        trackedEntity = newTracked
+    }
+
+    private fun previousFish() {
+        fixFishList()
+        val newTracked = selectedFishList.previousItem()
+        newTracked.addComponent<CameraFollow>(engine())
+        trackedEntity?.remove<CameraFollow>()
+        trackedEntity = newTracked
+    }
+
+
+    lateinit var selectedFishList: SelectedItemList<Entity>
+    lateinit var selectedSharkList: SelectedItemList<Entity>
+
+    private fun nextFish() {
+        fixFishList()
+        val newTracked = selectedFishList.nextItem()
+        newTracked.addComponent<CameraFollow>(engine())
+        trackedEntity?.remove<CameraFollow>()
+        trackedEntity = newTracked
+    }
+
+    private fun fixFishList() {
+        if(!::selectedFishList.isInitialized)
+            selectedFishList = selectedItemListOf()
+        selectedFishList.clear()
+        selectedFishList.addAll(engine().getEntitiesFor(fishFamily))
+    }
+
     override fun keyDown(keycode: Int): Boolean {
         return normalCommandMap.execute(keycode, KeyPress.Down)
     }
@@ -85,16 +145,16 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     override fun show() {
-        cityEntity = city()
+        cityEntity = city(true)
         for(system in engine().systems)
             system.setProcessing(true)
         sea()
         fishes()
-        shark(vec2(0f,0f), true)
+        sharks(false)
         checkGameConditions()
 
         Gdx.input.inputProcessor = this
-//        Gdx.app.logLevel = LOG_DEBUG
+        Gdx.app.logLevel = LOG_DEBUG
         viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
         viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
         viewPort.update(Gdx.graphics.width, Gdx.graphics.height)

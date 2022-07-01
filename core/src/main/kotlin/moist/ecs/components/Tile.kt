@@ -18,7 +18,7 @@ data class Tile(
     var currentFood: Float = (25f..TileStartFood).random()
 ) {
     val neighbours = mutableListOf<Tile>()
-    val color = Color(1f,0f,1f,0.8f)
+    val color = Color(1f, 0f, 1f, 0.7f)
 
     var originalDepth: Float = 0f
     val current = vec2()
@@ -37,12 +37,46 @@ fun Tile.someTileAt(distance: Int, directionX: Int, directionY: Int): Tile {
     return seaManager.getTileAt(targetX, targetY)
 }
 
-fun Tile.areaAhead(directionX: Int, directionY: Int, distance: Int, width:Int = 3, excludeSelf: Boolean = true): List<Tile> {
-    val widthOffset = (width -1) / 2
-    val keys = mutableListOf<Pair<Int,Int>>()
-    for(wOff in -widthOffset..widthOffset) {
-        for(x in 0..(directionX * distance))
-            for(y in 0..(directionY * distance)) {
+sealed class TileDirection(val x: Int, val y: Int) {
+    object West : TileDirection(-1, 0)
+    object NorthWest : TileDirection(-1, -1)
+    object North : TileDirection(0, -1)
+    object NorthEast : TileDirection(1, -1)
+    object East : TileDirection(1, 0)
+    object SouthEast : TileDirection(1, 1)
+    object South : TileDirection(0, 1)
+    object SouthWest : TileDirection(-1, 1)
+
+    companion object {
+        val directions = listOf(West, NorthWest, North, NorthEast, East, SouthEast, South, SouthWest)
+    }
+}
+
+fun Tile.someAreaAt(distance: Int, direction: TileDirection, radius: Int): List<Tile> {
+    val targetX = this.x + direction.x * distance
+    val targetY = this.y + direction.y * distance
+
+    val minX = targetX - radius
+    val minY = targetY - radius
+    val maxX = targetX + radius
+    val maxY = targetY + radius
+
+    val seaManager = inject<SeaManager>()
+    return (minX..maxX).map { x -> (minY..maxY).map { y -> seaManager.getTileAt(x, y) } }.flatten()
+}
+
+fun Tile.areaAhead(
+    directionX: Int,
+    directionY: Int,
+    distance: Int,
+    width: Int = 3,
+    excludeSelf: Boolean = true
+): List<Tile> {
+    val widthOffset = (width - 1) / 2
+    val keys = mutableListOf<Pair<Int, Int>>()
+    for (wOff in -widthOffset..widthOffset) {
+        for (x in 0..(directionX * distance))
+            for (y in 0..(directionY * distance)) {
                 keys.add(Pair(this.x + x + wOff * directionX, this.y + y + wOff * directionY))
             }
     }

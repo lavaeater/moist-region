@@ -8,6 +8,7 @@ object GameConstants {
     const val GameHeight = 64f
     const val MaxTilesPerSide = 8
     const val StartFishCount = 250
+    const val StartSharkCount = 5
     const val MaxFishCount = 500
     const val FishMatingEnergyRequirement = 30f
     const val MaxFishMatings = 3
@@ -17,7 +18,6 @@ object GameConstants {
     const val CurrentsMagnitude = 25f
     const val ControlMagnitude = 25f
     const val FishMagnitude = 1f
-    const val FishMaxVelocity = 50f
     const val PopulationMin = 1f
     const val PopulationMax = 1000f
     const val FoodMin = 1f
@@ -36,18 +36,20 @@ object GameConstants {
     const val MinClouds = 25
     const val MaxCloudSpeed = 50f
     const val CloudMagnitude = 25f
+    const val FishMaxVelocity = 50f
+    const val SharkMaxVelocity = 75f
+    const val FoodValue = 75f
 }
 
 object Box2dCategories {
-    const val none: Short = 0
+    private const val none: Short = 0
     const val cities: Short = 1
     const val fish: Short = 2
     const val cloud: Short = 4
     const val shark: Short = 8
 
-    val whatFishCollideWith = cities
-    val whatCitiesCollideWith = cities
-    val whatCitiesSense = cities or fish
-    val whatCloudsCollideWith = none
-    val whatSharksCollideWith = cities or fish or shark
+    const val whatFishCollideWith = cities
+    const val whatCitiesCollideWith = cities
+    const val whatCloudsCollideWith = none
+    const val whatSharksCollideWith = cities
 }
