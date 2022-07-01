@@ -1,8 +1,7 @@
 package moist.ai
 
 import com.badlogic.ashley.core.Entity
-import ktx.log.debug
-import moist.ai.AiAction
+
 
 class GenericAction(
     name: String,

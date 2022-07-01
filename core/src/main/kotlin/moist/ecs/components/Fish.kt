@@ -10,6 +10,12 @@ import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
 import moist.ecs.components.FishGender.Companion.genders
 
+class Shark: Component, Poolable {
+    override fun reset() {
+    }
+
+}
+
 class Fish : Component, Poolable {
     var matingCount = 0
     var id = getFishId()

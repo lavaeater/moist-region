@@ -27,9 +27,10 @@ class FishMovementSystem : IteratingSystem(
     private val cohesion = vec2()
     private val separation = vec2()
 
-    private val cohesionScale = 1.125f
-    private val separationScale = 1.05f
-    private val alignmentScale = 1.05f
+    private val cohesionScale = 2.0f
+    private val separationScale = 1.5f
+    private val alignmentScale = 1.5f
+    private val directionScale = 3f
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
@@ -83,6 +84,7 @@ class FishMovementSystem : IteratingSystem(
 
         if(fish.direction != Vector2.Zero) {
             fish.direction
+                .scl(directionScale)
                 .add(cohesion.scl(cohesionScale))
                 .add(separation.scl(separationScale))
                 .add(alignment.scl(alignmentScale))

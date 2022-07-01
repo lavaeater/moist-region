@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class UtilityAiComponent : Component, Pool.Poolable {
-    val actions = UtilityAiActions.defaultActions.toMutableList()
+    val actions = mutableListOf<AiAction>()
     private var currentAction: AiAction? = null
 
     fun updateAction(entity: Entity) {
@@ -27,7 +27,6 @@ class UtilityAiComponent : Component, Pool.Poolable {
 
     override fun reset() {
         actions.clear()
-        actions.addAll(UtilityAiActions.defaultActions)
         currentAction = null
     }
 

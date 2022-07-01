@@ -89,9 +89,9 @@ class SeaManager {
         return newChunk
     }
 
-    private var currentWorldX = 0
-    private var currentWorldY = 0
-    private var currentChunkKey = ChunkKey(-10, -10)
+    private var currentWorldX = 5000
+    private var currentWorldY = 5000
+    private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
     private var currentChunks = emptyArray<TileChunk>()
     private var currentTiles = emptyArray<Tile>()
 
