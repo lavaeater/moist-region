@@ -106,7 +106,7 @@ class FishMovementSystem : IteratingSystem(
         body.applyLinearImpulse(impulse, body.worldCenter, true)
         body.applyLinearImpulse(currentTile.current, body.worldCenter, true)
 
-        if (body.linearVelocity.len2() > 1f) {
+        if (body.linearVelocity.len() > 35f) {
             creature.energy -= FishEnergyExpenditurePerSecond * creature.size * deltaTime
             creature.isMoving = true
         } else {

@@ -8,7 +8,8 @@ import ktx.ashley.allOf
 import ktx.math.minus
 import ktx.math.times
 import ktx.math.vec2
-import moist.core.GameConstants.FishEnergyExpenditurePerSecond
+import moist.core.GameConstants
+import moist.core.GameConstants.SharkExpenditurePerSecond
 import moist.ecs.components.Box
 import moist.ecs.components.CreatureStats
 import moist.ecs.components.Shark
@@ -98,11 +99,11 @@ class SharkMovementSystem : IteratingSystem(
         body.applyLinearImpulse(impulse, body.worldCenter, true)
         body.applyLinearImpulse(currentTile.current, body.worldCenter, true)
 
-        if (body.linearVelocity.len2() > 1f) {
-            creature.energy -= FishEnergyExpenditurePerSecond * creature.size * deltaTime
+        if (body.linearVelocity.len() > 50f) {
+            creature.energy -= SharkExpenditurePerSecond * creature.size * deltaTime
             creature.isMoving = true
         } else {
-            creature.energy -= FishEnergyExpenditurePerSecond * creature.size * deltaTime / 2
+            creature.energy -= SharkExpenditurePerSecond * creature.size * deltaTime / 2
             creature.isMoving = false
         }
 

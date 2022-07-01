@@ -6,9 +6,11 @@ import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.ashley.allOf
+import ktx.ashley.mapperFor
 import ktx.log.debug
 import ktx.math.minus
 import moist.core.GameConstants
+import moist.core.GameConstants.SharkMaxVelocity
 import moist.core.GameConstants.TileSize
 import moist.core.shark
 import moist.ecs.components.*
@@ -39,6 +41,7 @@ sealed class MatingState(val name: String) {
     object NotStarted : MatingState("Not Started")
     object LookingForAMate : MatingState("Looking for a mate")
     object SwimmingTowardsAMate : MatingState("Swimming Towards a Mate")
+    object JustMated : MatingState("Just Mated")
 }
 
 sealed class HuntingState(val name: String) {
@@ -61,6 +64,7 @@ class SharkHunting : Component, Poolable {
     override fun reset() {
         huntingState = HuntingState.NotStarted
         targetFish = null
+        targetTile = null
     }
 
 }
@@ -75,6 +79,7 @@ object SharkActions {
         val newScore = Interpolation.pow2Out.apply(score)
         newScore.toDouble()
     }, {
+        debug { "ABort mating" }
     }, { entity, state, deltaTime ->
 
         /*
@@ -85,18 +90,21 @@ object SharkActions {
                 if (state.targetFish != null) {
                     if (state.targetFish!!.hasBody()) {
                         val sharkBody = entity.body()
-                        val sharkFish = entity.creature()
+                        val creatureStats = entity.creature()
                         val fishBody = state.targetFish!!.body()
                         val fishFish = state.targetFish!!.creature()
                         if (fishBody.position.dst(sharkBody.position) < 15f) {
                             //This shark will now eat this fish.
-                            sharkFish.energy += fishFish.foodValue
+                            creatureStats.energy += fishFish.foodValue
                             fishFish.energy = -1000f // This fish will now die
                             state.targetFish = null
                             state.targetTile = null
                             state.huntingState = HuntingState.LookingForPrey
                         } else {
-                            sharkFish.direction.lerp(fishBody.position - sharkBody.position, 0.1f)
+                            val distance = fishBody.position.dst(sharkBody.position)
+                            val speedFactor = if(distance < 75f) 2.5f else if(distance < 150f) 1.25f else 1.0f
+                            creatureStats.fishMaxVelocity = SharkMaxVelocity * speedFactor
+                            creatureStats.direction.lerp(fishBody.position - sharkBody.position, 0.25f)
                         }
                     } else {
                         /*
@@ -121,25 +129,29 @@ object SharkActions {
                 state.targetTile = null
                 val sharkBody = entity.body()
                 val sharkPos = sharkBody.position
-                val checkDistance = TileSize * 3f
-                val potentialFishes = allFish.filter { it.body().position.dst(sharkPos) < checkDistance }//.minByOrNull { it.body().position.dst(sharkPos) }
+                val checkDistance = TileSize * 4f
+                val potentialFishes =
+                    allFish.filter { it.body().position.dst(sharkPos) < checkDistance }//.minByOrNull { it.body().position.dst(sharkPos) }
                 if (potentialFishes.any()) {
                     state.huntingState = HuntingState.HuntingPrey
-                    state.targetFish = potentialFishes.random()
+                    state.targetFish = potentialFishes.maxByOrNull { it.creature().size }!!
                 } else {
-                    val targetTile =
-                        sharkBody.currentTile().someAreaAt((1..5).random(), TileDirection.directions.random(), 3)
-                            .random()
+                    /**
+                     * How about we go towards other sharks, just in case they know what's up?
+                     */
+
+                    val ps = allSharks.filter { it.body().position.dst(sharkBody.position) < checkDistance * 8 }
+                    val targetTile = if(ps.any()) ps.random().body().currentTile() else seaManager.allTiles.random()
                     state.targetTile = targetTile
                     state.huntingState = HuntingState.GoingToANewPlace
                 }
-
             }
             HuntingState.NotStarted -> state.huntingState = HuntingState.LookingForPrey
             HuntingState.GoingToANewPlace -> {
                 val sharkBody = entity.body()
                 if (state.targetTile != null && state.targetTile != sharkBody.currentTile()) {
                     val fish = entity.creature()
+                    fish.fishMaxVelocity = SharkMaxVelocity / 3f
                     fish.direction.lerp(state.targetTile!!.worldCenter - sharkBody.position, 0.1f)
                 } else {
                     state.targetTile = null
@@ -164,22 +176,31 @@ object SharkActions {
                 GameConstants.MaxFishMatings.toFloat() - thisCreature.matingCount.toFloat()
             )
         )
-        val newScore = Interpolation.exp5Out.apply((score + matingScore) / 2f)
+        val newScore = Interpolation.pow2Out.apply((score + matingScore) / 2f)
         newScore.toDouble()
     }, {
-
+        it.creature().availableForMating = true
+        debug { "ABort mating" }
     }, { entity, state, deltaTime ->
         when (state.matingState) {
             MatingState.LookingForAMate -> {
                 val sharkBody = entity.body()
-                val potentialMate =
-                    allSharks.filter { it.creature().canMate }
-                if (potentialMate.any()) {
-                    state.targetShark = potentialMate.random()
+                val mapper = mapperFor<SharkMating>()
+                val potentialMates =
+                    (allSharks - entity).filter { it.creature().availableForMating && mapper.has(it) && mapper.get(it).matingState == MatingState.LookingForAMate}
+                if (potentialMates.any()) {
+                    val targetShark = potentialMates.minByOrNull { it.body().position.dst(sharkBody.position) }!!
+                    val mateState = mapper.get(targetShark)
+                    mateState.targetShark = entity
+                    mateState.matingState = MatingState.SwimmingTowardsAMate
+                    state.targetShark = targetShark
                     state.matingState = MatingState.SwimmingTowardsAMate
                 }
             }
-            MatingState.NotStarted -> state.matingState = MatingState.LookingForAMate
+            MatingState.NotStarted -> {
+                entity.creature().availableForMating = true
+                state.matingState = MatingState.LookingForAMate
+            }
             MatingState.SwimmingTowardsAMate -> {
                 if (state.targetShark != null) {
                     if (state.targetShark!!.hasBody()) {
@@ -189,14 +210,17 @@ object SharkActions {
                         val mateFish = state.targetShark!!.creature()
                         if (mateBody.position.dst(sharkBody.position) < 15f) {
                             //This shark will now mate with this shark.
+                            state.targetShark = null
+                            state.matingState = MatingState.JustMated
                             shark(sharkBody.position)
                             sharkFish.matingCount += 1
+                            sharkFish.availableForMating = false
                             sharkFish.energy = 15f
                             mateFish.energy = 15f
                             mateFish.matingCount += 1
-                            state.targetShark = null
-                            state.matingState = MatingState.NotStarted
+                            mateFish.availableForMating = false
                         } else {
+                            sharkFish.fishMaxVelocity = SharkMaxVelocity / 3f
                             sharkFish.direction.lerp(mateBody.position - sharkBody.position, 0.1f)
                         }
                     } else {
@@ -210,6 +234,7 @@ object SharkActions {
                     state.matingState = MatingState.LookingForAMate
                 }
             }
+            MatingState.JustMated -> {}
         }
     }, SharkMating::class.java)
 }

@@ -3,7 +3,6 @@ package moist.ai
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import ktx.ashley.allOf
-import ktx.log.debug
 import ktx.math.minus
 import ktx.math.plus
 import ktx.math.random
@@ -27,7 +26,13 @@ object FishActions {
     private val seaManager = Context.inject<SeaManager>()
 
     val fishPlayAction = GenericAction("Fish Playing", {
-        Interpolation.fastSlow.apply(MathUtils.norm(0f, 100f, it.creature().fishPlayScore.toFloat() * it.creature().energy))
+        Interpolation.fastSlow.apply(
+            MathUtils.norm(
+                0f,
+                100f,
+                it.creature().fishPlayScore.toFloat() * it.creature().energy
+            )
+        )
             .toDouble()
     }, {
         it.creature().targetTile = null
@@ -50,7 +55,7 @@ object FishActions {
 
     val fishMatingAction = GenericAction("Fish Mating", {
         val creature = it.creature()
-        if (creature.canMate) {
+        if (creature.availableForMating) {
             val score = MathUtils.norm(0f, GameConstants.FishMaxEnergy, creature.energy)
             val matingScore = Interpolation.exp10In.apply(
                 MathUtils.norm(
@@ -59,51 +64,52 @@ object FishActions {
                     GameConstants.MaxFishMatings.toFloat() - creature.matingCount.toFloat()
                 )
             )
-            val newScore = Interpolation.exp10Out.apply((score + matingScore) / 2f)
+            val newScore = Interpolation.pow2Out.apply((score + matingScore) / 2f)
             newScore.toDouble()
         } else 0.0
     }, {
+        it.creature().availableForMating = false
         it.creature().targetTile = null
         it.creature().targetFish = null
     }, { entity, deltaTime ->
         val fish = entity.creature()
-        if (fish.canMate) {
-            val body = entity.body()
-            val currentTile = body.currentTile()
-            if (fish.targetFish != null && fish.targetFish!!.hasBody() && fish.targetTile != currentTile) {
-                fish.targetTile = fish.targetFish!!.body().currentTile()
-                fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
-            } else if (fish.targetFish != null && !fish.targetFish!!.hasBody()) {
-                fish.targetFish = null
-            } else if (fish.targetTile == currentTile) {
-                if (allTheFish.count() < GameConstants.MaxFishCount) {
-                    //MATE! - otherwise just let this repeat itself!
-                    val numberOfFish = (1..3).random()
-                    AiCounter.eventCounter["Births"] = AiCounter.eventCounter["Births"]!! + numberOfFish
-                    for (i in 0 until numberOfFish) {
-                        fish(body.position)
-                    }
-                }
-                fish.energy = 5f
-                fish.matingCount++
-                fish.targetTile = null
-                fish.targetFish = null
-            } else if (fish.targetTile == null && fish.targetFish == null) {
-                val closestFish =
-                    (allTheFish - entity).filter { it.creature().canMate }
-                        .minByOrNull { it.body().position.dst(body.position) }
-                if (closestFish != null) {
-                    fish.targetTile = closestFish.body().currentTile()
-                    fish.targetFish = closestFish
+        fish.availableForMating = true
+        val body = entity.body()
+        val currentTile = body.currentTile()
+        if (fish.targetFish != null && fish.targetFish!!.hasBody() && fish.targetTile != currentTile) {
+            fish.targetTile = fish.targetFish!!.body().currentTile()
+            fish.direction.set(fish.targetTile!!.worldCenter - body.worldCenter).nor()
+        } else if (fish.targetFish != null && !fish.targetFish!!.hasBody()) {
+            fish.targetFish = null
+        } else if (fish.targetTile == currentTile) {
+            if (allTheFish.count() < GameConstants.MaxFishCount) {
+                //MATE! - otherwise just let this repeat itself!
+                val numberOfFish = (1..3).random()
+                AiCounter.eventCounter["Births"] = AiCounter.eventCounter["Births"]!! + numberOfFish
+                for (i in 0 until numberOfFish) {
+                    fish(body.position)
                 }
             }
+            fish.energy = 5f
+            fish.matingCount++
+            fish.targetTile = null
+            fish.targetFish = null
+        } else if (fish.targetTile == null && fish.targetFish == null) {
+            val closestFish =
+                (allTheFish - entity).filter { it.creature().availableForMating }
+                    .minByOrNull { it.body().position.dst(body.position) }
+            if (closestFish != null) {
+                fish.targetTile = closestFish.body().currentTile()
+                fish.targetFish = closestFish
+            }
         }
+
     })
 
     val fishFoodAction = GenericAction("Fish Food",
         {
             val score = 1f - MathUtils.norm(0f, GameConstants.FishMaxEnergy, it.creature().energy)
-            val newScore = Interpolation.pow2Out.apply(score)
+            val newScore = Interpolation.exp10Out.apply(score)
             newScore.toDouble()
         },
         {
@@ -161,7 +167,7 @@ object FishActions {
                             directionX = -1
                         }
                         iterations++
-                    } else if(iterations > 100) {
+                    } else if (iterations > 100) {
                         foodTile = seaManager.allTiles.filter { it.currentFood > GameConstants.FishEatingPace }
                             .random()
                         keepSearching = false

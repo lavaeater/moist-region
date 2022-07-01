@@ -32,6 +32,10 @@ fun Entity.isShark(): Boolean {
     return Shark.has(this)
 }
 
+fun Entity.isFish(): Boolean {
+    return Fish.has(this)
+}
+
 fun Entity.isCreature(): Boolean {
     return AshleyMappers.creature.has(this)
 }
@@ -193,8 +197,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
             shapeDrawer.setColor(Color.RED)
             shapeDrawer.filledCircle(body.position, 5f)
         }
-        val drawHealthBars = true
-        if(drawHealthBars && entity.isCreature()) {
+        if(GlobalDebug.globalDebug && entity.isCreature()) {
             val creature = entity.creature()
             val healthBarStart = body.position
             shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f, Color.BLACK, 3f)

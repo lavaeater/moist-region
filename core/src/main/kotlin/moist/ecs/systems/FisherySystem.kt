@@ -34,6 +34,7 @@ class FisherySystem : IteratingSystem(allOf(City::class).get()) {
             city.potentialCatches.remove(fishEntity)
             city.food += fishEntity.creature().foodValue
             GameStats.caughtFish++
+
             world().destroyBody(fishEntity.body())
             engine.removeEntity(fishEntity)
             checkFishCount = true

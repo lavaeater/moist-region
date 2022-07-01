@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.log.debug
 import ktx.math.random
 import ktx.math.vec2
-import moist.core.GameConstants.FishMatingEnergyRequirement
 import moist.core.GameConstants.FishMaxEnergy
 import moist.core.GameConstants.FishMaxVelocity
 import moist.core.GameConstants.FoodValue
@@ -35,7 +34,7 @@ class CreatureStats : Component, Poolable {
             }
             field = MathUtils.clamp(field, -10f, FishMaxEnergy)
         }
-    val canMate get() = energy > FishMatingEnergyRequirement
+    var availableForMating = false
     var canDie = true
     var fishMaxVelocity = FishMaxVelocity
     var size = (0.5f..1.25f).random()

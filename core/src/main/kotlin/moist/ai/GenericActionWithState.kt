@@ -11,7 +11,7 @@ class GenericActionWithState<T: Component>(name: String,
                                            private val actFunction: (entity: Entity, state: T, deltaTime:Float) -> Unit,
                                            private val componentClass: Class<T>): AiAction(name) {
     lateinit var state: T
-    private val mapper = ComponentMapper.getFor(componentClass)
+    val mapper = ComponentMapper.getFor(componentClass)
 
     override fun score(entity: Entity): Double {
         return scoreFunction(entity)

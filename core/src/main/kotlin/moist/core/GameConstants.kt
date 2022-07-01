@@ -8,10 +8,10 @@ object GameConstants {
     const val GameHeight = 64f
     const val MaxTilesPerSide = 8
     const val StartFishCount = 250
-    const val StartSharkCount = 5
-    const val MaxFishCount = 500
+    const val StartSharkCount = 25
+    const val MaxFishCount = 1000
     const val FishMatingEnergyRequirement = 30f
-    const val MaxFishMatings = 3
+    const val MaxFishMatings = 10
     const val FishPlayingEnergyRequirement = 50f
     const val MaxWaterTemp = 35f
     const val MinWaterTemp = 1f
@@ -23,7 +23,8 @@ object GameConstants {
     const val FoodMin = 1f
     const val FoodMax = 10000f
     const val FishMaxEnergy = 100f
-    const val FishEnergyExpenditurePerSecond = 1f
+    const val FishEnergyExpenditurePerSecond = .5f
+    const val SharkExpenditurePerSecond = .25f
     const val TileStartFood = 75f
     const val TileMaxFood = 100f
     const val FoodTempMin = 5f
@@ -37,7 +38,7 @@ object GameConstants {
     const val MaxCloudSpeed = 50f
     const val CloudMagnitude = 25f
     const val FishMaxVelocity = 50f
-    const val SharkMaxVelocity = 75f
+    const val SharkMaxVelocity = 100f
     const val FoodValue = 75f
 }
 

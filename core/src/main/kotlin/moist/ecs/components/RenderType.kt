@@ -13,7 +13,7 @@ import moist.injection.Context.inject
 import moist.world.SeaManager
 
 object GlobalDebug {
-    const val globalDebug = false
+    var globalDebug = false
 }
 
 sealed class RenderType(val layer: Int) {
@@ -21,7 +21,7 @@ sealed class RenderType(val layer: Int) {
         private val seaManager = inject<SeaManager>()
         private val shapeDrawer by lazy { inject<Assets>().shapeDrawer }
         fun render(batch: PolygonSpriteBatch, deltaTime: Float) {
-            for (tile in seaManager.allTiles) {//.getCurrentTiles()) {
+            for (tile in if(GlobalDebug.globalDebug) seaManager.allTiles else seaManager.getCurrentTiles()) {
                 tile.color.b = tile.depth
                 tile.color.r = MathUtils.lerp(
                     tile.color.r,

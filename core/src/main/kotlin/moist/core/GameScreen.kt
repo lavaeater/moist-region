@@ -58,11 +58,13 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
 
     private val normalCommandMap = command("Normal") {
-        setUp(Input.Keys.F, "Next Fish", { nextFish() })
-        setUp(Input.Keys.G, "Prev Fish", { previousFish() })
-        setUp(Input.Keys.S, "Next Shark", { nextShark() })
-        setUp(Input.Keys.W, "PRev Shark", { previousShark() })
-        setUp(Input.Keys.C, "Back To City", { backToCity() })
+        if(GlobalDebug.globalDebug) {
+            setUp(Input.Keys.F, "Next Fish", { nextFish() })
+            setUp(Input.Keys.G, "Prev Fish", { previousFish() })
+            setUp(Input.Keys.S, "Next Shark", { nextShark() })
+            setUp(Input.Keys.W, "PRev Shark", { previousShark() })
+            setUp(Input.Keys.C, "Back To City", { backToCity() })
+        }
         setBoth(
             Input.Keys.A,
             "Move Left",
@@ -225,6 +227,8 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 }
 
 object GameStats {
+    var deadSharks = 0
+    var deadFish = 0
     val preferences = Gdx.app.getPreferences("moist-region")
     var population = 0
     var maxPopulation = 0

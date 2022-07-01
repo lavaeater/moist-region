@@ -20,6 +20,8 @@ class GameOverScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal
         GameStats.maxPopulation = 0
         GameStats.remainingFood = 0
         GameStats.playTime = 0f
+        GameStats.deadFish = 0
+        GameStats.deadSharks = 0
         mainGame.setScreen<GameScreen>()
     }
 }) {

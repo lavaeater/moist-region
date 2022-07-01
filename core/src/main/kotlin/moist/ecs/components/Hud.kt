@@ -15,7 +15,6 @@ import ktx.ashley.allOf
 import ktx.graphics.use
 import ktx.math.*
 import ktx.scene2d.*
-import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.GameConstants
 import moist.core.GameStats
@@ -70,15 +69,35 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             }) {
                 setPosition(20f, 20f)
             }
-            boundLabel({
-                val moving = if(followedEntity?.isCreature() == true) (followedEntity as Entity).creature().isMoving else true
-                """Fishes: $allFishCount
+            if(GlobalDebug.globalDebug) {
+                boundLabel({
+                    val moving =
+                        if (followedEntity?.isCreature() == true) (followedEntity as Entity).creature().isMoving else true
+                    val size =
+                        if (followedEntity?.isCreature() == true) (followedEntity as Entity).creature().size else 0f
+                    """Fishes: $allFishCount
                 Sharks: $allsharkCount
+                Dead Sharks: ${GameStats.deadSharks}
+                Dead Fish: ${GameStats.deadFish}
+                Velocity2: ${followedEntity?.body()?.linearVelocity?.len()}
+                Size: $size
                 Moving: $moving
-                Energy: ${if(followedEntity?.isCreature() == true) followedEntity?.creature()?.energy else 0f}
-                ${if(followedEntity?.hasAi() == true) followedEntity?.ai()?.actions?.joinToString("\n") { return@joinToString "${it.name}: ${(it.score((followedEntity as Entity)) * 100f).toInt() }" }else {""}}
-            """}) {
-                setPosition(10f, 200f)
+                Energy: ${if (followedEntity?.isCreature() == true) followedEntity?.creature()?.energy else 0f}
+                ${
+                        if (followedEntity?.hasAi() == true) followedEntity?.ai()?.actions?.joinToString("\n") {
+                            return@joinToString "${it.name}: ${
+                                (it.score(
+                                    (followedEntity as Entity)
+                                ) * 100f).toInt()
+                            }"
+                        } else {
+                            ""
+                        }
+                    }
+            """
+                }) {
+                    setPosition(10f, 200f)
+                }
             }
         }
         aStage
