@@ -52,10 +52,10 @@ sealed class RenderType(val layer: Int) {
                     TileSize,
                     tile.color
                 )
-                if (GlobalDebug.globalDebug) {
-                    shapeDrawer.setColor(Color.WHITE)
-                    shapeDrawer.filledCircle(tile.worldCenter, 5f)
-                }
+//                if (GlobalDebug.globalDebug) {
+//                    shapeDrawer.setColor(Color.WHITE)
+//                    shapeDrawer.filledCircle(tile.worldCenter, 5f)
+//                }
             }
         }
     }

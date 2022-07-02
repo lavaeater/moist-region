@@ -193,10 +193,10 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 
         keyFrame.rotation = angle
         keyFrame.draw(batch)
-        if(GlobalDebug.globalDebug) {
-            shapeDrawer.setColor(Color.RED)
-            shapeDrawer.filledCircle(body.position, 5f)
-        }
+//        if(GlobalDebug.globalDebug) {
+//            shapeDrawer.setColor(Color.RED)
+//            shapeDrawer.filledCircle(body.position, 5f)
+//        }
         if(GlobalDebug.globalDebug && entity.isCreature()) {
             val creature = entity.creature()
             val healthBarStart = body.position

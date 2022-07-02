@@ -2,6 +2,7 @@ package moist.core
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Application.LOG_DEBUG
+import com.badlogic.gdx.Application.LOG_INFO
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -14,6 +15,7 @@ import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.ashley.addComponent
 import ktx.ashley.allOf
+import ktx.ashley.getSystem
 import ktx.ashley.remove
 import ktx.assets.disposeSafely
 import ktx.math.vec2
@@ -22,6 +24,7 @@ import ktx.preferences.set
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.TileSize
 import moist.ecs.components.*
+import moist.ecs.systems.CityHungerSystem
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context.inject
@@ -58,7 +61,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
 
     private val normalCommandMap = command("Normal") {
-        if(GlobalDebug.globalDebug) {
+        if (GlobalDebug.globalDebug) {
             setUp(Input.Keys.F, "Next Fish", { nextFish() })
             setUp(Input.Keys.G, "Prev Fish", { previousFish() })
             setUp(Input.Keys.S, "Next Shark", { nextShark() })
@@ -95,14 +98,14 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     private fun fixSharkList() {
-        if(!::selectedSharkList.isInitialized)
+        if (!::selectedSharkList.isInitialized)
             selectedSharkList = selectedItemListOf()
 
         selectedSharkList.clear()
         selectedSharkList.addAll(engine().getEntitiesFor(sharkFamily))
     }
 
-    private var trackedEntity:Entity? = null
+    private var trackedEntity: Entity? = null
     private fun nextShark() {
         fixSharkList()
         val newTracked = selectedSharkList.nextItem()
@@ -132,7 +135,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     private fun fixFishList() {
-        if(!::selectedFishList.isInitialized)
+        if (!::selectedFishList.isInitialized)
             selectedFishList = selectedItemListOf()
         selectedFishList.clear()
         selectedFishList.addAll(engine().getEntitiesFor(fishFamily))
@@ -148,7 +151,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         cityEntity = city(true)
-        for(system in engine().systems)
+        for (system in engine().systems)
             system.setProcessing(true)
         sea()
         fishes()
@@ -156,10 +159,11 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         checkGameConditions()
 
         Gdx.input.inputProcessor = this
-        Gdx.app.logLevel = LOG_DEBUG
+        Gdx.app.logLevel = LOG_INFO
         viewPort.minWorldHeight = MaxTilesPerSide.toFloat() * TileSize
         viewPort.minWorldWidth = MaxTilesPerSide.toFloat() * TileSize
         viewPort.update(Gdx.graphics.width, Gdx.graphics.height)
+        engine().getSystem<CityHungerSystem>().setProcessing(!GlobalDebug.globalDebug)
     }
 
     override fun resize(width: Int, height: Int) {
@@ -183,7 +187,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
         applyInput()
 
-        if(cameraZoom != 0f)
+        if (cameraZoom != 0f)
             camera.zoom = MathUtils.lerp(camera.zoom, camera.zoom + zoomFactor * cameraZoom, 0.1f)
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
@@ -195,21 +199,21 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     }
 
     val bodyFamily = allOf(Box::class).get()
-    val allBodies get() =  engine().getEntitiesFor(bodyFamily)
+    val allBodies get() = engine().getEntitiesFor(bodyFamily)
 
     private fun checkGameConditions() {
         if (cityComponent.population < 10) {
             GameStats.population = cityComponent.population.toInt()
             GameStats.remainingFood = cityComponent.food.toInt()
-            if(GameStats.playTime > GameStats.highestPlayTime)
+            if (GameStats.playTime > GameStats.highestPlayTime)
                 GameStats.highestPlayTime = GameStats.playTime
 
-            for(entity in allBodies) {
+            for (entity in allBodies) {
                 world.destroyBody(entity.body())
                 entity.remove<Box>()
             }
 
-            for(system in engine().systems)
+            for (system in engine().systems)
                 system.setProcessing(false)
             engine().removeAllEntities()
             mainGame.setScreen<GameOverScreen>()

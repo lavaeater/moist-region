@@ -7,6 +7,8 @@ import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
+import ktx.log.debug
+import ktx.log.info
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp
@@ -44,7 +46,9 @@ class SeaManager {
 
     private fun getOrCreateChunk(key: ChunkKey): TileChunk {
         if (!chunks.containsKey(key)) {
-            chunks[key] = createChunk(key)
+            chunks[key] = createChunk(key).apply {
+                info { "Created another ${this.tiles.count()} tiles for a total of ${allTiles.count() + this.tiles.count()} in the world" }
+            }
         }
         return chunks[key]!!
     }

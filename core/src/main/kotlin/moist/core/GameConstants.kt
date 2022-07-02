@@ -9,7 +9,7 @@ object GameConstants {
     const val MaxTilesPerSide = 8
     const val StartFishCount = 250
     const val StartSharkCount = 25
-    const val MaxFishCount = 1000
+    const val MaxFishCount = 500
     const val FishMatingEnergyRequirement = 30f
     const val MaxFishMatings = 10
     const val FishPlayingEnergyRequirement = 50f
