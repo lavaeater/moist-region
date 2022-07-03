@@ -7,9 +7,12 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import eater.ecs.systems.CameraUpdateSystem
+import eater.ecs.systems.CurrentChunkSystem
+import eater.ecs.systems.UpdateActionsSystem
+import eater.ecs.systems.UtilityAiSystem
+import eater.injection.Context.inject
 import ktx.box2d.createWorld
-import ktx.inject.Context
-import ktx.inject.register
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
 import moist.core.GameConstants.GameWidth
@@ -18,18 +21,10 @@ import moist.ecs.systems.*
 import moist.world.SeaManager
 
 object Context {
-    val context = Context()
+    val context = eater.injection.Context.context
 
     init {
-        buildContext()
-    }
-
-    inline fun <reified T> inject(): T {
-        return context.inject()
-    }
-
-    private fun buildContext() {
-        context.register {
+        eater.injection.Context.buildContext {
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())
             bindSingleton(

@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import eater.core.BasicScreen
+import eater.core.MainGame
+import eater.input.command
 import ktx.actors.stage
 import ktx.math.vec2
 import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.actors
 import ktx.scene2d.label
 import moist.ecs.components.GlobalDebug
-import moist.input.command
 
 class SplashScreen(mainGame: MainGame) : BasicScreen(mainGame, command("Normal") {
     setDown(Input.Keys.SPACE, "Start Game") {

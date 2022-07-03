@@ -7,39 +7,25 @@ import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
-import ktx.log.debug
+import eater.ecs.components.Tile
 import ktx.log.info
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp
-import moist.ecs.components.Tile
-import moist.injection.Context.inject
+import moist.ecs.components.SeaTile
 
-class SeaManager {
-    private val basis = ModuleBasisFunction()
-    private val correct = ModuleAutoCorrect()
-    private val scaleDomain = ModuleScaleDomain()
+inline fun <reified T: Tile>emptyArray():Array<T> {
+    return kotlin.emptyArray()
+}
 
-    init {
-        setupGenerator()
-    }
-
-
-    private fun setupGenerator() {
-        basis.setType(BasisType.SIMPLEX)
-        basis.seed = (1..1000).random().toLong()
-
-        correct.setSource(basis)
-        correct.calculateAll()
-
-        scaleDomain.setSource(correct)
-        scaleDomain.setScaleX(MaxTilesPerSide / 100.0)
-        scaleDomain.setScaleY(MaxTilesPerSide / 100.0)
-    }
-
+abstract class AbstractTileManager<T: Tile> {
     private val chunks = mutableMapOf<ChunkKey, TileChunk>()
     var allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
-
+    private var currentWorldX = 5000
+    private var currentWorldY = 5000
+    private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
+    private var currentChunks = emptyArray<TileChunk>()
+    private lateinit var currentTiles: Array<T>
     private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
         return ChunkKey.keyForTileCoords(x, y)
     }
@@ -51,54 +37,8 @@ class SeaManager {
         return chunks[key]!!
     }
 
-    private fun createChunk(key: ChunkKey): TileChunk {
-        val newChunk = TileChunk(key)
-        info { "Created Chunk: $key" }
-        for (tile in newChunk.tiles) {
-            val d = scaleDomain.get(tile.x.toDouble() / 16, tile.y.toDouble() / 16)
-            tile.apply {
-                depth = d.toFloat()
-                originalDepth = d.toFloat()
-                waterTemp = MathUtils.map(0f, 1f, MinWaterTemp, MaxWaterTemp, d.toFloat())
-            }
-        }
-        for (tile in newChunk.tiles) {
-            for (offsetX in -1..1) {
-                for (offsetY in -1..1) {
-                    val x = tile.x + offsetX
-                    val y = tile.y + offsetY
-                    if ((x > newChunk.minX && x < newChunk.maxX) && (y > newChunk.minY && y < newChunk.maxY)) {
-                        val n = newChunk.getTileAt(x, y)
-                        if (n != tile)
-                            tile.neighbours.add(n)
-                    }
-                }
-            }
-        }
-
-        for (tile in newChunk.tiles) {
-            val target = tile.neighbours.minByOrNull { it.waterTemp }
-            if (target != null && target.waterTemp < tile.waterTemp) {
-                /*
-                Now we create a force vector pointing towards the target, and
-                also, the magnitude depends on the difference, maybe
-                 */
-                tile.current.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
-            } else {
-                tile.current.setZero()
-            }
-        }
-
-        return newChunk
-    }
-
-    private var currentWorldX = 5000
-    private var currentWorldY = 5000
-    private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
-    private var currentChunks = emptyArray<TileChunk>()
-    private var currentTiles = emptyArray<Tile>()
-
-    fun getCurrentTiles(): Array<Tile> {
+    protected abstract fun createChunk(key: ChunkKey): TileChunk
+    fun getCurrentTiles(): Array<T> {
         return currentTiles
     }
 
@@ -166,6 +106,70 @@ class SeaManager {
         val chunkKey = chunkKeyFromTileCoords(worldX, worldY)
         return getOrCreateChunk(chunkKey).getTileAt(worldX, worldY)
     }
+}
+
+class SeaManager : AbstractTileManager<SeaTile>() {
+    private val basis = ModuleBasisFunction()
+    private val correct = ModuleAutoCorrect()
+    private val scaleDomain = ModuleScaleDomain()
+
+    init {
+        setupGenerator()
+    }
+
+
+    private fun setupGenerator() {
+        basis.setType(BasisType.SIMPLEX)
+        basis.seed = (1..1000).random().toLong()
+
+        correct.setSource(basis)
+        correct.calculateAll()
+
+        scaleDomain.setSource(correct)
+        scaleDomain.setScaleX(MaxTilesPerSide / 100.0)
+        scaleDomain.setScaleY(MaxTilesPerSide / 100.0)
+    }
+
+    override fun createChunk(key: ChunkKey): TileChunk {
+        val newChunk = TileChunk(key)
+        info { "Created Chunk: $key" }
+        for (tile in newChunk.tiles) {
+            val d = scaleDomain.get(tile.x.toDouble() / 16, tile.y.toDouble() / 16)
+            tile.apply {
+                depth = d.toFloat()
+                originalDepth = d.toFloat()
+                waterTemp = MathUtils.map(0f, 1f, MinWaterTemp, MaxWaterTemp, d.toFloat())
+            }
+        }
+        for (tile in newChunk.tiles) {
+            for (offsetX in -1..1) {
+                for (offsetY in -1..1) {
+                    val x = tile.x + offsetX
+                    val y = tile.y + offsetY
+                    if ((x > newChunk.minX && x < newChunk.maxX) && (y > newChunk.minY && y < newChunk.maxY)) {
+                        val n = newChunk.getTileAt(x, y)
+                        if (n != tile)
+                            tile.neighbours.add(n)
+                    }
+                }
+            }
+        }
+
+        for (tile in newChunk.tiles) {
+            val target = tile.neighbours.minByOrNull { it.waterTemp }
+            if (target != null && target.waterTemp < tile.waterTemp) {
+                /*
+                Now we create a force vector pointing towards the target, and
+                also, the magnitude depends on the difference, maybe
+                 */
+                tile.current.set((target.x - tile.x).toFloat(), (target.y - tile.y).toFloat()).nor()
+            } else {
+                tile.current.setZero()
+            }
+        }
+
+        return newChunk
+    }
 
 
     /**
@@ -188,12 +192,4 @@ class SeaManager {
      */
 
 
-}
-
-fun world(): World {
-    return inject()
-}
-
-fun engine(): Engine {
-    return inject()
 }

@@ -1,14 +1,12 @@
 package moist.core
 
-import ktx.app.KtxGame
-import ktx.app.KtxScreen
+import eater.core.MainGame
 
-class MainGame : KtxGame<KtxScreen>() {
+class MoistGame : MainGame() {
     override fun create() {
-        addScreen(GameScreen(this))
         addScreen(SplashScreen(this))
+        addScreen(GameScreen(this))
         addScreen(GameOverScreen(this))
-        setScreen<SplashScreen>()
     }
 }
 
