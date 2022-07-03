@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Fixture
-import eater.ai.UtilityAiComponent
+import eater.ai.AiComponent
+import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
@@ -37,44 +38,44 @@ fun Entity.isFish(): Boolean {
 }
 
 fun Entity.isCreature(): Boolean {
-    return AshleyMappers.creature.has(this)
+    return CreatureStats.has(this)
 }
 
-fun Entity.hasAi(): Boolean
-{
-    return AshleyMappers.ai.has(this)
+fun Entity.hasAi(): Boolean {
+    return AiComponent.has(this)
 }
-fun Entity.ai(): UtilityAiComponent {
-    return AshleyMappers.ai.get(this)
+
+fun Entity.ai(): AiComponent {
+    return AiComponent.get(this)
 }
 
 
 fun Entity.cloud(): Cloud {
-    return AshleyMappers.cloud.get(this)
+    return Cloud.get(this)
 }
 
 fun Entity.isCity(): Boolean {
-    return AshleyMappers.city.has(this)
+    return City.has(this)
 }
 
 fun Entity.creature(): CreatureStats {
-    return AshleyMappers.creature.get(this)
+    return CreatureStats.get(this)
 }
 
-fun Entity.hasBody():Boolean {
-    return AshleyMappers.box.has(this)
+fun Entity.hasBody(): Boolean {
+    return Box2d.has(this)
 }
 
 fun Entity.body(): Body {
-    return AshleyMappers.box.get(this).body
+    return Box2d.get(this).body
 }
 
 fun Entity.city(): City {
-    return AshleyMappers.city.get(this)
+    return City.get(this)
 }
 
 fun Entity.renderable(): Renderable {
-    return AshleyMappers.renderable.get(this)
+    return Renderable.get(this)
 }
 
 fun Entity.renderType(): RenderType {
@@ -197,7 +198,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch, assets: Assets) : Sort
 //            shapeDrawer.setColor(Color.RED)
 //            shapeDrawer.filledCircle(body.position, 5f)
 //        }
-        if(GlobalDebug.globalDebug && entity.isCreature()) {
+        if (GlobalDebug.globalDebug && entity.isCreature()) {
             val creature = entity.creature()
             val healthBarStart = body.position
             shapeDrawer.line(healthBarStart, healthBarStart + Vector2.X * 50f, Color.BLACK, 3f)

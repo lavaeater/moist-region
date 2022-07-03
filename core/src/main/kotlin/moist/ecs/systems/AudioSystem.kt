@@ -3,13 +3,13 @@ package moist.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
+import eater.ecs.components.Box2d
+import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import moist.core.Assets
-import moist.ecs.components.Box
 import moist.ecs.components.City
-import moist.injection.Context.inject
 
-class AudioSystem:IteratingSystem(allOf(Box::class, City::class).get()) {
+class AudioSystem:IteratingSystem(allOf(Box2d::class, City::class).get()) {
     var minSpeed = 0f
     var maxSpeed = 2.5f
     var currentSpeed = 0f

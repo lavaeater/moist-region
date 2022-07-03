@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
+import eater.injection.InjectionContext.Companion.inject
 import moist.core.Assets
 import moist.core.GameConstants
 import moist.core.GameConstants.TileSize
-import moist.injection.Context.inject
 import moist.world.SeaManager
 
 object GlobalDebug {

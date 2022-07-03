@@ -3,7 +3,7 @@ package eater.world
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import eater.ecs.components.Tile
+import eater.injection.InjectionContext
 import ktx.log.info
 
 
@@ -56,6 +56,57 @@ abstract class AbstractTileManager<T: Tile>(private val tilesPerSide: Int) : ITi
 
     fun getCurrentChunks(): List<TileChunk<T>> {
         return currentChunks
+    }
+
+    fun areaAhead(tile: T,
+    directionX: Int,
+    directionY: Int,
+    distance: Int,
+    width: Int = 3,
+    excludeSelf: Boolean = true
+    ): List<T> {
+        val widthOffset = (width - 1) / 2
+        val keys = mutableListOf<Pair<Int, Int>>()
+        for (wOff in -widthOffset..widthOffset) {
+            for (x in 0..(directionX * distance))
+                for (y in 0..(directionY * distance)) {
+                    keys.add(Pair(tile.x + x + wOff * directionX, tile.y + y + wOff * directionY))
+                }
+        }
+
+        val tiles = keys.map { k -> getTileAt(k.first, k.second) }
+
+        return if (excludeSelf) tiles - tile else tiles
+    }
+
+    fun areaAround(tile: T, distance: Int = 5, excludeSelf: Boolean = true): List<T> {
+        val minX = tile.x - distance
+        val maxX = tile.x + distance
+        val xRange = minX..maxX
+        val minY = tile.y - distance
+        val maxY = tile.y + distance
+        val yRange = minY..maxY
+        val tiles = (xRange).map { x -> (yRange).map { y -> getTileAt(x, y) } }.flatten()
+
+        return if (excludeSelf) tiles - tile else tiles
+    }
+
+    fun someTileAt(tile: T, distance: Int, directionX: Int, directionY: Int): T {
+        val targetX = tile.x + directionX * distance
+        val targetY = tile.y + directionY * distance
+        return getTileAt(targetX, targetY)
+    }
+
+    fun someAreaAt(tile: T, distance: Int, direction: TileDirection, radius: Int): List<T> {
+        val targetX = tile.x + direction.x * distance
+        val targetY = tile.y + direction.y * distance
+
+        val minX = targetX - radius
+        val minY = targetY - radius
+        val maxX = targetX + radius
+        val maxY = targetY + radius
+
+        return (minX..maxX).map { x -> (minY..maxY).map { y -> getTileAt(x, y) } }.flatten()
     }
 
     /**

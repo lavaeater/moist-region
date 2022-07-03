@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
-class UtilityAiComponent : Component, Pool.Poolable {
+class AiComponent : Component, Pool.Poolable {
     val actions = mutableListOf<AiAction>()
     private var currentAction: AiAction? = null
 
@@ -16,9 +16,6 @@ class UtilityAiComponent : Component, Pool.Poolable {
     fun topAction(entity: Entity): AiAction? {
         val potentialAction = actions.first()
         if (currentAction != potentialAction) {
-            if (currentAction != null)
-                AiCounter.addToCounter(currentAction!!, -1)
-            AiCounter.addToCounter(potentialAction, 1)
             currentAction?.abort(entity)
             currentAction = potentialAction
         }
@@ -31,9 +28,12 @@ class UtilityAiComponent : Component, Pool.Poolable {
     }
 
     companion object {
-        val mapper = mapperFor<UtilityAiComponent>()
-        fun get(entity: Entity): UtilityAiComponent {
+        val mapper = mapperFor<AiComponent>()
+        fun get(entity: Entity): AiComponent {
             return mapper.get(entity)
+        }
+        fun has(entity:Entity): Boolean {
+            return mapper.has(entity)
         }
     }
 }

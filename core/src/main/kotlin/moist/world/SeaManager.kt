@@ -6,12 +6,9 @@ import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
-import eater.ecs.components.Tile
-import eater.injection.Context.inject
 import eater.injection.InjectionContext.Companion.inject
 import eater.world.*
 import ktx.log.info
-import moist.core.GameConstants
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp

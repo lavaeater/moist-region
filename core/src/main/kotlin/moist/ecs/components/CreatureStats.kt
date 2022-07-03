@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Pool.Poolable
+import ktx.ashley.mapperFor
 import ktx.log.debug
 import ktx.math.random
 import ktx.math.vec2
@@ -19,7 +20,7 @@ class CreatureStats : Component, Poolable {
     var isMoving = false
     var gender = genders.random()
     val direction = vec2()
-    var targetTile: Tile? = null
+    var targetTile: SeaTile? = null
     var targetFish: Entity? = null
     var fishPlayScore = (0.1f..0.9f).random().toDouble()
     var growthValue = 75f
@@ -57,10 +58,19 @@ class CreatureStats : Component, Poolable {
         energy = fishStartEnergy()
     }
     companion object {
+        private val mapper = mapperFor<CreatureStats>()
         private var Id = 0
         fun getFishId():Int {
             Id += 1
             return Id
+        }
+
+        fun has(entity: Entity): Boolean {
+            return mapper.has(entity)
+        }
+
+        fun get(entity:Entity): CreatureStats {
+            return mapper.get(entity)
         }
     }
 }

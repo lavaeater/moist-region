@@ -2,6 +2,8 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import eater.ai.AiComponent
+import eater.core.world
 import ktx.ashley.allOf
 import ktx.log.debug
 import moist.ai.AiCounter
@@ -12,7 +14,6 @@ import moist.core.randomShark
 import moist.ecs.components.CreatureStats
 import moist.ecs.components.Fish
 import moist.ecs.components.Shark
-import moist.world.world
 
 class FishDeathSystem : IteratingSystem(allOf(CreatureStats::class).get()) {
     val fishFamily = allOf(Fish::class).get()
@@ -23,7 +24,7 @@ class FishDeathSystem : IteratingSystem(allOf(CreatureStats::class).get()) {
         val fish = entity.creature()
         if (fish.energy < 0f && fish.canDie) {
             debug { "Fish Died, mate!" }
-            val ai = AshleyMappers.ai.get(entity)
+            val ai = AiComponent.get(entity)
             val action = ai.topAction(entity)!!
             AiCounter.addToCounter(action, -1)
             AiCounter.eventCounter["Deaths"] = AiCounter.eventCounter["Deaths"]!! + 1

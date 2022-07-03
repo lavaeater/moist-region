@@ -1,7 +1,9 @@
-package eater.ai
+package moist.ai
+
+import eater.ai.AiAction
 
 object AiCounter {
-    fun addToCounter(action: eater.ai.AiAction, value: Int) {
+    fun addToCounter(action: AiAction, value: Int) {
         if(!actionCounter.containsKey(action)) {
             actionCounter[action] = value
         } else {
@@ -9,7 +11,7 @@ object AiCounter {
         }
 
     }
-    val actionCounter = mutableMapOf<eater.ai.AiAction, Int>()
+    val actionCounter = mutableMapOf<AiAction, Int>()
     val eventCounter = mutableMapOf("Births" to 0, "Deaths" to 0)
     var currentState = "Moving"
 }

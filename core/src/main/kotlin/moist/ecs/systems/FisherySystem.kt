@@ -2,6 +2,7 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import eater.core.world
 import ktx.ashley.allOf
 import ktx.log.debug
 import moist.core.GameConstants
@@ -9,10 +10,8 @@ import moist.core.GameStats
 import moist.core.randomFish
 import moist.core.randomShark
 import moist.ecs.components.City
-import moist.ecs.components.CreatureStats
 import moist.ecs.components.Fish
 import moist.ecs.components.Shark
-import moist.world.world
 
 class FisherySystem : IteratingSystem(allOf(City::class).get()) {
 

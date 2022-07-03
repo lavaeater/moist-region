@@ -1,8 +1,4 @@
-package eater.ecs.components
-
-interface TileManager {
-
-}
+package eater.world
 
 interface Tile {
     val neighbours: MutableList<Tile>

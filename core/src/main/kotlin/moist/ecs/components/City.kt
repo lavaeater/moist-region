@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool.Poolable
+import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class City : Component, Poolable {
@@ -23,6 +24,15 @@ class City : Component, Poolable {
         windForce.setZero()
         food = 100f// FoodMax / 2
         potentialCatches.clear()
+    }
+    companion object {
+        private val mapper = mapperFor<City>()
+        fun get(entity: Entity): City {
+            return mapper.get(entity)
+        }
+        fun has(entity: Entity): Boolean {
+            return mapper.has(entity)
+        }
     }
 }
 

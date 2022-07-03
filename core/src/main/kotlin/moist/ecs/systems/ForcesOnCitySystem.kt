@@ -3,16 +3,18 @@ package moist.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
+import eater.ecs.components.Box2d
 import ktx.ashley.allOf
 import ktx.math.times
 import moist.core.GameConstants
 import moist.core.GameConstants.WindMagnitude
-import moist.ecs.components.Box
 import moist.ecs.components.City
 import moist.world.SeaManager
+import moist.world.tileX
+import moist.world.tileY
 
 
-class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(allOf(Box::class, City::class).get()) {
+class ForcesOnCitySystem(private val seaManager: SeaManager) : IteratingSystem(allOf(Box2d::class, City::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val body = entity.body()
         val city = entity.city()

@@ -4,22 +4,22 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
+import eater.ecs.components.Box2d
 import ktx.ashley.allOf
 import ktx.math.minus
 import ktx.math.times
 import ktx.math.vec2
 import moist.core.GameConstants.FishEnergyExpenditurePerSecond
-import moist.core.shark
-import moist.ecs.components.Box
 import moist.ecs.components.CreatureStats
 import moist.ecs.components.Fish
 import moist.ecs.components.Shark
+import moist.world.currentTile
 
 class FishMovementSystem : IteratingSystem(
     allOf(
         Fish::class,
         CreatureStats::class,
-        Box::class
+        Box2d::class
     ).get()
 ) {
     private val separationRange = 75f

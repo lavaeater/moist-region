@@ -9,6 +9,15 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import eater.core.MainGame
+import eater.core.SelectedItemList
+import eater.core.engine
+import eater.core.selectedItemListOf
+import eater.ecs.components.Box2d
+import eater.ecs.components.CameraFollow
+import eater.injection.InjectionContext.Companion.inject
+import eater.input.KeyPress
+import eater.input.command
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
@@ -26,11 +35,7 @@ import moist.ecs.components.*
 import moist.ecs.systems.CityHungerSystem
 import moist.ecs.systems.body
 import moist.ecs.systems.city
-import moist.injection.Context.inject
-import moist.input.KeyPress
-import moist.input.command
 import moist.ui.Hud
-import moist.world.engine
 
 class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private val batch = inject<PolygonSpriteBatch>()
@@ -198,7 +203,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
         checkGameConditions()
     }
 
-    val bodyFamily = allOf(Box::class).get()
+    val bodyFamily = allOf(Box2d::class).get()
     val allBodies get() = engine().getEntitiesFor(bodyFamily)
 
     private fun checkGameConditions() {
@@ -210,7 +215,7 @@ class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
 
             for (entity in allBodies) {
                 world.destroyBody(entity.body())
-                entity.remove<Box>()
+                entity.remove<Box2d>()
             }
 
             for (system in engine().systems)

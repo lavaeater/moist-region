@@ -2,19 +2,20 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import eater.core.world
+import eater.ecs.components.Box2d
+import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.ashley.remove
 import ktx.math.times
 import moist.core.GameConstants.CloudMagnitude
 import moist.core.GameConstants.MinClouds
 import moist.core.cloud
-import moist.ecs.components.Box
 import moist.ecs.components.Cloud
-import moist.injection.Context.inject
 import moist.world.SeaManager
-import moist.world.world
+import moist.world.currentTile
 
-class CloudSystem: IteratingSystem(allOf(Cloud::class, Box::class).get()) {
+class CloudSystem: IteratingSystem(allOf(Cloud::class, Box2d::class).get()) {
     private val cloudFamily = allOf(Cloud::class).get()
     private val allClouds get() = engine.getEntitiesFor(cloudFamily)
     private val seaManager by lazy { inject<SeaManager>() }
@@ -34,7 +35,7 @@ class CloudSystem: IteratingSystem(allOf(Cloud::class, Box::class).get()) {
         val currentTile = body.currentTile()
         if(seaManager.getCurrentTiles().all { it != currentTile }) {
             world().destroyBody(body)
-            entity.remove<Box>()
+            entity.remove<Box2d>()
             engine.removeEntity(entity)
         } else {
             val cloud = entity.cloud()
