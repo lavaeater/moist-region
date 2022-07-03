@@ -1,9 +1,10 @@
 package moist.world
 
+import eater.ecs.components.Tile
 import moist.core.GameConstants
 import moist.ecs.components.Tile
 
-data class TileChunk(val key: ChunkKey) {
+data class TileChunk<T: Tile>(val key: ChunkKey) {
     constructor(x: Int, y: Int) : this(ChunkKey(x, y))
 
     val chunkX = key.chunkX
@@ -15,7 +16,7 @@ data class TileChunk(val key: ChunkKey) {
     val tiles = Array(GameConstants.MaxTilesPerSide * GameConstants.MaxTilesPerSide) { i ->
         val x = (i % GameConstants.MaxTilesPerSide) + chunkX * GameConstants.MaxTilesPerSide
         val y = (i / GameConstants.MaxTilesPerSide) + chunkY * GameConstants.MaxTilesPerSide
-        Tile(x, y)
+         Tile(x, y)
     }
     var neighboursAreFixed = false
 

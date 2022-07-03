@@ -20,7 +20,7 @@ inline fun <reified T: Tile>emptyArray():Array<T> {
 
 abstract class AbstractTileManager<T: Tile> {
     private val chunks = mutableMapOf<ChunkKey, TileChunk>()
-    var allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+    var allTiles: List<T> = chunks.values.flatMap<TileChunk, T> { it.tiles }.toList()
     private var currentWorldX = 5000
     private var currentWorldY = 5000
     private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
