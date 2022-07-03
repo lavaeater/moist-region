@@ -46,15 +46,14 @@ class SeaManager {
 
     private fun getOrCreateChunk(key: ChunkKey): TileChunk {
         if (!chunks.containsKey(key)) {
-            chunks[key] = createChunk(key).apply {
-                info { "Created another ${this.tiles.count()} tiles for a total of ${allTiles.count() + this.tiles.count()} in the world" }
-            }
+            chunks[key] = createChunk(key)
         }
         return chunks[key]!!
     }
 
     private fun createChunk(key: ChunkKey): TileChunk {
         val newChunk = TileChunk(key)
+        info { "Created Chunk: $key" }
         for (tile in newChunk.tiles) {
             val d = scaleDomain.get(tile.x.toDouble() / 16, tile.y.toDouble() / 16)
             tile.apply {
@@ -126,6 +125,7 @@ class SeaManager {
                 currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
                 currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
                 allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
+                info { "$newChunkKey is new Center of ${allTiles.count()} tiles" }
                 fixNeighbours()
             }
         }
