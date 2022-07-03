@@ -1,7 +1,6 @@
 package moist.core
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Application.LOG_DEBUG
 import com.badlogic.gdx.Application.LOG_INFO
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -30,6 +29,7 @@ import moist.ecs.systems.city
 import moist.injection.Context.inject
 import moist.input.KeyPress
 import moist.input.command
+import moist.ui.Hud
 import moist.world.engine
 
 class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {

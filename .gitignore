@@ -24,5 +24,6 @@ hs_err_pid*
 
 .gradle/
 .idea/
+lava/build/
 core/build/
 lwjgl3/build/

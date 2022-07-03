@@ -8,17 +8,17 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Fixture
+import eater.ai.UtilityAiComponent
+import eater.ecs.components.CameraFollow
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import ktx.graphics.use
-import ktx.math.minus
 import ktx.math.plus
 import ktx.math.times
-import ktx.math.vec2
-import moist.ai.UtilityAiComponent
 import moist.core.Assets
 import moist.core.GameConstants
 import moist.ecs.components.*
+import moist.world.currentTile
 
 fun Fixture.isCreature(): Boolean {
     return this.body.userData is Entity && (this.body.userData as Entity).isCreature()

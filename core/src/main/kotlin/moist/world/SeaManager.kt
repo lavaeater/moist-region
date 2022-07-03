@@ -1,114 +1,38 @@
 package moist.world
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.Body
 import com.sudoplay.joise.module.ModuleAutoCorrect
 import com.sudoplay.joise.module.ModuleBasisFunction
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
 import com.sudoplay.joise.module.ModuleScaleDomain
 import eater.ecs.components.Tile
+import eater.injection.Context.inject
+import eater.injection.InjectionContext.Companion.inject
+import eater.world.*
 import ktx.log.info
+import moist.core.GameConstants
 import moist.core.GameConstants.MaxTilesPerSide
 import moist.core.GameConstants.MaxWaterTemp
 import moist.core.GameConstants.MinWaterTemp
+import moist.core.GameConstants.TileSize
 import moist.ecs.components.SeaTile
 
-inline fun <reified T: Tile>emptyArray():Array<T> {
-    return kotlin.emptyArray()
+
+fun Body.currentTile() : SeaTile {
+    return inject<SeaManager>().getTileAt(this.tileX(TileSize), this.tileY(TileSize))
 }
 
-abstract class AbstractTileManager<T: Tile> {
-    private val chunks = mutableMapOf<ChunkKey, TileChunk>()
-    var allTiles: List<T> = chunks.values.flatMap<TileChunk, T> { it.tiles }.toList()
-    private var currentWorldX = 5000
-    private var currentWorldY = 5000
-    private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
-    private var currentChunks = emptyArray<TileChunk>()
-    private var currentTiles = kotlin.emptyArray<Tile>()
-    private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
-        return ChunkKey.keyForTileCoords(x, y)
-    }
-
-    private fun getOrCreateChunk(key: ChunkKey): TileChunk {
-        if (!chunks.containsKey(key)) {
-            chunks[key] = createChunk(key)
-        }
-        return chunks[key]!!
-    }
-
-    protected abstract fun createChunk(key: ChunkKey): TileChunk
-    fun getCurrentTiles(): Array<T> {
-        return currentTiles
-    }
-
-    fun getCurrentChunks(): Array<TileChunk> {
-        return currentChunks
-    }
-
-    /**
-     * Returns the chunk that x and y belongs to
-     * and all neigbouring chunks
-     */
-    fun updateCurrentChunks(tileX: Int, tileY: Int) {
-        if (tileX != currentWorldX && tileY != currentWorldY) {
-            currentWorldX = tileX
-            currentWorldY = tileY
-            val newChunkKey = chunkKeyFromTileCoords(tileX, tileY)
-            if (currentChunkKey != newChunkKey) {
-                currentChunkKey = newChunkKey
-                val minX = currentChunkKey.chunkX - 2
-                val maxX = currentChunkKey.chunkX + 2
-                val minY = currentChunkKey.chunkY - 2
-                val maxY = currentChunkKey.chunkY + 2
-                val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten()
-                currentChunks = keys.map { getOrCreateChunk(it) }.toTypedArray()
-                currentTiles = currentChunks.map { it.tiles }.toTypedArray().flatten().toTypedArray()
-                allTiles = chunks.values.map { it.tiles }.toTypedArray().flatten().toTypedArray()
-                info { "$newChunkKey is new Center of ${allTiles.count()} tiles" }
-                fixNeighbours()
-            }
-        }
-    }
-
-    private fun hasNeighbours(chunkKey: ChunkKey): Boolean {
-        val minX = chunkKey.chunkX - 1
-        val maxX = chunkKey.chunkX + 1
-        val minY = chunkKey.chunkY - 1
-        val maxY = chunkKey.chunkY + 1
-        val keys = (minX..maxX).map { x -> (minY..maxY).map { y -> ChunkKey(x, y) } }.flatten() - chunkKey
-        return keys.all { chunks.containsKey(it) }
-    }
-
-    private fun fixNeighbours() {
-        for ((key, chunk) in chunks.filterValues { !it.neighboursAreFixed }) {
-            if (hasNeighbours(key)) {
-                chunk.neighboursAreFixed = true
-                for (x in chunk.minX..chunk.maxX)
-                    for (y in chunk.minY..chunk.maxY) {
-                        val tile = chunk.getTileAt(x, y)
-                        if (tile.neighbours.count() < 8) {
-                            tile.neighbours.clear()
-                            for (offsetX in -1..1)
-                                for (offsetY in -1..1) {
-                                    val nX = x + offsetX
-                                    val nY = y + offsetY
-                                    val nTile = getTileAt(nX, nY)
-                                    tile.neighbours.add(nTile)
-                                }
-                        }
-                    }
-            }
-        }
-    }
-
-    fun getTileAt(worldX: Int, worldY: Int): Tile {
-        val chunkKey = chunkKeyFromTileCoords(worldX, worldY)
-        return getOrCreateChunk(chunkKey).getTileAt(worldX, worldY)
-    }
+fun Body.tileX(): Int {
+    return this.tileX(TileSize)
 }
 
-class SeaManager : AbstractTileManager<SeaTile>() {
+fun Body.tileY():Int {
+    return this.tileY(TileSize)
+}
+
+
+class SeaManager : AbstractTileManager<SeaTile>(MaxTilesPerSide) {
     private val basis = ModuleBasisFunction()
     private val correct = ModuleAutoCorrect()
     private val scaleDomain = ModuleScaleDomain()
@@ -130,8 +54,8 @@ class SeaManager : AbstractTileManager<SeaTile>() {
         scaleDomain.setScaleY(MaxTilesPerSide / 100.0)
     }
 
-    override fun createChunk(key: ChunkKey): TileChunk {
-        val newChunk = TileChunk(key)
+    override fun createChunk(key: ChunkKey): TileChunk<SeaTile> {
+        val newChunk = TileChunk(key, MaxTilesPerSide) { x, y -> SeaTile(x, y) }
         info { "Created Chunk: $key" }
         for (tile in newChunk.tiles) {
             val d = scaleDomain.get(tile.x.toDouble() / 16, tile.y.toDouble() / 16)
@@ -156,7 +80,7 @@ class SeaManager : AbstractTileManager<SeaTile>() {
         }
 
         for (tile in newChunk.tiles) {
-            val target = tile.neighbours.minByOrNull { it.waterTemp }
+            val target = tile.neighbours.minByOrNull { (it as SeaTile ).waterTemp } as SeaTile
             if (target != null && target.waterTemp < tile.waterTemp) {
                 /*
                 Now we create a force vector pointing towards the target, and
@@ -190,6 +114,4 @@ class SeaManager : AbstractTileManager<SeaTile>() {
      *  And more green with depth.
      *
      */
-
-
 }

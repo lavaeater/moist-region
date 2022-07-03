@@ -6,24 +6,26 @@ import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
+import eater.ai.UtilityAiComponent
+import eater.core.engine
+import eater.core.world
+import eater.ecs.components.Box2d
+import eater.ecs.components.CameraFollow
+import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.*
 import ktx.math.*
-import moist.ai.UtilityAiActions
-import moist.ai.UtilityAiComponent
 import moist.core.GameConstants.SharkMaxVelocity
 import moist.ecs.components.*
 import moist.ecs.systems.body
 import moist.ecs.systems.city
 import moist.injection.Context
 import moist.world.SeaManager
-import moist.world.engine
-import moist.world.world
 
 fun city(cameraFollow: Boolean = true): Entity {
     return engine().entity {
-        with<Box> {
+        with<Box2d> {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
@@ -49,11 +51,11 @@ fun city(cameraFollow: Boolean = true): Entity {
         if(cameraFollow)
             with<CameraFollow>()
         with<Renderable> {
-            val sprite = Context.inject<Assets>().citySprite
+            val sprite = inject<Assets>().citySprite
             val cityColor = Color(0f, 0f, 0f, .3f)
             val spritePos = vec2()
             renderType = RenderType.SelfRender(2) { batch, _ ->
-                val shapeDrawer = Context.inject<Assets>().shapeDrawer
+                val shapeDrawer = inject<Assets>().shapeDrawer
                 val body = this@entity.entity.body()
                 val position = body.position
                 val city = this@entity.entity.city()
@@ -98,7 +100,7 @@ fun city(cameraFollow: Boolean = true): Entity {
 
 fun cloud(cloudPos: Vector2) {
     engine().entity {
-        with<Box> {
+        with<Box2d> {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
@@ -129,7 +131,7 @@ fun cloud(cloudPos: Vector2) {
 
 fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
     engine().entity {
-        with<Box> {
+        with<Box2d> {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
@@ -150,7 +152,7 @@ fun fish(fishPos: Vector2, cameraFollow: Boolean = false) {
         if(cameraFollow)
             with<CameraFollow>()
         with<UtilityAiComponent> {
-            actions.addAll(UtilityAiActions.fishActions)
+            actions.addAll(Fish.fishActions)
         }
         with<Renderable> {
             renderType = RenderType.RenderAnimation(0, Context.inject<Assets>().fishAnim)

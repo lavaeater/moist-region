@@ -2,7 +2,8 @@ package moist.ecs.components
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
-import eater.injection.Context.inject
+import eater.ecs.components.Tile
+import eater.injection.InjectionContext.Companion.inject
 import ktx.math.random
 import ktx.math.vec2
 import moist.core.GameConstants.TileSize
@@ -17,7 +18,6 @@ data class SeaTile(
     var airTemp: Float = 15f,
     var currentFood: Float = (25f..TileStartFood).random()
 ) : Tile {
-    val neighbours = mutableListOf<SeaTile>()
     val color = Color(1f, 0f, 1f, 0.7f)
 
     var originalDepth: Float = 0f
@@ -28,28 +28,15 @@ data class SeaTile(
             field.set((x * TileSize + TileSize / 2), (y * TileSize + TileSize / 2))
             return field
         }
+    override val neighbours = mutableListOf<Tile>()
+    val seaNeighbours: List<SeaTile> get() = neighbours.map { it as SeaTile }
 }
 
-fun SeaTile.someTileAt(distance: Int, directionX: Int, directionY: Int): SeaTile {
+fun Tile.someTileAt(distance: Int, directionX: Int, directionY: Int): Tile {
     val targetX = this.x + directionX * distance
     val targetY = this.y + directionY * distance
     val seaManager = inject<SeaManager>()
     return seaManager.getTileAt(targetX, targetY)
-}
-
-sealed class TileDirection(val x: Int, val y: Int) {
-    object West : TileDirection(-1, 0)
-    object NorthWest : TileDirection(-1, -1)
-    object North : TileDirection(0, -1)
-    object NorthEast : TileDirection(1, -1)
-    object East : TileDirection(1, 0)
-    object SouthEast : TileDirection(1, 1)
-    object South : TileDirection(0, 1)
-    object SouthWest : TileDirection(-1, 1)
-
-    companion object {
-        val directions = listOf(West, NorthWest, North, NorthEast, East, SouthEast, South, SouthWest)
-    }
 }
 
 fun SeaTile.someAreaAt(distance: Int, direction: TileDirection, radius: Int): List<SeaTile> {

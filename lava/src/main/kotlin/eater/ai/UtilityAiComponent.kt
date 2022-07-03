@@ -6,14 +6,14 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class UtilityAiComponent : Component, Pool.Poolable {
-    val actions = mutableListOf<eater.ai.AiAction>()
-    private var currentAction: eater.ai.AiAction? = null
+    val actions = mutableListOf<AiAction>()
+    private var currentAction: AiAction? = null
 
     fun updateAction(entity: Entity) {
         actions.sortByDescending { it.score(entity) }
     }
 
-    fun topAction(entity: Entity): eater.ai.AiAction? {
+    fun topAction(entity: Entity): AiAction? {
         val potentialAction = actions.first()
         if (currentAction != potentialAction) {
             if (currentAction != null)

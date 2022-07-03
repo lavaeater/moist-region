@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.*
+import eater.injection.InjectionContext.Companion.inject
 import ktx.assets.*
 import ktx.collections.GdxArray
 import moist.injection.Context
@@ -26,7 +27,7 @@ class Assets(assetManager: AssetManager): DisposableRegistry by DisposableContai
     }
 
     val shapeDrawer by lazy {
-        ShapeDrawer(Context.inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
+        ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
     }
 
     private val cityTexture by assetManager.loadOnDemand<Texture>("textures/city.png")

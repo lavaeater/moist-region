@@ -2,11 +2,7 @@ package eater.injection
 
 import ktx.inject.Context
 
-object Context {
-    val context = Context()
-    inline fun <reified T> inject(): T {
-        return context.inject()
-    }
+open class InjectionContext {
 
     /**
      * Call this method with your context building needs.
@@ -14,5 +10,13 @@ object Context {
      */
     fun buildContext(init: Context.() -> Unit) {
         context.init()
+    }
+
+    companion object {
+        val context = Context()
+        inline fun <reified T> inject(): T {
+            return context.inject()
+        }
+
     }
 }

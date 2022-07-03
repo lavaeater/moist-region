@@ -1,4 +1,4 @@
-package moist.ecs.components
+package moist.ui
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
@@ -9,6 +9,9 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import eater.core.engine
+import eater.ecs.components.CameraFollow
+import eater.injection.InjectionContext.Companion.inject
 import ktx.actors.stage
 import ktx.actors.txt
 import ktx.ashley.allOf
@@ -18,10 +21,12 @@ import ktx.scene2d.*
 import moist.core.Assets
 import moist.core.GameConstants
 import moist.core.GameStats
+import moist.ecs.components.City
+import moist.ecs.components.Fish
+import moist.ecs.components.GlobalDebug
+import moist.ecs.components.Shark
 import moist.ecs.systems.*
-import moist.injection.Context
-import moist.injection.Context.inject
-import moist.world.engine
+import moist.world.currentTile
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -32,7 +37,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val hudHeight = hudWidth * aspectRatio
     private val camera = OrthographicCamera()
     private val hudViewPort = ExtendViewport(hudWidth, hudHeight, camera)
-    private val worldCamera by lazy { Context.inject<OrthographicCamera>() }
+    private val worldCamera by lazy { inject<OrthographicCamera>() }
 
     private val projectionVector = vec3()
     private val _projectionVector = vec2()
