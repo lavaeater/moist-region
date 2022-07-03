@@ -12,6 +12,7 @@ import eater.ecs.systems.CurrentChunkSystem
 import eater.ecs.systems.UpdateActionsSystem
 import eater.ecs.systems.UtilityAiSystem
 import eater.injection.InjectionContext
+import eater.world.ITileManager
 import ktx.box2d.createWorld
 import moist.core.Assets
 import moist.core.GameConstants.GameHeight
@@ -22,8 +23,7 @@ import moist.ecs.systems.*
 import moist.world.SeaManager
 
 object Context : InjectionContext() {
-
-    init {
+    fun initialize() {
         buildContext {
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())
@@ -47,7 +47,7 @@ object Context : InjectionContext() {
     private fun getEngine(): Engine {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
-            addSystem(CurrentChunkSystem(inject(), TileSize))
+            addSystem(CurrentChunkSystem(inject<SeaManager>() as ITileManager, TileSize))
             addSystem(RenderSystem(inject(), inject()))
             addSystem(SeaCurrentSystem(inject()))
             addSystem(WindSystem(inject()))

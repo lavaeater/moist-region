@@ -40,14 +40,11 @@ import moist.ui.Hud
 class GameScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
     private val batch = inject<PolygonSpriteBatch>()
     private val assets = inject<Assets>()
-    private var needsInit = true
     private val viewPort: ExtendViewport by lazy { inject() }
     private val camera: OrthographicCamera by lazy { inject() }
 
-    private val movementVector = vec2(0f, 0f)
     private var cameraZoom = 0f
     private val zoomFactor = 0.1f
-    private val cameraSpeed = 10f
 
     private val velIters = 8
     private val posIters = 3
