@@ -25,7 +25,7 @@ abstract class AbstractTileManager<T: Tile> {
     private var currentWorldY = 5000
     private var currentChunkKey = ChunkKey(currentWorldX, currentWorldY)
     private var currentChunks = emptyArray<TileChunk>()
-    private lateinit var currentTiles: Array<T>
+    private var currentTiles = kotlin.emptyArray<Tile>()
     private fun chunkKeyFromTileCoords(x: Int, y: Int): ChunkKey {
         return ChunkKey.keyForTileCoords(x, y)
     }
