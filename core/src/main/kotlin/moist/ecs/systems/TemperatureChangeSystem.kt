@@ -11,13 +11,13 @@ import kotlin.math.absoluteValue
 class TemperatureChangeSystem(private val seaManager: SeaManager) : IntervalSystem(2f) {
     override fun updateInterval() {
         for (tile in seaManager.allTiles) {
-            if (tile.neighbours.filter { it.waterTemp > tile.waterTemp }.count() > 4) {
+            if (tile.seaNeighbours.filter { it.waterTemp > tile.waterTemp }.count() > 4) {
                 if ((1..100).random() > 55) {
-                    tile.waterTemp = MathUtils.lerp(tile.waterTemp, tile.neighbours.maxOf { it.waterTemp }, 0.5f)
+                    tile.waterTemp = MathUtils.lerp(tile.waterTemp, tile.seaNeighbours.maxOf { it.waterTemp }, 0.5f)
                 }
-            } else if (tile.neighbours.filter { it.waterTemp < tile.waterTemp }.count() > 4) {
+            } else if (tile.seaNeighbours.filter { it.waterTemp < tile.waterTemp }.count() > 4) {
                 if ((1..100).random() > 55) {
-                    tile.waterTemp = MathUtils.lerp(tile.waterTemp, tile.neighbours.minOf { it.waterTemp }, 0.5f)
+                    tile.waterTemp = MathUtils.lerp(tile.waterTemp, tile.seaNeighbours.minOf { it.waterTemp }, 0.5f)
                 }
             }
             val y = if (tile.y == 0) 1 else tile.y
