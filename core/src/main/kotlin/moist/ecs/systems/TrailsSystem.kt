@@ -2,27 +2,20 @@ package moist.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
-import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Vector
 import com.badlogic.gdx.math.Vector2
+import eater.core.engine
+import eater.ecs.components.Box2d
+import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.math.random
-import ktx.math.times
 import ktx.math.vec2
 import moist.core.Assets
-import moist.core.GameConstants
-import moist.core.GameConstants.WindMagnitude
-import moist.ecs.components.Box
 import moist.ecs.components.City
 import moist.ecs.components.RenderType
 import moist.ecs.components.Renderable
-import moist.injection.Context.inject
-import moist.world.SeaManager
-import moist.world.engine
 
 object TrailColor {
     val trailColor = Color(1f, 1f, 1f,0.5f)
@@ -46,7 +39,7 @@ fun trails(at: Vector2) {
     }
 }
 
-class TrailsSystem : IntervalIteratingSystem(allOf(Box::class, City::class).get(),0.25f) {
+class TrailsSystem : IntervalIteratingSystem(allOf(Box2d::class, City::class).get(),0.25f) {
     override fun processEntity(entity: Entity) {
         val body = entity.body()
         val position = body.position
