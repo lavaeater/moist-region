@@ -4,6 +4,6 @@ eclipse.project.name = appName + '-core'
 dependencies {
 	api "com.badlogicgames.gdx:gdx:$gdxVersion"
 	api "io.github.libktx:ktx-app:$ktxVersion"
-	implementation project(':lava')
+	implementation project(':gdx-lava')
 
 }
