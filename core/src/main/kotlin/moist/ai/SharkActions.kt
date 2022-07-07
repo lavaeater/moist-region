@@ -173,7 +173,7 @@ object SharkActions {
         }
 
 
-    }, SharkHunting::class.java)
+    }, SharkHunting::class)
 
     val sharkFamily = allOf(Shark::class, Box2d::class).get()
     val allSharks get() = engine().getEntitiesFor(sharkFamily)
@@ -248,5 +248,5 @@ object SharkActions {
             }
             MatingState.JustMated -> {}
         }
-    }, SharkMating::class.java)
+    }, SharkMating::class)
 }
